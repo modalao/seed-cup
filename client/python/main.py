@@ -186,5 +186,49 @@ def termPlayAPI():
             client.send(actionPacket)
 
 
+def inferencePlayAPI():
+    """
+    we can put our strategy(after training) in this api.
+    """
+    ui = UI()
+    model = OurStrategy()  # NOTE: implement our model
+    
+    with Client() as client:
+        client.connect()
+        
+        initPacket = PacketReq(PacketType.InitReq, cliGetInitReq())
+        client.send(initPacket)
+        
+        # IO thread to display UI
+        t = Thread(target=recvAndRefresh, args=(ui, client))
+        t.start()
+        
+        print(gContext["prompt"])
+        for c in cycle(gContext["steps"]):
+            if gContext["gameBeginFlag"]:
+                break
+            print(
+                f"\r\033[0;32m{c}\033[0m \33[1mWaiting for the other player to connect...\033[0m",
+                flush=True,
+                end="",
+            )
+            sleep(0.1)
+
+        while not gContext["gameOverFlag"]:
+
+            key = model.get_action(gResponse)
+            
+            if key in key2ActionReq.keys():
+                action = ActionReq(gContext["playerID"], key2ActionReq[key])
+            else:
+                action = ActionReq(gContext["playerID"], ActionType.SILENT)
+            
+            if gContext["gameOverFlag"]:
+                break
+            
+            actionPacket = PacketReq(PacketType.ActionReq, action)
+            client.send(actionPacket)
+
+
 if __name__ == "__main__":
     termPlayAPI()
