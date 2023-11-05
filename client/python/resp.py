@@ -119,7 +119,7 @@ class Map(JsonBase):
         super().__init__()
         self.x = x
         self.y = y
-        self.last_bomb_round = last_bomb_round
+        self.last_bomb_round = last_bomb_round  # TODO: what's the meaning ???
         self.objs = objs
 
     def from_json(self, j: str):
