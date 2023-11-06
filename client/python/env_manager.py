@@ -54,6 +54,7 @@ class EnvManager():  # add your var and method under the class.
         self.cur_map = None
         self.next_map = None
         self.cur_round = 0
+        self.t = None
 
     
     def step(self, action):
@@ -62,16 +63,30 @@ class EnvManager():  # add your var and method under the class.
         you should only return the response when the response round changed.
         """
         self.cur_action = action
-        if self.resp.type is not PacketType.ActionResp:
-            pass  # you should finish this method
-        while self.resp.data.round == self.cur_round:  # ??
-            pass  # you should finish this method
+        while self.resp.type is not PacketType.ActionResp:
+            pass  
+        while self.resp.data.round != self.cur_round:  # ??
+            pass  
+        #calculate
 
-    def reset(self):
+    def reset(self):#return ?
         """
         restart the game
         """
+        global gContext, env
+        # 设置终止标志
+        gContext["gameOverFlag"]= True
 
+        # 等待UI线程结束
+        if self.t is not None:
+            self.t.join()
+
+        # 重新初始化 EnvManager
+        env = EnvManager()
+        gContext["gameOverFlag"]=False
+        gContext["gameBeginFlag"]=False
+        gContext["playerID"]=-1
+        env.start_game()
 
     def cliGetInitReq(self):
         """Get init request from user input."""
@@ -90,6 +105,8 @@ class EnvManager():  # add your var and method under the class.
             self.ui.player_id = gContext["playerID"]
 
         while self.resp.type != PacketType.GameOver:
+            if gContext["gameOverFlag"]: #add
+                break
             subprocess.run(["clear"])
             self.ui.refresh(self.resp.data)
             self.ui.display()
@@ -140,8 +157,8 @@ class EnvManager():  # add your var and method under the class.
             client.send(initPacket)
 
             # IO thread to display UI
-            t = Thread(target=self.recvAndRefresh, args=(client,))
-            t.start()
+            self.t = Thread(target=self.recvAndRefresh, args=(client,))
+            self.t.start()
 
             print(gContext["prompt"])
             for c in cycle(gContext["steps"]):
@@ -152,7 +169,6 @@ class EnvManager():  # add your var and method under the class.
                     flush=True,
                     end="",
                 )
-                print(gContext["gameBeginFlag"])
                 sleep(0.1)
 
             while not gContext["gameOverFlag"]:
