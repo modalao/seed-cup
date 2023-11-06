@@ -152,6 +152,7 @@ class EnvManager():  # add your var and method under the class.
                     flush=True,
                     end="",
                 )
+                print(gContext["gameBeginFlag"])
                 sleep(0.1)
 
             while not gContext["gameOverFlag"]:
