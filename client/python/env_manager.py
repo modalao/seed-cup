@@ -50,6 +50,7 @@ class EnvManager():  # add your var and method under the class.
         self.ui = UI()
         self.resp: PacketResp = None  # NOTE: when you use it, this var should be read only
         # reference for zrx
+        self.cur_action: tuple[ActionType, ActionType] = None
         self.cur_map = None
         self.next_map = None
         self.cur_round = 0
@@ -60,7 +61,11 @@ class EnvManager():  # add your var and method under the class.
         handle 1 action and return response
         you should only return the response when the response round changed.
         """
-        pass
+        self.cur_action = action
+        if self.resp.type is not PacketType.ActionResp:
+            pass  # you should finish this method
+        while self.resp.data.round == self.cur_round:  # ??
+            pass  # you should finish this method
 
     def reset(self):
         """
@@ -104,6 +109,27 @@ class EnvManager():  # add your var and method under the class.
         print("press any key to quit")
 
 
+    def getActionFromIO(self):
+        # key = scr.getch()
+        old_settings = termios.tcgetattr(sys.stdin)
+        tty.setcbreak(sys.stdin.fileno())
+        key = sys.stdin.read(1)
+        termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_settings)
+
+        if key in key2ActionReq.keys():
+            action = ActionReq(gContext["playerID"], key2ActionReq[key])
+        else:
+            action = ActionReq(gContext["playerID"], ActionType.SILENT)
+
+        return action
+    
+
+    def getActionFromModel(self, newActionType):
+        action1 = ActionReq(gContext["playerID"], newActionType[0])
+        action2 = ActionReq(gContext["playerID"], newActionType[1])
+        return action1, action2
+
+
     def start_game(self):
         self.ui = UI()  # create new ui
     
@@ -129,22 +155,31 @@ class EnvManager():  # add your var and method under the class.
                 sleep(0.1)
 
             while not gContext["gameOverFlag"]:
-                # key = scr.getch()
-                old_settings = termios.tcgetattr(sys.stdin)
-                tty.setcbreak(sys.stdin.fileno())
-                key = sys.stdin.read(1)
-                termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_settings)
-
-                if key in key2ActionReq.keys():
-                    action = ActionReq(gContext["playerID"], key2ActionReq[key])
-                else:
-                    action = ActionReq(gContext["playerID"], ActionType.SILENT)
-
+                ######### IO mode ##########
+                action = self.getActionFromIO()  # this need time.
                 if gContext["gameOverFlag"]:
                     break
-                
                 actionPacket = PacketReq(PacketType.ActionReq, action)
                 client.send(actionPacket)
+
+                ####### model mode ########
+                # action1, action2 = self.getActionFromModel(self.cur_action)  # need time
+
+                # if gContext["gameOverFlag"]:
+                #     break
+
+                # actionPacket = PacketReq(PacketType.ActionReq, action1)  # need time
+                # client.send(actionPacket)
+                # print("send action1")
+
+                # if gContext["gameOverFlag"]:
+                #     break
+
+                # actionPacket = PacketReq(PacketType.ActionReq, action2)  # need time
+                # client.send(actionPacket)
+                # print("send action2")
+
+
 
 
 # test
