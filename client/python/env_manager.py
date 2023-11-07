@@ -7,6 +7,7 @@ from config import config
 from ui import UI
 import subprocess
 import logging
+import threading
 from threading import Thread
 from itertools import cycle
 from time import sleep
@@ -51,23 +52,30 @@ action_list = [ActionType.MOVE_DOWN, ActionType.MOVE_LEFT, ActionType.MOVE_RIGHT
 
 class EnvManager():  # add your var and method under the class.
     def __init__(self) -> None:
-        self.ui = UI()
+        self.ui = None
         self.next_resp: PacketResp = None  # NOTE: when you use it, this var should be read only
         self.cur_resp: PacketResp = None  # last_resp = resp before update self.resp
         
         self.cur_action: tuple[ActionType, ActionType] = None  # action to take in this round
-
         self.cur_round = 0  # round_num of this round
-        self.t = None  # thread for recvAndRefresh
+
+        self.t_game = None  # thread for game.
+        self.t_ui = None  # thread for recvAndRefresh
+
+        self.lock_interaction = threading.Lock()  # lock for action/resp
+
         # init new action list(36 actions total)
         self.new_action_list = []
         for ac1 in action_list:
             for ac2 in action_list:
                 self.new_action_list.append((ac1, ac2))
         self.n_act = len(self.new_action_list)
+        
+        # with open("env.log", "w") as self.log:
+        #     self.log.write("init")
+        f.write("init")
 
-
-    def code_state(self,resp:PacketResp):
+    def encode_state(self,resp:PacketResp):
         #game over返回None，或者前一个地图
         if resp.type==PacketType.GameOver:
             return None
@@ -135,50 +143,76 @@ class EnvManager():  # add your var and method under the class.
         return reward
     
     
+     
+
+        
+
+        
     def step(self, action:tuple):#TODO:add bomb time?
         """
         handle 1 action and return response
         you should only return the response when the response round changed.
         """
-        while self.next_resp.data.round == self.cur_round:
+        f.write("enter step\n")
+        while self.next_resp is None or self.next_resp.data.round == self.cur_round:
+            # if self.next_resp is not None:
+            #     print(self.next_resp.data.round)
             continue
-        
+         
+        self.lock_interaction.acquire()  # avoid the competence
+        f.write("enter step lock\n")
+        # encode  
         self.cur_action = action
-        cur_state = self.code_state(self.cur_resp) 
-        next_state = self.code_state(self.next_resp)  
+        reward = self.calculateReward(self.cur_resp, self.next_resp, self.cur_action)  # TODO
+        cur_state = self.encode_state(self.cur_resp)  # TODO
+        next_state = self.encode_state(self.next_resp)  # TODO
         cur_player_my_state,cur_player_enemy_state = self.playerState(self.cur_resp)
         next_player_my_state,next_player_enemy_state =self.playerState(self.next_resp)
-        reward = self.calculateReward(self.cur_resp, self.next_resp, self.cur_action)  
+        is_over = self.next_resp.type == PacketType.GameOver
         # update
         self.cur_round = self.next_resp.data.round
         self.cur_resp = copy.deepcopy(self.next_resp)  # NOTE: deepcopy.
+        self.lock_interaction.release()  # avoid the competence
+        f.write("leave step\n")
         # return
-        if self.next_resp.type == PacketType.GameOver:
-            return cur_state, next_state, reward, 1  # 1 means done
-        return cur_state, next_state, reward, 0
+        return cur_state, next_state, reward, is_over
+    
+
+    def start(self):
+        self.t_game = Thread(target=self.start_game)
+        self.t_game.start()
+
 
     def reset(self):#return ?
         """
         restart the game
         """
-        global gContext, env
+        global gContext
         # 设置终止标志
         gContext["gameOverFlag"]= True
+        # close threads
+        if self.t_ui is not None:
+            self.t_ui.join()
+        if self.t_game is not None:
+            self.t_game.join()
 
-        # 等待UI线程结束
-        if self.t is not None:
-            self.t.join()
+        # 重新启动
+        self.ui = None
+        self.next_resp = None
+        self.cur_resp = None
+        self.cur_action = None
+        self.cur_round = 0
+        gContext["gameOverFlag"] = False
+        gContext["gameBeginFlag"] = False
+        gContext["playerID"] = -1
+        self.start()
+   
 
-        # 重新初始化 EnvManager
-        env = EnvManager()
-        gContext["gameOverFlag"]=False
-        gContext["gameBeginFlag"]=False
-        gContext["playerID"]=-1
-        env.start_game()
+
 
     def cliGetInitReq(self):
         """Get init request from user input."""
-        input("enter to start!")
+        # input("enter to start!")
         return InitReq(config.get("player_name"))
 
 
@@ -229,9 +263,16 @@ class EnvManager():  # add your var and method under the class.
         return action
     
 
-    def getActionFromModel(self, newActionType):
-        action1 = ActionReq(gContext["playerID"], newActionType[0])
-        action2 = ActionReq(gContext["playerID"], newActionType[1])
+    def getActionFromModel(self, newActionType:tuple=None):
+        while self.cur_action is None:
+            continue
+
+        self.lock_interaction.acquire()
+        action1 = ActionReq(gContext["playerID"], self.cur_action[0])
+        action2 = ActionReq(gContext["playerID"], self.cur_action[1])
+        self.cur_action = None
+        self.lock_interaction.release()
+
         return action1, action2
 
 
@@ -245,8 +286,8 @@ class EnvManager():  # add your var and method under the class.
             client.send(initPacket)
 
             # IO thread to display UI
-            self.t = Thread(target=self.recvAndRefresh, args=(client,))
-            self.t.start()
+            self.t_ui = Thread(target=self.recvAndRefresh, args=(client,))
+            self.t_ui.start()
 
             print(gContext["prompt"])
             for c in cycle(gContext["steps"]):
@@ -261,32 +302,44 @@ class EnvManager():  # add your var and method under the class.
 
             while not gContext["gameOverFlag"]:
                 ######### IO mode ##########
-                action = self.getActionFromIO()  # this need time.
-                if gContext["gameOverFlag"]:
-                    break
-                actionPacket = PacketReq(PacketType.ActionReq, action)
-                client.send(actionPacket)
+                # action = self.getActionFromIO()  # this need time.
+                # if gContext["gameOverFlag"]:
+                #     break
+                # actionPacket = PacketReq(PacketType.ActionReq, action)
+                # client.send(actionPacket)
 
                 ####### model mode ########
-                # action1, action2 = self.getActionFromModel(self.cur_action)  # need time
+                action1, action2 = self.getActionFromModel()  # need time
 
-                # if gContext["gameOverFlag"]:
-                #     break
+                if gContext["gameOverFlag"]:
+                    break
 
-                # actionPacket = PacketReq(PacketType.ActionReq, action1)  # need time
-                # client.send(actionPacket)
+                actionPacket = PacketReq(PacketType.ActionReq, action1)  # need time
+                client.send(actionPacket)
                 # print("send action1")
 
-                # if gContext["gameOverFlag"]:
-                #     break
+                if gContext["gameOverFlag"]:
+                    break
 
-                # actionPacket = PacketReq(PacketType.ActionReq, action2)  # need time
-                # client.send(actionPacket)
+                actionPacket = PacketReq(PacketType.ActionReq, action2)  # need time
+                client.send(actionPacket)
                 # print("send action2")
 
 
 
 
 # test
-env = EnvManager()
-env.start_game()
+with open("env.log", "w") as f:
+    env = EnvManager()
+    action_list = [(ActionType.MOVE_LEFT, ActionType.SILENT), 
+                   (ActionType.MOVE_RIGHT, ActionType.SILENT),
+                   (ActionType.MOVE_LEFT, ActionType.SILENT), 
+                   (ActionType.MOVE_RIGHT, ActionType.SILENT),
+                   (ActionType.MOVE_LEFT, ActionType.SILENT), 
+                   (ActionType.MOVE_RIGHT, ActionType.SILENT),
+                   (ActionType.MOVE_LEFT, ActionType.SILENT), 
+                   (ActionType.MOVE_RIGHT, ActionType.SILENT)]
+    env.start()
+    while True:
+        _, _, _, _ = env.step((ActionType.MOVE_LEFT, ActionType.SILENT))
+        _, _, _, _ = env.step((ActionType.MOVE_RIGHT, ActionType.SILENT))
