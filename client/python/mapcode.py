@@ -2,7 +2,7 @@ from enum import Enum
 from resp import *
 
 
-class Mapcode(Enum):
+class Mapcode(Enum):#player 放置炸弹状态是否编码？？
     #矩阵中值对应的含义
     BlockRemovable = 2
     BlockUnRemovable = -2

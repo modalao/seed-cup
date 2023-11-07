@@ -19,8 +19,16 @@ import sys
 import termios
 import tty
 import copy
+import reward
 
 
+
+rewardPriority={
+    1:reward.rewardBomb,
+    2:reward.rewardItem,
+    3:reward.awayFromBomb,
+    4:reward.nearItem,
+}
 key2ActionReq = {
     'w': ActionType.MOVE_UP,
     's': ActionType.MOVE_DOWN,
@@ -149,17 +157,6 @@ class EnvManager():  # add your var and method under the class.
                     break
         return my_player,enemy_player
     
-    def calRewardaction(self,action:tuple):#TODO  单纯根据6*6中action动作来reward
-        tot = 0
-        if action[0] == ActionType.SILENT and action[1] == ActionType.SILENT:#
-            tot = -10
-        elif action[0] == ActionType.PLACED and action[1] == ActionType.SILENT:
-            tot = -10
-        elif action[0] == ActionType.PLACED and action[1] in (ActionType.MOVE_LEFT, ActionType.MOVE_RIGHT, ActionType.MOVE_UP, ActionType.MOVE_DOWN):
-            tot = 10
-        
-        
-        return tot
 
     def nextPosition(self,x:int,y:int,action:ActionType):
         #经过动作后坐标x,y
@@ -174,44 +171,19 @@ class EnvManager():  # add your var and method under the class.
         else :
             return x,y
 
-    
-    def calRewardState(self,action:tuple,cur_map:Mapcode,cur_player_me:PlayerInfo):
-        #action该回合的两个动作，cur_map 当前状态地图信息，cur_player_me 我方信息
-        # TODO：完善
-        tot = 0
-        #first step
-        px = cur_player_me.position_x
-        py = cur_player_me.position_y
-        range_x = config.get("map_size")
-        range_y = config.get("map_size")
-        px1,py1 =self.nextPosition(px,py,action[0])
-        if px1<0 or px1>=range_x or py1<0 or py1>=range_y:   #移出边界
-            tot -=50
-        else:#没出边界
-            if cur_map[px1][py1] in (Mapcode.ItemHp,Mapcode.ItemNum,Mapcode.ItemBombRange,Mapcode.ItemInvencible,Mapcode.ItemShield):
-                tot +=20
-            
-        
-        #second step
-        px2,py2 =self.nextPosition(px1,py1,action[1])
-        if px2<0 or px2>=range_x or py2<0 or py2>=range_y:   #移出边界
-            tot -=50
-        else:#没出边界
-            if cur_map[px2][py2] in (Mapcode.ItemHp,Mapcode.ItemNum,Mapcode.ItemBombRange,Mapcode.ItemInvencible,Mapcode.ItemShield):
-                tot +=20
-        return tot
-    
-        
+     
     def calculateReward(self,cur_resp:PacketResp,next_resp:PacketResp,action:tuple,cur_map:Mapcode,cur_player_me:PlayerInfo,cur_player_enemy:PlayerInfo)->int:
         #形参为cur_resp当前resp报文，next_resp下一回合resp报文，action为该回合的两个动作，cur_map 当前状态地图信息,cur_player_me 我方信息，cur_player_enemy 敌方信息
-        #计算当前操作reward函数,补充各种reward函数 ，根据实际情况奖惩，越多越好，优先加重要的奖惩
-        #TODO 可自己定义calReward函数，可在已有的函数上改进,reward值取值 [10,100],[-100,-10]
+        #可利用形参计算当前操作reward函数,根据实际情况奖惩，
+        #TODO 填写rewardBomb，rewardItem，awayFromBomb，nearItem函数
         if cur_resp.type == PacketType.ActionResp and next_resp.type == PacketType.GameOver:#被炸死
             return -100
-        reward:int = 0
-        reward+=self.calRewardaction(action) 
-        reward+=self.calRewardState(action,cur_map,cur_player_me)
         
+        reward:int = 0
+        for i in sorted (rewardPriority) :#按键值排序，先调用优先级高的，返回reward
+            reward=rewardPriority[i](cur_resp,next_resp,cur_map,action,cur_player_me,cur_player_enemy)
+            if reward != 0:
+                return reward
         return reward
     
         
