@@ -11,9 +11,9 @@ from threading import Thread
 from itertools import cycle
 from time import sleep
 from logger import logger
-
+from mapcode import Mapcode
 from main import Client
-
+from playerInfo import PlayerInfo
 import sys
 import termios
 import tty
@@ -43,6 +43,7 @@ gContext = {
     "gameBeginFlag": False,
 }
 
+
 action_list = [ActionType.MOVE_DOWN, ActionType.MOVE_LEFT, ActionType.MOVE_RIGHT, ActionType.MOVE_UP, 
                     ActionType.PLACED, ActionType.SILENT]
 
@@ -65,21 +66,89 @@ class EnvManager():  # add your var and method under the class.
                 self.new_action_list.append((ac1, ac2))
         self.n_act = len(self.new_action_list)
 
+
+    def code_state(self,resp:PacketResp):
+        #game over返回None，或者前一个地图
+        if resp.type==PacketType.GameOver:
+            return None
+        else:
+            range_x = config.get("map_size")
+            range_y = config.get("map_size")
+            mapcode = [[Mapcode.NullBlock.value for _ in range(range_x)] for __ in range(range_y)]
+            actionResp:ActionResp=PacketResp.data
+            #refresh each block
+            myplayer_id = actionResp.player_id
+            for map in actionResp.map:
+                freshed = False
+                if len(map.objs):
+                    for obj in map.objs:
+                        #me
+                        if myplayer_id == obj.property.player_id and obj.property.alive:
+                            mapcode[map.x][map.y]=Mapcode.refresh(obj,False)
+                            freshed = True
+                            break
+                        #enemy
+                        elif myplayer_id != obj.property.player_id and obj.property.alive:
+                            mapcode[map.x][map.y]=Mapcode.refresh(obj,True)
+                            freshed = True
+                            break
+                
+                    if not freshed:
+                        mapcode[map.x][map.y]=Mapcode.refresh(map.objs[0])
+                else:
+                    mapcode[map.x][map.y]=Mapcode.refresh(None,False, actionResp.round == map.last_bomb_round)
+            return mapcode
+        
+    def playerState(resp:PacketResp) :
+        #计算当前player状态
+        my_player :PlayerInfo = None
+        enemy_player :PlayerInfo = None
+        my_id = gContext["playerID"]
+        enemy_id = 0 
+        if resp.type == PacketType.GameOver:
+            enemy_id = resp.data.scores[0]["player_id"]+resp.data.scores[1]["player_id"]-my_id
+            if gContext["playerID"] in resp.data.winner_ids:
+                my_player = PlayerInfo(game_over=True,player_is_me=True,player_id=my_id,alive=True)
+                enemy_player = PlayerInfo(game_over=True,player_is_me=False,player_id=enemy_id,alive=False)
+            else :
+                my_player = PlayerInfo(game_over=True,player_is_me=True,player_id=my_id,alive=False)
+                enemy_player = PlayerInfo(game_over=True,player_is_me=False,player_id=enemy_id,alive=True)
+        else :
+            
+        return my_player,enemy_player
+    
+    def calRewardaction(self,action:tuple):#TODO  
+        if action[0] == ActionType.SILENT and action[1] == ActionType.SILENT:
+            return -10
+        elif action[0] == ActionType.PLACED and action[1] == ActionType.SILENT:
+            return -10
+        elif action[0] == ActionType.PLACED and action[1] in (ActionType.MOVE_LEFT, ActionType.MOVE_RIGHT, ActionType.MOVE_UP, ActionType.MOVE_DOWN):
+            return 10
         
 
+    def calculateReward(self,cur_resp:PacketResp,next_resp:PacketResp,action:tuple):
+        #计算当前操作reward函数,补充各种reward函数 
+        reward:int = 0
+        reward+=self.calRewardaction(action) 
+        
+        #TODO
+        return reward
     
-    def step(self, action:tuple):
+    
+    def step(self, action:tuple):#TODO:add bomb time?
         """
         handle 1 action and return response
         you should only return the response when the response round changed.
         """
         while self.next_resp.data.round == self.cur_round:
             continue
-
+        
         self.cur_action = action
-        cur_state = self.code_state(self.cur_resp)  # TODO
-        next_state = self.code_state(self.next_resp)  # TODO
-        reward = self.calculateReward(self.cur_resp, self.next_resp, self.cur_action)  # TODO
+        cur_state = self.code_state(self.cur_resp) 
+        next_state = self.code_state(self.next_resp)  
+        cur_player_my_state,cur_player_enemy_state = self.playerState(self.cur_resp)
+        next_player_my_state,next_player_enemy_state =self.playerState(self.next_resp)
+        reward = self.calculateReward(self.cur_resp, self.next_resp, self.cur_action)  
         # update
         self.cur_round = self.next_resp.data.round
         self.cur_resp = copy.deepcopy(self.next_resp)  # NOTE: deepcopy.

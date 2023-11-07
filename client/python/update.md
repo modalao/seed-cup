@@ -11,3 +11,7 @@ add some to the step() and start_game()
 add some to step() ,reset(), recvAndRefresh()
 
 turn thread t to self.t
+
+
+### 2023/11/7 zrx
+add class Mapcode,code_state()

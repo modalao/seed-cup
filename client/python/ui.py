@@ -156,7 +156,6 @@ class UI(object):
                 
                 if not freshed:
                     self._block[map.x][map.y].refresh(map.objs[0])
-
             else:
                 self._block[map.x][map.y].refresh(None, actionResp.round == map.last_bomb_round)
 
