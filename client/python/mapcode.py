@@ -21,7 +21,7 @@ class Mapcode(Enum):
     me = 1
 
 
-    def refresh(self, obj:Obj, enemy =False,last_bomb = False) -> None:
+    def calulate(obj:Obj, enemy =False,last_bomb = False) -> None:
         if last_bomb:
             value = Mapcode.BombedBlock.value
         

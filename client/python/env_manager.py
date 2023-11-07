@@ -73,47 +73,52 @@ class EnvManager():  # add your var and method under the class.
         
         # with open("env.log", "w") as self.log:
         #     self.log.write("init")
-        f.write("init")
+        f.write("init\n")
 
     def encode_state(self,resp:PacketResp):
         #game over返回None，或者前一个地图
+        if resp == None:
+            return None
         if resp.type==PacketType.GameOver:
             return None
         else:
             range_x = config.get("map_size")
             range_y = config.get("map_size")
             mapcode = [[Mapcode.NullBlock.value for _ in range(range_x)] for __ in range(range_y)]
-            actionResp:ActionResp=PacketResp.data
+            actionResp:ActionResp=resp.data
             #refresh each block
             myplayer_id = actionResp.player_id
             for map in actionResp.map:
                 freshed = False
                 if len(map.objs):
                     for obj in map.objs:
+                        if not obj.type == ObjType.Player:
+                            continue 
                         #me
                         if myplayer_id == obj.property.player_id and obj.property.alive:
-                            mapcode[map.x][map.y]=Mapcode.refresh(obj,False)
+                            mapcode[map.x][map.y]=Mapcode.calulate(obj,False)
                             freshed = True
-                            break
-                        #enemy
-                        elif myplayer_id != obj.property.player_id and obj.property.alive:
-                            mapcode[map.x][map.y]=Mapcode.refresh(obj,True)
+
+                        #enemy  玩家可以重叠**
+                        if myplayer_id != obj.property.player_id and obj.property.alive:
+                            mapcode[map.x][map.y]=Mapcode.calulate(obj,True)
                             freshed = True
-                            break
                 
                     if not freshed:
-                        mapcode[map.x][map.y]=Mapcode.refresh(map.objs[0])
+                        mapcode[map.x][map.y]=Mapcode.calulate(map.objs[0])
                 else:
-                    mapcode[map.x][map.y]=Mapcode.refresh(None,False, actionResp.round == map.last_bomb_round)
+                    mapcode[map.x][map.y]=Mapcode.calulate(None,False, actionResp.round == map.last_bomb_round)
             return mapcode
         
-    def playerState(resp:PacketResp) :
+    def playerState(self, resp:PacketResp):
         #计算当前player状态
         my_player :PlayerInfo = None
         enemy_player :PlayerInfo = None
+        if resp == None:
+            return my_player,enemy_player
         my_id = gContext["playerID"]
-        enemy_id = 0 
-        if resp.type == PacketType.GameOver:
+        enemy_id = -1
+        if resp.type == PacketType.GameOver:#GameOver 对应的PlayerInfo
             enemy_id = resp.data.scores[0]["player_id"]+resp.data.scores[1]["player_id"]-my_id
             if gContext["playerID"] in resp.data.winner_ids:
                 my_player = PlayerInfo(game_over=True,player_is_me=True,player_id=my_id,alive=True)
@@ -121,32 +126,94 @@ class EnvManager():  # add your var and method under the class.
             else :
                 my_player = PlayerInfo(game_over=True,player_is_me=True,player_id=my_id,alive=False)
                 enemy_player = PlayerInfo(game_over=True,player_is_me=False,player_id=enemy_id,alive=True)
-        else :
-            
+        else :#ActionResp 对应的PlayerInfo
+            for map in resp.data.map:
+                flag = False
+                for obj in map.objs:
+                    if obj.type == ObjType.Player:
+                        if obj.property.player_id == my_id:
+                            my_player = PlayerInfo(position_x=map.x,position_y=map.y,position=map.x*15+map.y,
+                                player_id=my_id,player_is_me=True,alive=obj.property.alive,hp=obj.property.hp,
+                                shield_time=obj.property.shield_time,invincible_time=obj.property.invincible_time,
+                                score=obj.property.score,bomb_range=obj.property.bomb_range,bomb_max_num=obj.property.bomb_max_num,
+                                bomb_now_num=obj.property.bomb_now_num,speed=obj.property.speed)
+                            flag = True
+                        if obj.property.player_id != my_id:
+                            enemy_id=obj.property.player_id
+                            enemy_player=PlayerInfo(position_x=map.x,position_y=map.y,position=map.x*15+map.y,
+                                player_id=enemy_id,player_is_me=False,alive=obj.property.alive,hp=obj.property.hp,
+                                shield_time=obj.property.shield_time,invincible_time=obj.property.invincible_time,
+                                score=obj.property.score,bomb_range=obj.property.bomb_range,bomb_max_num=obj.property.bomb_max_num,
+                                bomb_now_num=obj.property.bomb_now_num,speed=obj.property.speed)
+                if flag and enemy_id != -1:
+                    break
         return my_player,enemy_player
     
-    def calRewardaction(self,action:tuple):#TODO  
-        if action[0] == ActionType.SILENT and action[1] == ActionType.SILENT:
-            return -10
+    def calRewardaction(self,action:tuple):#TODO  单纯根据6*6中action动作来reward
+        tot = 0
+        if action[0] == ActionType.SILENT and action[1] == ActionType.SILENT:#
+            tot = -10
         elif action[0] == ActionType.PLACED and action[1] == ActionType.SILENT:
-            return -10
+            tot = -10
         elif action[0] == ActionType.PLACED and action[1] in (ActionType.MOVE_LEFT, ActionType.MOVE_RIGHT, ActionType.MOVE_UP, ActionType.MOVE_DOWN):
-            return 10
+            tot = 10
         
+        
+        return tot
 
-    def calculateReward(self,cur_resp:PacketResp,next_resp:PacketResp,action:tuple):
-        #计算当前操作reward函数,补充各种reward函数 
+    def nextPosition(self,x:int,y:int,action:ActionType):
+        #经过动作后坐标x,y
+        if action == ActionType.MOVE_DOWN:
+            return x+1,y
+        elif action == ActionType.MOVE_UP:
+            return x-1,y
+        elif action == ActionType.MOVE_LEFT:
+            return x,y-1
+        elif action == ActionType.MOVE_RIGHT:
+            return x,y+1
+        else :
+            return x,y
+
+    
+    def calRewardState(self,action:tuple,cur_map:Mapcode,cur_player_me:PlayerInfo):
+        #action该回合的两个动作，cur_map 当前状态地图信息，cur_player_me 我方信息
+        # TODO：完善
+        tot = 0
+        #first step
+        px = cur_player_me.position_x
+        py = cur_player_me.position_y
+        range_x = config.get("map_size")
+        range_y = config.get("map_size")
+        px1,py1 =self.nextPosition(px,py,action[0])
+        if px1<0 or px1>=range_x or py1<0 or py1>=range_y:   #移出边界
+            tot -=50
+        else:#没出边界
+            if cur_map[px1][py1] in (Mapcode.ItemHp,Mapcode.ItemNum,Mapcode.ItemBombRange,Mapcode.ItemInvencible,Mapcode.ItemShield):
+                tot +=20
+            
+        
+        #second step
+        px2,py2 =self.nextPosition(px1,py1,action[1])
+        if px2<0 or px2>=range_x or py2<0 or py2>=range_y:   #移出边界
+            tot -=50
+        else:#没出边界
+            if cur_map[px2][py2] in (Mapcode.ItemHp,Mapcode.ItemNum,Mapcode.ItemBombRange,Mapcode.ItemInvencible,Mapcode.ItemShield):
+                tot +=20
+        return tot
+    
+        
+    def calculateReward(self,cur_resp:PacketResp,next_resp:PacketResp,action:tuple,cur_map:Mapcode,cur_player_me:PlayerInfo,cur_player_enemy:PlayerInfo)->int:
+        #形参为cur_resp当前resp报文，next_resp下一回合resp报文，action为该回合的两个动作，cur_map 当前状态地图信息,cur_player_me 我方信息，cur_player_enemy 敌方信息
+        #计算当前操作reward函数,补充各种reward函数 ，根据实际情况奖惩，越多越好，优先加重要的奖惩
+        #TODO 可自己定义calReward函数，可在已有的函数上改进,reward值取值 [10,100],[-100,-10]
+        if cur_resp.type == PacketType.ActionResp and next_resp.type == PacketType.GameOver:#被炸死
+            return -100
         reward:int = 0
         reward+=self.calRewardaction(action) 
+        reward+=self.calRewardState(action,cur_map,cur_player_me)
         
-        #TODO
         return reward
     
-    
-     
-
-        
-
         
     def step(self, action:tuple):#TODO:add bomb time?
         """
@@ -154,7 +221,17 @@ class EnvManager():  # add your var and method under the class.
         you should only return the response when the response round changed.
         """
         f.write("enter step\n")
-        while self.next_resp is None or self.next_resp.data.round == self.cur_round:
+        if self.next_resp is None:
+            while self.next_resp is None:
+                continue
+            self.lock_interaction.acquire()
+            self.cur_round = self.next_resp.data.round
+            # print(self.cur_round)
+            assert self.cur_round == 1
+            self.cur_resp = copy.deepcopy(self.next_resp)
+            self.lock_interaction.release()
+            
+        while self.next_resp.data.round == self.cur_round:
             # if self.next_resp is not None:
             #     print(self.next_resp.data.round)
             continue
@@ -163,12 +240,16 @@ class EnvManager():  # add your var and method under the class.
         f.write("enter step lock\n")
         # encode  
         self.cur_action = action
-        reward = self.calculateReward(self.cur_resp, self.next_resp, self.cur_action)  # TODO
-        cur_state = self.encode_state(self.cur_resp)  # TODO
-        next_state = self.encode_state(self.next_resp)  # TODO
-        cur_player_my_state,cur_player_enemy_state = self.playerState(self.cur_resp)
-        next_player_my_state,next_player_enemy_state =self.playerState(self.next_resp)
+        cur_player_my_state,cur_player_enemy_state = self.playerState(self.cur_resp)#action未执行 player State
+        # next_player_my_state,next_player_enemy_state =self.playerState(self.next_resp) #action执行完后player state
+        cur_state = self.encode_state(self.cur_resp)  # map state
+        f.write(str(self.cur_resp.data.round))
+        f.write("\n")
+        f.write(str(self.next_resp.data.round))
+        next_state = self.encode_state(self.next_resp)  # 
+        reward = self.calculateReward(self.cur_resp, self.next_resp, self.cur_action,cur_state,cur_player_my_state,cur_player_enemy_state)         
         is_over = self.next_resp.type == PacketType.GameOver
+
         # update
         self.cur_round = self.next_resp.data.round
         self.cur_resp = copy.deepcopy(self.next_resp)  # NOTE: deepcopy.
@@ -220,6 +301,7 @@ class EnvManager():  # add your var and method under the class.
         """Recv packet and refresh ui."""
         global gContext
         self.next_resp = client.recv()
+        # print(self.next_resp.data.round)
 
         if self.next_resp.type == PacketType.ActionResp:
             gContext["gameBeginFlag"] = True
@@ -230,8 +312,10 @@ class EnvManager():  # add your var and method under the class.
             if gContext["gameOverFlag"]: #add
                 break
             subprocess.run(["clear"])
+            self.lock_interaction.acquire()  # add lock
             self.ui.refresh(self.next_resp.data)
             self.ui.display()
+            self.lock_interaction.release()
             self.next_resp = client.recv()
 
         print(f"Game Over!")
@@ -341,5 +425,36 @@ with open("env.log", "w") as f:
                    (ActionType.MOVE_RIGHT, ActionType.SILENT)]
     env.start()
     while True:
-        _, _, _, _ = env.step((ActionType.MOVE_LEFT, ActionType.SILENT))
-        _, _, _, _ = env.step((ActionType.MOVE_RIGHT, ActionType.SILENT))
+        cur_state1, next_state1, reward1, is_over1 = env.step((ActionType.MOVE_LEFT, ActionType.SILENT))
+        cur_state2, next_state2, reward2, is_over2 = env.step((ActionType.MOVE_RIGHT, ActionType.SILENT))
+    # f.write(str(reward1))
+    # f.write("\n")
+    # f.write(str(is_over1))
+    # f.write("\n")
+    # for x in range(15):
+    #     for y in range(15):
+    #         f.write(str(cur_state1[x][y])) 
+    #         f.write(" ")
+    #     f.write("\n")
+    # f.write("\n")
+    # for x in range(15):
+    #     for y in range(15):
+    #         f.write(str(next_state1[x][y])) 
+    #         f.write(" ")
+    #     f.write("\n")
+    # f.write("\n")
+    # for x in range(15):
+    #     for y in range(15):
+    #         f.write(str(cur_state2[x][y])) 
+    #         f.write(" ")
+    #     f.write("\n")
+    # f.write("\n")
+    # for x in range(15):
+    #     for y in range(15):
+    #         f.write(str(next_state2[x][y])) 
+    #         f.write(" ")
+    #     f.write("\n")
+    
+    
+        
+        
