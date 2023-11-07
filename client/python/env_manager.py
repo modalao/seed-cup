@@ -43,31 +43,50 @@ gContext = {
     "gameBeginFlag": False,
 }
 
+action_list = [ActionType.MOVE_DOWN, ActionType.MOVE_LEFT, ActionType.MOVE_RIGHT, ActionType.MOVE_UP, 
+                    ActionType.PLACED, ActionType.SILENT]
+
 
 
 class EnvManager():  # add your var and method under the class.
     def __init__(self) -> None:
         self.ui = UI()
-        self.resp: PacketResp = None  # NOTE: when you use it, this var should be read only
-        # reference for zrx
-        self.cur_action: tuple[ActionType, ActionType] = None
-        self.cur_map = None
-        self.next_map = None
-        self.cur_round = 0
-        self.t = None
+        self.next_resp: PacketResp = None  # NOTE: when you use it, this var should be read only
+        self.cur_resp: PacketResp = None  # last_resp = resp before update self.resp
+        
+        self.cur_action: tuple[ActionType, ActionType] = None  # action to take in this round
+
+        self.cur_round = 0  # round_num of this round
+        self.t = None  # thread for recvAndRefresh
+        # init new action list(36 actions total)
+        self.new_action_list = []
+        for ac1 in action_list:
+            for ac2 in action_list:
+                self.new_action_list.append((ac1, ac2))
+        self.n_act = len(self.new_action_list)
+
+        
 
     
-    def step(self, action):
+    def step(self, action:tuple):
         """
         handle 1 action and return response
         you should only return the response when the response round changed.
         """
+        while self.next_resp.data.round == self.cur_round:
+            continue
+
         self.cur_action = action
-        while self.resp.type is not PacketType.ActionResp:
-            pass  
-        while self.resp.data.round != self.cur_round:  # ??
-            pass  
-        #calculate
+        cur_state = self.code_state(self.cur_resp)  # TODO
+        next_state = self.code_state(self.next_resp)  # TODO
+        reward = self.calculateReward(self.cur_resp, self.next_resp, self.cur_action)  # TODO
+        # update
+        self.cur_round = self.next_resp.data.round
+        self.cur_resp = copy.deepcopy(self.next_resp)  # NOTE: deepcopy.
+        # return
+        if self.next_resp.type == PacketType.GameOver:
+            return cur_state, next_state, reward, 1  # 1 means done
+        return cur_state, next_state, reward, 0
 
     def reset(self):#return ?
         """
@@ -97,25 +116,25 @@ class EnvManager():  # add your var and method under the class.
     def recvAndRefresh(self, client: Client):
         """Recv packet and refresh ui."""
         global gContext
-        self.resp = client.recv()
+        self.next_resp = client.recv()
 
-        if self.resp.type == PacketType.ActionResp:
+        if self.next_resp.type == PacketType.ActionResp:
             gContext["gameBeginFlag"] = True
-            gContext["playerID"] = self.resp.data.player_id
+            gContext["playerID"] = self.next_resp.data.player_id
             self.ui.player_id = gContext["playerID"]
 
-        while self.resp.type != PacketType.GameOver:
+        while self.next_resp.type != PacketType.GameOver:
             if gContext["gameOverFlag"]: #add
                 break
             subprocess.run(["clear"])
-            self.ui.refresh(self.resp.data)
+            self.ui.refresh(self.next_resp.data)
             self.ui.display()
-            self.resp = client.recv()
+            self.next_resp = client.recv()
 
         print(f"Game Over!")
-        print(f"Final scores \33[1m{self.resp.data.scores}\33[0m")
+        print(f"Final scores \33[1m{self.next_resp.data.scores}\33[0m")
 
-        if gContext["playerID"] in self.resp.data.winner_ids:
+        if gContext["playerID"] in self.next_resp.data.winner_ids:
             print("\33[1mCongratulations! You win! \33[0m")
         else:
             print(
