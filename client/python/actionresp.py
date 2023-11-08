@@ -46,7 +46,7 @@ def nextPositionActual(x:int, y:int, action:ActionType,cur_map):
         else :
             return x,y-1
     else :
-        if y == Config.get("map_size")-1 or cur_map[x][y+1] in unmovable_block:
+        if y == config.get("map_size")-1 or cur_map[x][y+1] in unmovable_block:
             return x,y
         else :
             return x,y+1

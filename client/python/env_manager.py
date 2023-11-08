@@ -24,10 +24,11 @@ import reward
 
 
 rewardPriority={
-    1:reward.rewardBomb,
-    2:reward.rewardItem,
-    3:reward.awayFromBomb,
+    2:reward.rewardBomb,
+    5:reward.awayFromPlayer,
+    1:reward.awayFromBomb,
     4:reward.nearItem,
+    3:reward.collideWall
 }
 
 key2ActionReq = {
@@ -272,8 +273,8 @@ class EnvManager():  # add your var and method under the class.
         #TODO 填写rewardBomb，rewardItem，awayFromBomb，nearItem函数
         
         reward:int = 0
-        for i in sorted (rewardPriority) :#按键值排序，先调用优先级高的，返回reward
-            reward=rewardPriority[i](cur_resp,cur_map,action,cur_player_me,cur_player_enemy)
+        for i in sorted(rewardPriority.keys()):  # 按键值排序，先调用优先级高的，返回reward
+            reward=rewardPriority[i](cur_resp,action,cur_map,cur_player_me,cur_player_enemy)
             if reward != 0:
                 return reward
         return reward
