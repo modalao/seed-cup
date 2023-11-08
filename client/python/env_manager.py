@@ -266,7 +266,7 @@ class EnvManager():  # add your var and method under the class.
         return my_player,enemy_player
     
     
-    def calculateReward(self,cur_resp:PacketResp,action:tuple,cur_map:Mapcode,cur_player_me:PlayerInfo,cur_player_enemy:PlayerInfo)->int:
+    def calculateReward(self,cur_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerInfo,cur_player_enemy:PlayerInfo)->int:
         #形参为cur_resp当前resp报文(动作前），action为该回合的两个动作，cur_map 当前状态地图信息,cur_player_me 我方信息，cur_player_enemy 敌方信息
         #可利用形参计算当前操作reward函数,根据实际情况奖惩，
         #TODO 填写rewardBomb，rewardItem，awayFromBomb，nearItem函数

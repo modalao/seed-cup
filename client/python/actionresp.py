@@ -22,7 +22,7 @@ def nextPositionIdeal(x:int, y:int, action:ActionType):
     else :
         return x, y
     
-def nextPositionActual(x:int, y:int, action:ActionType,cur_map:Mapcode):
+def nextPositionActual(x:int, y:int, action:ActionType,cur_map):
     '''
     经过动作后坐标x,y,实际坐标
     '''
@@ -51,7 +51,7 @@ def nextPositionActual(x:int, y:int, action:ActionType,cur_map:Mapcode):
         else :
             return x,y+1
 
-def actionStepMap(action:ActionType,cur_map:Mapcode,x:int,y:int,bomb_range:int):#action动作，cur_map地图，x,y玩家坐标,map需要深拷贝
+def actionStepMap(action:ActionType,cur_map,x:int,y:int,bomb_range:int):#action动作，cur_map地图，x,y玩家坐标,map需要深拷贝
     '''
     经过一个动作后的map图
     '''
@@ -97,3 +97,16 @@ def actionStepMap(action:ActionType,cur_map:Mapcode,x:int,y:int,bomb_range:int):
             else :
                 now_map[x][y] = Mapcode.NullBlock
     return cur_map
+
+
+def checkPersonInBombRange(cur_map,x:int,y:int,bombrange:int)->bool:
+    '''
+    检测人是否在炸弹爆炸范围内
+    '''
+    for i in range(-bombrange,bombrange+1):
+        for j in range(-bombrange,bombrange+1):
+            tx = x+i
+            ty = y+j
+            if(cur_map[tx][ty] == Mapcode.BombBase or cur_map[tx][ty] == Mapcode.BombHuman):
+                return True
+    return False
