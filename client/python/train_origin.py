@@ -43,9 +43,9 @@ class TrainManager():
         obs = self.env.reset()  # TODO: according to EnvManager
         while True:
             action = self.agent.act(obs)
-            next_obs, reward, done = self.env.step(action)
+            cur_obs, next_obs, reward, done = self.env.step(action)
             total_reward += reward
-            self.agent.learn(obs, action, reward, next_obs, done)
+            self.agent.learn(cur_obs, action, reward, next_obs, done)
             obs = next_obs  # TODO: don't need cur_obs in step() ?
             if done: break
         return total_reward

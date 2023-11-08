@@ -8,6 +8,7 @@ class Mapcode(Enum):#player 放置炸弹状态是否编码？？
     BlockUnRemovable = -2
     #bomb 爆炸范围为range 对应矩阵值为BombBase+range
     BombBase = 10
+    
     NullBlock = 0 
     BombedBlock = 9 #爆炸格
     ItemHp = 3
@@ -16,13 +17,16 @@ class Mapcode(Enum):#player 放置炸弹状态是否编码？？
     ItemBombRange = 6
     ItemInvencible = 7
     #ItemSpeed = 8 初赛不设置
+    BombHuman = 10 #my 人和炸弹在同一个位置
     # players
     enemy = -1
     me = 1
 
 
-    def calulate(obj:Obj, enemy =False,last_bomb = False) -> None:
-        if last_bomb:
+    def calulate(obj:Obj, enemy =False,last_bomb = False,HumanBomb=False) -> None:
+        if HumanBomb:
+            value = Mapcode.BombHuman.value
+        elif last_bomb:
             value = Mapcode.BombedBlock.value
         
         elif obj is None or obj.type == ObjType.Null:

@@ -60,10 +60,11 @@ action_list = [ActionType.MOVE_DOWN, ActionType.MOVE_LEFT, ActionType.MOVE_RIGHT
 class EnvManager():  # add your var and method under the class.
     def __init__(self) -> None:
         self.ui = None
-        self.resp: PacketResp = None  # NOTE: when you use it, this var should be read only
+        self.next_resp: PacketResp = None  # NOTE: when you use it, this var should be read only
+        self.cur_resp: PacketResp = None  # last_resp = resp before update self.resp
         
         self.cur_action: tuple[ActionType, ActionType] = None  # action to take in this round
-        self.cur_round = 1  # round_num of this round
+        self.cur_round = 0  # round_num of this round
 
         self.t_game = None  # thread for game.
         self.t_ui = None  # thread for recvAndRefresh
@@ -90,41 +91,47 @@ class EnvManager():  # add your var and method under the class.
         you should only return the response when the response round changed.
         """
         f.write("enter step\n")
+        if self.next_resp is None:
+            while self.next_resp is None:
+                continue
+            self.lock_interaction.acquire()
+            self.cur_round = self.next_resp.data.round  # first round, there will be no interaction.
+            # print(self.cur_round)
+            assert self.cur_round == 1
+            self.cur_resp = copy.deepcopy(self.next_resp)
+            self.lock_interaction.release()
             
-        while self.resp is None:  # execute only once 
+        while self.next_resp.data.round == self.cur_round:
+            # if self.next_resp is not None:
+            #     print(self.next_resp.data.round)
             continue
-        
-        self.lock_interaction.acquire()  ###### avoid the competence
-        assert self.resp.data.round == self.cur_round
+         
+        self.lock_interaction.acquire()  # avoid the competence
         f.write("enter step lock\n")
+
+        # encode  
         self.cur_action = action
-        cur_state = self.encode_state(self.resp)
-        cur_player_my_state, cur_player_enemy_state = self.playerState(self.resp)
-        reward = self.calculateReward(self.resp, 
-                                      self.cur_action, 
-                                      cur_state, 
-                                      cur_player_my_state, 
-                                      cur_player_enemy_state)  # TODO: change it.
-        self.lock_interaction.release()  ###### avoid the competence
-        
-        while self.resp.data.round == self.cur_round:  # update resp
-            continue
-        
-        self.lock_interaction.acquire()  ###### avoid the competence
-        self.cur_round = self.resp.data.round  # update round
-        next_state = self.encode_state(self.resp)  # map state
-        is_over = self.resp.type == PacketType.GameOver
-        self.lock_interaction.release()  ###### avoid the competence
-        
-        
-        f.write(str(self.resp.data.round))
+        cur_player_my_state, cur_player_enemy_state = self.playerState(self.cur_resp)  # action未执行 player State
+        # next_player_my_state,next_player_enemy_state =self.playerState(self.next_resp) #action执行完后player state
+        cur_state = self.encode_state(self.cur_resp)  # map state
+        f.write(str(self.cur_resp.data.round))
         f.write("\n")
-        f.write(str(self.resp.data.round))
-            
+        f.write(str(self.next_resp.data.round))
+        next_state = self.encode_state(self.next_resp)  # 
+        reward = self.calculateReward(self.cur_resp, self.next_resp, self.cur_action, cur_state, 
+                                      cur_player_my_state, 
+                                      cur_player_enemy_state)         
+        is_over = self.next_resp.type == PacketType.GameOver
+
+        # update
+        self.cur_round = self.next_resp.data.round
+        self.cur_resp = copy.deepcopy(self.next_resp)  # NOTE: deepcopy.
+
+        self.lock_interaction.release()  # avoid the competence
         f.write("leave step\n")
 
         # return
-        return next_state, reward, is_over
+        return cur_state, next_state, reward, is_over
     
 
     def start(self):
@@ -147,7 +154,8 @@ class EnvManager():  # add your var and method under the class.
 
         # 重新启动
         self.ui = None
-        self.resp = None
+        self.next_resp = None
+        self.cur_resp = None
         self.cur_action = None
         self.cur_round = 0
         gContext["gameOverFlag"] = False
@@ -172,38 +180,22 @@ class EnvManager():  # add your var and method under the class.
             for map in actionResp.map:
                 freshed = False
                 if len(map.objs):
-                    BombFlag = False
-                    enemy = False
-                    me = False
                     for obj in map.objs:
-                        if obj.type == ObjType.Bomb:
-                            BombFlag = True
                         if not obj.type == ObjType.Player:
                             continue 
                         #me
                         if myplayer_id == obj.property.player_id and obj.property.alive:
-                            me = True
+                            mapcode[map.x][map.y]=Mapcode.calulate(obj,False)
                             freshed = True
 
                         #enemy  玩家可以重叠**
                         if myplayer_id != obj.property.player_id and obj.property.alive:
-                            enemy = True
+                            mapcode[map.x][map.y]=Mapcode.calulate(obj,True)
                             freshed = True
-                        
+                
                     if not freshed:
                         mapcode[map.x][map.y]=Mapcode.calulate(map.objs[0])
-                    else :
-                        if not BombFlag:
-                            if enemy :
-                                mapcode[map.x][map.y]=Mapcode.calulate(obj,True)
-                            if me :
-                                mapcode[map.x][map.y]=Mapcode.calulate(obj,False)
-                        else :#人 炸弹一起
-                            if enemy :
-                                mapcode[map.x][map.y]=Mapcode.calulate(obj,True,False,True)
-                            if me :
-                                mapcode[map.x][map.y]=Mapcode.calulate(obj,False,False,True)
-                else: #爆炸
+                else:
                     mapcode[map.x][map.y]=Mapcode.calulate(None,False, actionResp.round == map.last_bomb_round)
             return mapcode
         
@@ -265,15 +257,31 @@ class EnvManager():  # add your var and method under the class.
                     break
         return my_player,enemy_player
     
-    
-    def calculateReward(self,cur_resp:PacketResp,action:tuple,cur_map:Mapcode,cur_player_me:PlayerInfo,cur_player_enemy:PlayerInfo)->int:
-        #形参为cur_resp当前resp报文(动作前），action为该回合的两个动作，cur_map 当前状态地图信息,cur_player_me 我方信息，cur_player_enemy 敌方信息
+
+    def nextPosition(self, x:int, y:int, action:ActionType):
+        #经过动作后坐标x,y
+        if action == ActionType.MOVE_DOWN:
+            return x + 1, y
+        elif action == ActionType.MOVE_UP:
+            return x - 1, y
+        elif action == ActionType.MOVE_LEFT:
+            return x, y - 1
+        elif action == ActionType.MOVE_RIGHT:
+            return x, y + 1
+        else :
+            return x, y
+
+     
+    def calculateReward(self,cur_resp:PacketResp,next_resp:PacketResp,action:tuple,cur_map:Mapcode,cur_player_me:PlayerInfo,cur_player_enemy:PlayerInfo)->int:
+        #形参为cur_resp当前resp报文，next_resp下一回合resp报文，action为该回合的两个动作，cur_map 当前状态地图信息,cur_player_me 我方信息，cur_player_enemy 敌方信息
         #可利用形参计算当前操作reward函数,根据实际情况奖惩，
         #TODO 填写rewardBomb，rewardItem，awayFromBomb，nearItem函数
+        if cur_resp.type == PacketType.ActionResp and next_resp.type == PacketType.GameOver:#被炸死
+            return -100
         
         reward:int = 0
         for i in sorted (rewardPriority) :#按键值排序，先调用优先级高的，返回reward
-            reward=rewardPriority[i](cur_resp,cur_map,action,cur_player_me,cur_player_enemy)
+            reward=rewardPriority[i](cur_resp,next_resp,cur_map,action,cur_player_me,cur_player_enemy)
             if reward != 0:
                 return reward
         return reward
@@ -288,28 +296,28 @@ class EnvManager():  # add your var and method under the class.
     def recvAndRefresh(self, client: Client):
         """Recv packet and refresh ui."""
         global gContext
-        self.resp = client.recv()
+        self.next_resp = client.recv()
         # print(self.next_resp.data.round)
 
-        if self.resp.type == PacketType.ActionResp:
+        if self.next_resp.type == PacketType.ActionResp:
             gContext["gameBeginFlag"] = True
-            gContext["playerID"] = self.resp.data.player_id
+            gContext["playerID"] = self.next_resp.data.player_id
             self.ui.player_id = gContext["playerID"]
 
-        while self.resp.type != PacketType.GameOver:
+        while self.next_resp.type != PacketType.GameOver:
             if gContext["gameOverFlag"]: #add
                 break
             subprocess.run(["clear"])
             self.lock_interaction.acquire()  # add lock
-            self.ui.refresh(self.resp.data)
+            self.ui.refresh(self.next_resp.data)
             self.ui.display()
             self.lock_interaction.release()
-            self.resp = client.recv()
+            self.next_resp = client.recv()
 
         print(f"Game Over!")
-        print(f"Final scores \33[1m{self.resp.data.scores}\33[0m")
+        print(f"Final scores \33[1m{self.next_resp.data.scores}\33[0m")
 
-        if gContext["playerID"] in self.resp.data.winner_ids:
+        if gContext["playerID"] in self.next_resp.data.winner_ids:
             print("\33[1mCongratulations! You win! \33[0m")
         else:
             print(
@@ -413,8 +421,8 @@ with open("env.log", "w") as f:
                    (ActionType.MOVE_RIGHT, ActionType.SILENT)]
     env.start()
     while True:
-        cur_state1, reward1, is_over1 = env.step((ActionType.MOVE_LEFT, ActionType.SILENT))
-        cur_state2, reward2, is_over2 = env.step((ActionType.MOVE_RIGHT, ActionType.SILENT))
+        cur_state1, next_state1, reward1, is_over1 = env.step((ActionType.MOVE_LEFT, ActionType.SILENT))
+        cur_state2, next_state2, reward2, is_over2 = env.step((ActionType.MOVE_RIGHT, ActionType.SILENT))
     # f.write(str(reward1))
     # f.write("\n")
     # f.write(str(is_over1))
