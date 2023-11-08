@@ -15,7 +15,7 @@ next_position = [[1,-1],[-1,1],[1,1],[-1,-1]]
 #reward 范围[10,100],[-100,-10]
 #按照优先级写，优先级高的先写，并且直接返回奖惩,如果无奖惩，返回0
 #形参为cur_resp当前resp报文，action为该回合的两个动作，cur_map 当前状态地图信息,cur_player_me 我方信息，cur_player_enemy 敌方信息
-def rewardBomb(cur_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerInfo,cur_player_enemy:PlayerInfo)->int:
+def rewardBomb(cur_resp:PacketResp,next_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerInfo,cur_player_enemy:PlayerInfo)->int:
     '''
     炸弹相关reward
     '''
@@ -65,7 +65,7 @@ def rewardBomb(cur_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerInfo
     
     return 0
     
-def awayFromBomb(cur_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerInfo,cur_player_enemy:PlayerInfo)->int:
+def awayFromBomb(cur_resp:PacketResp,next_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerInfo,cur_player_enemy:PlayerInfo)->int:
     '''
     远离炸弹reward
     '''    
@@ -88,15 +88,15 @@ def awayFromBomb(cur_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerIn
     
     return 0
 
-def nearItem(cur_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerInfo,cur_player_enemy:PlayerInfo)->int:
+def nearItem(cur_resp:PacketResp,next_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerInfo,cur_player_enemy:PlayerInfo)->int:
     '''
     靠近道具reward
     '''
     #TODO
-    
+
     return 0
     
-def collideWall(cur_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerInfo,cur_player_enemy:PlayerInfo)->int:
+def collideWall(cur_resp:PacketResp,next_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerInfo,cur_player_enemy:PlayerInfo)->int:
     '''
     撞墙reward
     '''
@@ -104,7 +104,7 @@ def collideWall(cur_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerInf
     action2 = action[1]
     x = cur_player_me.position_x
     y = cur_player_me.position_y
-    #两步的撞墙判断
+    #两步的边界判断
     if x==0 and action1 == ActionType.MOVE_UP or x == config.get("map_size")-1 and action1 == ActionType.MOVE_DOWN or \
     y == 0 and action1 == ActionType.MOVE_LEFT or y == config.get("map_size")-1 and action1 == ActionType.MOVE_RIGHT:
         return -10
@@ -112,11 +112,11 @@ def collideWall(cur_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerInf
     if px1==0 and action2 == ActionType.MOVE_UP or px1 == config.get("map_size")-1 and action2 == ActionType.MOVE_DOWN or \
     py1 == 0 and action2 == ActionType.MOVE_LEFT or py1 == config.get("map_size")-1 and action2 == ActionType.MOVE_RIGHT:
         return -10
-    #TODO:装block判断
+    #TODO:装block判断,bomb,unremoveblock,removeblock
     
     return 0
 
-def awayFromPlayer(cur_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerInfo,cur_player_enemy:PlayerInfo)->int:
+def awayFromPlayer(cur_resp:PacketResp,next_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerInfo,cur_player_enemy:PlayerInfo)->int:
         #防守型
     '''
     防守型，和敌人保持一段距离

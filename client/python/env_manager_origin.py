@@ -24,10 +24,11 @@ import reward
 
 
 rewardPriority={
-    1:reward.rewardBomb,
-    # 2:reward.rewardItem,
-    3:reward.awayFromBomb,
+    2:reward.rewardBomb,
+    5:reward.awayFromPlayer,
+    1:reward.awayFromBomb,
     4:reward.nearItem,
+    3:reward.collideWall
 }
 
 key2ActionReq = {
@@ -102,13 +103,18 @@ class EnvManager():  # add your var and method under the class.
             self.cur_resp = copy.deepcopy(self.next_resp)
             self.lock_interaction.release()
             
-        while gContext["gameOverFlag"] == False and self.next_resp.data.round == self.cur_round:
-            # if self.next_resp is not None:
-            #     print(self.next_resp.data.round)
-            continue
-
-        if gContext["gameOverFlag"] == True:
+        try:
+            while gContext["gameOverFlag"] == False and self.next_resp.data.round == self.cur_round:
+                # if self.next_resp is not None:
+                #     print(self.next_resp.data.round)
+                continue
+        except:
+            print("conflict!")
             return None, None, None, 1
+        else:
+            print("normal! keep going")
+            if gContext["gameOverFlag"] == True:
+                return None, None, None, 1
          
         self.lock_interaction.acquire()  # avoid the competence
         f.write("enter step lock\n")
@@ -260,23 +266,8 @@ class EnvManager():  # add your var and method under the class.
                 if flag and enemy_id != -1:
                     break
         return my_player,enemy_player
-    
-
-    def nextPosition(self, x:int, y:int, action:ActionType):
-        #经过动作后坐标x,y
-        if action == ActionType.MOVE_DOWN:
-            return x + 1, y
-        elif action == ActionType.MOVE_UP:
-            return x - 1, y
-        elif action == ActionType.MOVE_LEFT:
-            return x, y - 1
-        elif action == ActionType.MOVE_RIGHT:
-            return x, y + 1
-        else :
-            return x, y
-
      
-    def calculateReward(self,cur_resp:PacketResp,next_resp:PacketResp,action:tuple,cur_map:Mapcode,cur_player_me:PlayerInfo,cur_player_enemy:PlayerInfo)->int:
+    def calculateReward(self,cur_resp:PacketResp,next_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerInfo,cur_player_enemy:PlayerInfo)->int:
         #形参为cur_resp当前resp报文，next_resp下一回合resp报文，action为该回合的两个动作，cur_map 当前状态地图信息,cur_player_me 我方信息，cur_player_enemy 敌方信息
         #可利用形参计算当前操作reward函数,根据实际情况奖惩，
         #TODO 填写rewardBomb，rewardItem，awayFromBomb，nearItem函数
@@ -285,7 +276,7 @@ class EnvManager():  # add your var and method under the class.
         
         reward:int = 0
         for i in sorted(rewardPriority.keys()):#按键值排序，先调用优先级高的，返回reward
-            reward=rewardPriority[i](cur_resp,next_resp,cur_map,action,cur_player_me,cur_player_enemy)
+            reward=rewardPriority[i](cur_resp,next_resp,action,cur_map,cur_player_me,cur_player_enemy)
             if reward != 0:
                 return reward
         return reward
@@ -300,13 +291,16 @@ class EnvManager():  # add your var and method under the class.
     def recvAndRefresh(self, client: Client):
         """Recv packet and refresh ui."""
         global gContext
+        self.lock_interaction.acquire()
         self.next_resp = client.recv()
-        # print(self.next_resp.data.round)
+        self.lock_interaction.release()        # print(self.next_resp.data.round)
 
+        self.lock_interaction.acquire()
         if self.next_resp.type == PacketType.ActionResp:
             gContext["gameBeginFlag"] = True
             gContext["playerID"] = self.next_resp.data.player_id
             self.ui.player_id = gContext["playerID"]
+        self.lock_interaction.release()
 
         while self.next_resp.type != PacketType.GameOver:
             if gContext["gameOverFlag"]: #add
@@ -316,7 +310,10 @@ class EnvManager():  # add your var and method under the class.
             self.ui.refresh(self.next_resp.data)
             self.ui.display()
             self.lock_interaction.release()
+            
+            # self.lock_interaction.acquire()
             self.next_resp = client.recv()
+            # self.lock_interaction.release()
 
         print(f"Game Over!")
         print(f"Final scores \33[1m{self.next_resp.data.scores}\33[0m")
@@ -385,6 +382,7 @@ class EnvManager():  # add your var and method under the class.
                 sleep(0.1)
 
             while not gContext["gameOverFlag"]:
+                print('stuck here')
                 ######### IO mode ##########
                 # action = self.getActionFromIO()  # this need time.
                 # if gContext["gameOverFlag"]:
@@ -426,7 +424,13 @@ with open("env.log", "w") as f:
     env.start()
     while True:
         cur_state1, next_state1, reward1, is_over1 = env.step((ActionType.PLACED, ActionType.SILENT))
+        print(is_over1)
         if is_over1:
+            # if env.t_ui is not None:
+            #     env.t_ui.join() 
+            # if env.t_game is not None:
+            #     env.t_game.join() 
+            print('leave')
             break
     # f.write(str(reward1))
     # f.write("\n")
