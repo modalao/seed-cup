@@ -12,7 +12,6 @@ next_position = [[1,-1],[-1,1],[1,1],[-1,-1]]
 
 
     
-#TODO
 #reward 范围[10,100],[-100,-10]
 #按照优先级写，优先级高的先写，并且直接返回奖惩,如果无奖惩，返回0
 #形参为cur_resp当前resp报文，action为该回合的两个动作，cur_map 当前状态地图信息,cur_player_me 我方信息，cur_player_enemy 敌方信息
@@ -61,14 +60,14 @@ def awayFromBomb(cur_resp:PacketResp,action:tuple,cur_map:Mapcode,cur_player_me:
     '''
     远离炸弹reward
     '''    
-    
+    #TODO
     return 0
 
 def nearItem(cur_resp:PacketResp,action:tuple,cur_map:Mapcode,cur_player_me:PlayerInfo,cur_player_enemy:PlayerInfo)->int:
     '''
     靠近道具reward
     '''
-    
+    #TODO
     return 0
     
 def collideWall(cur_resp:PacketResp,action:tuple,cur_map:Mapcode,cur_player_me:PlayerInfo,cur_player_enemy:PlayerInfo)->int:
@@ -95,4 +94,5 @@ def awayFromPlayer(cur_resp:PacketResp,action:tuple,cur_map:Mapcode,cur_player_m
     '''
     防守型，和敌人保持一段距离
     '''    
+    #TODO
     return 0
