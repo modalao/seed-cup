@@ -29,6 +29,7 @@ rewardPriority={
     3:reward.awayFromBomb,
     4:reward.nearItem,
 }
+
 key2ActionReq = {
     'w': ActionType.MOVE_UP,
     's': ActionType.MOVE_DOWN,
@@ -52,10 +53,8 @@ gContext = {
     "gameBeginFlag": False,
 }
 
-
 action_list = [ActionType.MOVE_DOWN, ActionType.MOVE_LEFT, ActionType.MOVE_RIGHT, ActionType.MOVE_UP, 
                     ActionType.PLACED, ActionType.SILENT]
-
 
 
 class EnvManager():  # add your var and method under the class.
@@ -78,12 +77,94 @@ class EnvManager():  # add your var and method under the class.
             for ac2 in action_list:
                 self.new_action_list.append((ac1, ac2))
         self.n_act = len(self.new_action_list)
+
+        # encode shape
+        self.encode_shape = 15 * 15 + 15
         
-        # with open("env.log", "w") as self.log:
-        #     self.log.write("init")
+        # log
         f.write("init\n")
 
-    def encode_state(self,resp:PacketResp):
+
+    def step(self, action:tuple):#TODO:add bomb time?
+        """
+        handle 1 action and return response
+        you should only return the response when the response round changed.
+        """
+        f.write("enter step\n")
+        if self.next_resp is None:
+            while self.next_resp is None:
+                continue
+            self.lock_interaction.acquire()
+            self.cur_round = self.next_resp.data.round  # first round, there will be no interaction.
+            # print(self.cur_round)
+            assert self.cur_round == 1
+            self.cur_resp = copy.deepcopy(self.next_resp)
+            self.lock_interaction.release()
+            
+        while self.next_resp.data.round == self.cur_round:
+            # if self.next_resp is not None:
+            #     print(self.next_resp.data.round)
+            continue
+         
+        self.lock_interaction.acquire()  # avoid the competence
+        f.write("enter step lock\n")
+
+        # encode  
+        self.cur_action = action
+        cur_player_my_state, cur_player_enemy_state = self.playerState(self.cur_resp)  # action未执行 player State
+        # next_player_my_state,next_player_enemy_state =self.playerState(self.next_resp) #action执行完后player state
+        cur_state = self.encode_state(self.cur_resp)  # map state
+        f.write(str(self.cur_resp.data.round))
+        f.write("\n")
+        f.write(str(self.next_resp.data.round))
+        next_state = self.encode_state(self.next_resp)  # 
+        reward = self.calculateReward(self.cur_resp, self.next_resp, self.cur_action, cur_state, 
+                                      cur_player_my_state, 
+                                      cur_player_enemy_state)         
+        is_over = self.next_resp.type == PacketType.GameOver
+
+        # update
+        self.cur_round = self.next_resp.data.round
+        self.cur_resp = copy.deepcopy(self.next_resp)  # NOTE: deepcopy.
+
+        self.lock_interaction.release()  # avoid the competence
+        f.write("leave step\n")
+
+        # return
+        return cur_state, next_state, reward, is_over
+    
+
+    def start(self):
+        self.t_game = Thread(target=self.start_game)
+        self.t_game.start()
+
+
+    def reset(self):
+        """
+        restart the game
+        """
+        global gContext
+        # 设置终止标志
+        gContext["gameOverFlag"]= True
+        # close threads
+        if self.t_ui is not None:
+            self.t_ui.join()
+        if self.t_game is not None:
+            self.t_game.join()
+
+        # 重新启动
+        self.ui = None
+        self.next_resp = None
+        self.cur_resp = None
+        self.cur_action = None
+        self.cur_round = 0
+        gContext["gameOverFlag"] = False
+        gContext["gameBeginFlag"] = False
+        gContext["playerID"] = -1
+        self.start()
+
+
+    def encode_state(self, resp:PacketResp):
         #game over返回None，或者前一个地图
         if resp == None:
             return None
@@ -118,6 +199,7 @@ class EnvManager():  # add your var and method under the class.
                     mapcode[map.x][map.y]=Mapcode.calulate(None,False, actionResp.round == map.last_bomb_round)
             return mapcode
         
+
     def playerState(self, resp:PacketResp):
         #计算当前player状态
         my_player :PlayerInfo = None
@@ -140,36 +222,54 @@ class EnvManager():  # add your var and method under the class.
                 for obj in map.objs:
                     if obj.type == ObjType.Player:
                         if obj.property.player_id == my_id:
-                            my_player = PlayerInfo(position_x=map.x,position_y=map.y,position=map.x*15+map.y,
-                                player_id=my_id,player_is_me=True,alive=obj.property.alive,hp=obj.property.hp,
-                                shield_time=obj.property.shield_time,invincible_time=obj.property.invincible_time,
-                                score=obj.property.score,bomb_range=obj.property.bomb_range,bomb_max_num=obj.property.bomb_max_num,
-                                bomb_now_num=obj.property.bomb_now_num,speed=obj.property.speed)
+                            my_player = PlayerInfo(position_x = map.x, 
+                                                   position_y = map.y, 
+                                                   position = map.x*15 + map.y,
+                                                   player_id = my_id, 
+                                                   player_is_me = True, 
+                                                   alive = obj.property.alive,
+                                                   hp = obj.property.hp,
+                                                   shield_time = obj.property.shield_time,
+                                                   invincible_time = obj.property.invincible_time,
+                                                   score = obj.property.score,
+                                                   bomb_range = obj.property.bomb_range,
+                                                   bomb_max_num = obj.property.bomb_max_num,
+                                                   bomb_now_num = obj.property.bomb_now_num,
+                                                   speed = obj.property.speed)
                             flag = True
                         if obj.property.player_id != my_id:
                             enemy_id=obj.property.player_id
-                            enemy_player=PlayerInfo(position_x=map.x,position_y=map.y,position=map.x*15+map.y,
-                                player_id=enemy_id,player_is_me=False,alive=obj.property.alive,hp=obj.property.hp,
-                                shield_time=obj.property.shield_time,invincible_time=obj.property.invincible_time,
-                                score=obj.property.score,bomb_range=obj.property.bomb_range,bomb_max_num=obj.property.bomb_max_num,
-                                bomb_now_num=obj.property.bomb_now_num,speed=obj.property.speed)
+                            enemy_player=PlayerInfo(position_x=map.x,
+                                                    position_y=map.y,
+                                                    position=map.x*15+map.y,
+                                                    player_id=enemy_id,
+                                                    player_is_me=False,
+                                                    alive=obj.property.alive,
+                                                    hp=obj.property.hp,
+                                                    shield_time=obj.property.shield_time,
+                                                    invincible_time=obj.property.invincible_time,
+                                                    score=obj.property.score,
+                                                    bomb_range=obj.property.bomb_range,
+                                                    bomb_max_num=obj.property.bomb_max_num,
+                                                    bomb_now_num=obj.property.bomb_now_num,
+                                                    speed=obj.property.speed)
                 if flag and enemy_id != -1:
                     break
         return my_player,enemy_player
     
 
-    def nextPosition(self,x:int,y:int,action:ActionType):
+    def nextPosition(self, x:int, y:int, action:ActionType):
         #经过动作后坐标x,y
         if action == ActionType.MOVE_DOWN:
-            return x+1,y
+            return x + 1, y
         elif action == ActionType.MOVE_UP:
-            return x-1,y
+            return x - 1, y
         elif action == ActionType.MOVE_LEFT:
-            return x,y-1
+            return x, y - 1
         elif action == ActionType.MOVE_RIGHT:
-            return x,y+1
+            return x, y + 1
         else :
-            return x,y
+            return x, y
 
      
     def calculateReward(self,cur_resp:PacketResp,next_resp:PacketResp,action:tuple,cur_map:Mapcode,cur_player_me:PlayerInfo,cur_player_enemy:PlayerInfo)->int:
@@ -185,82 +285,6 @@ class EnvManager():  # add your var and method under the class.
             if reward != 0:
                 return reward
         return reward
-    
-        
-    def step(self, action:tuple):#TODO:add bomb time?
-        """
-        handle 1 action and return response
-        you should only return the response when the response round changed.
-        """
-        f.write("enter step\n")
-        if self.next_resp is None:
-            while self.next_resp is None:
-                continue
-            self.lock_interaction.acquire()
-            self.cur_round = self.next_resp.data.round
-            # print(self.cur_round)
-            assert self.cur_round == 1
-            self.cur_resp = copy.deepcopy(self.next_resp)
-            self.lock_interaction.release()
-            
-        while self.next_resp.data.round == self.cur_round:
-            # if self.next_resp is not None:
-            #     print(self.next_resp.data.round)
-            continue
-         
-        self.lock_interaction.acquire()  # avoid the competence
-        f.write("enter step lock\n")
-        # encode  
-        self.cur_action = action
-        cur_player_my_state,cur_player_enemy_state = self.playerState(self.cur_resp)#action未执行 player State
-        # next_player_my_state,next_player_enemy_state =self.playerState(self.next_resp) #action执行完后player state
-        cur_state = self.encode_state(self.cur_resp)  # map state
-        f.write(str(self.cur_resp.data.round))
-        f.write("\n")
-        f.write(str(self.next_resp.data.round))
-        next_state = self.encode_state(self.next_resp)  # 
-        reward = self.calculateReward(self.cur_resp, self.next_resp, self.cur_action,cur_state,cur_player_my_state,cur_player_enemy_state)         
-        is_over = self.next_resp.type == PacketType.GameOver
-
-        # update
-        self.cur_round = self.next_resp.data.round
-        self.cur_resp = copy.deepcopy(self.next_resp)  # NOTE: deepcopy.
-        self.lock_interaction.release()  # avoid the competence
-        f.write("leave step\n")
-        # return
-        return cur_state, next_state, reward, is_over
-    
-
-    def start(self):
-        self.t_game = Thread(target=self.start_game)
-        self.t_game.start()
-
-
-    def reset(self):#return ?
-        """
-        restart the game
-        """
-        global gContext
-        # 设置终止标志
-        gContext["gameOverFlag"]= True
-        # close threads
-        if self.t_ui is not None:
-            self.t_ui.join()
-        if self.t_game is not None:
-            self.t_game.join()
-
-        # 重新启动
-        self.ui = None
-        self.next_resp = None
-        self.cur_resp = None
-        self.cur_action = None
-        self.cur_round = 0
-        gContext["gameOverFlag"] = False
-        gContext["gameBeginFlag"] = False
-        gContext["playerID"] = -1
-        self.start()
-   
-
 
 
     def cliGetInitReq(self):

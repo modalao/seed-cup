@@ -21,11 +21,11 @@ class TrainManager():
         self.env = env
         self.episodes = episodes
 
-        n_act = env.action_space.n  # TODO: according to EnvManager
-        n_obs = env.observation_space.shape[0]  # TODO: according to EnvManager
-        q_func = MLP(n_obs, n_act)
+        n_act = env.n_act
+        input_shape = env.encode_shape  # TODO: according to EnvManager
+        q_func = MLP(input_shape, n_act)
         optimizer = torch.optim.AdamW(q_func.parameters(), lr=lr)
-        rb = replay_buffers.ReplayBuffer(memory_size,num_steps)
+        rb = replay_buffers.ReplayBuffer(memory_size, num_steps)
 
         self.agent = agents.DQNAgent(
             q_func = q_func,
@@ -43,10 +43,10 @@ class TrainManager():
         obs = self.env.reset()  # TODO: according to EnvManager
         while True:
             action = self.agent.act(obs)
-            next_obs, reward, done, _ = self.env.step(action)  # TODO: according to EnvManager
+            cur_obs, next_obs, reward, done = self.env.step(action)
             total_reward += reward
-            self.agent.learn(obs, action, reward, next_obs, done)
-            obs = next_obs
+            self.agent.learn(cur_obs, action, reward, next_obs, done)
+            obs = next_obs  # TODO: don't need cur_obs in step() ?
             if done: break
         return total_reward
 
@@ -56,10 +56,10 @@ class TrainManager():
         obs = self.env.reset()  # TODO: according to EnvManager
         while True:
             action = self.agent.predict(obs)
-            next_obs, reward, done, _ = self.env.step(action)  # TODO: according to EnvManager
+            cur_obs, next_obs, reward, done = self.env.step(action)
             total_reward += reward
-            obs = next_obs
-            self.env.render()  # TODO: according to EnvManager
+            obs = next_obs  # TODO: don't need cur_obs in step() ?
+            # self.env.render()  # TODO: according to EnvManager
             if done: break
         return total_reward
 
