@@ -25,7 +25,7 @@ import reward
 
 rewardPriority={
     1:reward.rewardBomb,
-    2:reward.rewardItem,
+    # 2:reward.rewardItem,
     3:reward.awayFromBomb,
     4:reward.nearItem,
 }
@@ -90,6 +90,7 @@ class EnvManager():  # add your var and method under the class.
         handle 1 action and return response
         you should only return the response when the response round changed.
         """
+        global gContext
         f.write("enter step\n")
         if self.next_resp is None:
             while self.next_resp is None:
@@ -101,10 +102,13 @@ class EnvManager():  # add your var and method under the class.
             self.cur_resp = copy.deepcopy(self.next_resp)
             self.lock_interaction.release()
             
-        while self.next_resp.data.round == self.cur_round:
+        while gContext["gameOverFlag"] == False and self.next_resp.data.round == self.cur_round:
             # if self.next_resp is not None:
             #     print(self.next_resp.data.round)
             continue
+
+        if gContext["gameOverFlag"] == True:
+            return None, None, None, 1
          
         self.lock_interaction.acquire()  # avoid the competence
         f.write("enter step lock\n")
@@ -280,7 +284,7 @@ class EnvManager():  # add your var and method under the class.
             return -100
         
         reward:int = 0
-        for i in sorted (rewardPriority) :#按键值排序，先调用优先级高的，返回reward
+        for i in sorted(rewardPriority.keys()):#按键值排序，先调用优先级高的，返回reward
             reward=rewardPriority[i](cur_resp,next_resp,cur_map,action,cur_player_me,cur_player_enemy)
             if reward != 0:
                 return reward
@@ -421,8 +425,9 @@ with open("env.log", "w") as f:
                    (ActionType.MOVE_RIGHT, ActionType.SILENT)]
     env.start()
     while True:
-        cur_state1, next_state1, reward1, is_over1 = env.step((ActionType.MOVE_LEFT, ActionType.SILENT))
-        cur_state2, next_state2, reward2, is_over2 = env.step((ActionType.MOVE_RIGHT, ActionType.SILENT))
+        cur_state1, next_state1, reward1, is_over1 = env.step((ActionType.PLACED, ActionType.SILENT))
+        if is_over1:
+            break
     # f.write(str(reward1))
     # f.write("\n")
     # f.write(str(is_over1))

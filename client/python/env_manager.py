@@ -94,13 +94,14 @@ class EnvManager():  # add your var and method under the class.
         handle 1 action and return response
         you should only return the response when the response round changed.
         """
+        global gContext
         f.write("enter step\n")
             
         while self.resp is None:  # execute only once 
             continue
         
         self.lock_interaction.acquire()  ###### avoid the competence
-        assert self.resp.data.round == self.cur_round
+        # assert self.resp.data.round == self.cur_round
         f.write("enter step lock\n")
         self.cur_action = action
         cur_state = self.encode_state(self.resp)
@@ -115,7 +116,13 @@ class EnvManager():  # add your var and method under the class.
         # print(self.resp.type is PacketType.GameOver)
         while True:  # update resp
             self.lock_interaction.acquire()
-            flag = self.resp.type is PacketType.ActionResp and self.resp.data.round == self.cur_round
+            if gContext["gameOverFlag"] == True:
+                flag = 0
+            elif self.resp.data.round == self.cur_round:
+                flag = 1
+            else:
+                flag = 0  
+            # flag = self.resp.type is PacketType.ActionResp and self.resp.data.round == self.cur_round
             self.lock_interaction.release()
             if flag:
                 continue
@@ -304,7 +311,9 @@ class EnvManager():  # add your var and method under the class.
     def recvAndRefresh(self, client: Client):
         """Recv packet and refresh ui."""
         global gContext
+        self.lock_interaction.acquire()
         self.resp = client.recv()
+        self.lock_interaction.release()
         # print(self.next_resp.data.round)
 
         if self.resp.type == PacketType.ActionResp:
@@ -319,8 +328,8 @@ class EnvManager():  # add your var and method under the class.
             self.lock_interaction.acquire()  # add lock
             self.ui.refresh(self.resp.data)
             self.ui.display()
-            self.lock_interaction.release()
             self.resp = client.recv()
+            self.lock_interaction.release()
 
         print(f"Game Over!")
         print(f"Final scores \33[1m{self.resp.data.scores}\33[0m")
@@ -333,7 +342,7 @@ class EnvManager():  # add your var and method under the class.
             )
 
         gContext["gameOverFlag"] = True
-        print("press any key to quit")
+        # print("press any key to quit")
 
 
     def getActionFromIO(self):
@@ -429,7 +438,9 @@ with open("env.log", "w") as f:
                    (ActionType.MOVE_RIGHT, ActionType.SILENT)]
     env.start()
     while True:
-        cur_state1, reward1, is_over1 = env.step((ActionType.PLACED, ActionType.SILENT))
+        cur_state1, reward1, is_over_1 = env.step((ActionType.PLACED, ActionType.SILENT))
+        if is_over_1:
+            break
         # cur_state2, reward2, is_over2 = env.step((ActionType.MOVE_RIGHT, ActionType.SILENT))
     # f.write(str(reward1))
     # f.write("\n")
