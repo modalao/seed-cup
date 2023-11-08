@@ -31,6 +31,8 @@ def rewardBomb(cur_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerInfo
         for next_item in next_position:
             tx = x+next_item[0]
             ty = y+next_item[1]
+            if checkoutofrange(tx,ty)  :
+                continue
             if cur_map[tx][ty] in (Mapcode.ItemBombRange,Mapcode.ItemHp,Mapcode.ItemInvencible,Mapcode.ItemNum,Mapcode.ItemShield):
                 return -30
             
@@ -38,6 +40,8 @@ def rewardBomb(cur_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerInfo
         for next_item in next_position:
             tx = px1+next_item[0]
             ty = py1+next_item[1]
+            if checkoutofrange(tx,ty):
+                continue
             if cur_map[tx][ty] in (Mapcode.ItemBombRange,Mapcode.ItemHp,Mapcode.ItemInvencible,Mapcode.ItemNum,Mapcode.ItemShield):
                 return -30   
     #炸removable障碍物奖励
@@ -45,12 +49,16 @@ def rewardBomb(cur_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerInfo
         for next_item in next_position:
             tx = x+next_item[0]
             ty = y+next_item[1]
+            if checkoutofrange(tx,ty):
+                continue
             if cur_map[tx][ty] == Mapcode.BlockRemovable:
                 return 10
     if action2 == ActionType.PLACED:
         for next_item in next_position:
             tx = px1+next_item[0]
             ty = py1+next_item[1]
+            if checkoutofrange(tx,ty):
+                continue
             if cur_map[tx][ty] == Mapcode.BlockRemovable:
                 return 10
     #TODO 其他 

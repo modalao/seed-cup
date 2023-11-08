@@ -80,6 +80,10 @@ class EnvManager():  # add your var and method under the class.
 
         # encode shape
         self.encode_shape = 15 * 15 + 15
+
+        # process to be controled
+        self.process_server = None
+        self.process_bot = None
         
         # log
         f.write("init\n")
@@ -108,19 +112,27 @@ class EnvManager():  # add your var and method under the class.
                                       cur_player_enemy_state)  # TODO: change it.
         self.lock_interaction.release()  ###### avoid the competence
         
-        while self.resp.data.round == self.cur_round:  # update resp
-            continue
-        
+        # print(self.resp.type is PacketType.GameOver)
+        while True:  # update resp
+            self.lock_interaction.acquire()
+            flag = self.resp.type is PacketType.ActionResp and self.resp.data.round == self.cur_round
+            self.lock_interaction.release()
+            if flag:
+                continue
+            else:
+                break
+            
         self.lock_interaction.acquire()  ###### avoid the competence
-        self.cur_round = self.resp.data.round  # update round
         next_state = self.encode_state(self.resp)  # map state
+        if self.resp.type != PacketType.GameOver:
+            self.cur_round = self.resp.data.round  # update round
         is_over = self.resp.type == PacketType.GameOver
+
+        # f.write(str(self.resp.data.round))
+        # f.write("\n")
+        # f.write(str(self.resp.data.round))
         self.lock_interaction.release()  ###### avoid the competence
         
-        
-        f.write(str(self.resp.data.round))
-        f.write("\n")
-        f.write(str(self.resp.data.round))
             
         f.write("leave step\n")
 
@@ -137,6 +149,9 @@ class EnvManager():  # add your var and method under the class.
         """
         restart the game
         """
+        target_directory = "../../bin"
+        process_server = subprocess.Popen(["server"], cwd=target_directory)
+        process_bot = subprocess.Popen(["silly-bot"], ced=target_directory)
         global gContext
         # 设置终止标志
         gContext["gameOverFlag"]= True
@@ -414,8 +429,8 @@ with open("env.log", "w") as f:
                    (ActionType.MOVE_RIGHT, ActionType.SILENT)]
     env.start()
     while True:
-        cur_state1, reward1, is_over1 = env.step((ActionType.MOVE_LEFT, ActionType.SILENT))
-        cur_state2, reward2, is_over2 = env.step((ActionType.MOVE_RIGHT, ActionType.SILENT))
+        cur_state1, reward1, is_over1 = env.step((ActionType.PLACED, ActionType.SILENT))
+        # cur_state2, reward2, is_over2 = env.step((ActionType.MOVE_RIGHT, ActionType.SILENT))
     # f.write(str(reward1))
     # f.write("\n")
     # f.write(str(is_over1))
