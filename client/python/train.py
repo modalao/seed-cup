@@ -13,6 +13,7 @@ class TrainManager():
                  num_steps = 4,  #进行学习的频次
                  memory_size = 2000,  #经验回放池的容量
                  replay_start_size = 200,  #开始回放的次数
+                 update_target_steps = 200,#同步参数的次数
                  lr = 0.001,  #学习率
                  gamma = 0.9,  #收益衰减率
                  e_greed = 0.3  #探索与利用中的探索概率
@@ -34,6 +35,7 @@ class TrainManager():
             replay_buffer = rb,
             batch_size = batch_size,
             replay_start_size = replay_start_size,
+            update_target_steps = update_target_steps,
             n_act = self.n_action,
             gamma = gamma,
             e_greed = e_greed)

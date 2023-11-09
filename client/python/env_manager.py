@@ -90,7 +90,8 @@ class EnvManager():  # add your var and method under the class.
             batch_size=8,
             num_steps=4,
             memory_size=2000,
-            replay_start_size=100
+            replay_start_size=100,
+            update_target_steps=20
         )
         
         # log
@@ -489,7 +490,7 @@ with open("env.log", "w") as f:
                    (ActionType.MOVE_LEFT, ActionType.SILENT), 
                    (ActionType.MOVE_RIGHT, ActionType.SILENT)]
     
-    env.train(10)
+    env.train(20)
         # cur_state2, reward2, is_over2 = env.step((ActionType.MOVE_RIGHT, ActionType.SILENT))
     # f.write(str(reward1))
     # f.write("\n")
