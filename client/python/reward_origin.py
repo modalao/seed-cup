@@ -16,7 +16,7 @@ BombMinNum = 10
 #reward 范围[10,100],[-100,-10]
 #按照优先级写，优先级高的先写，并且直接返回奖惩,如果无奖惩，返回0
 #形参为cur_resp当前resp报文，action为该回合的两个动作，cur_map 当前状态地图信息,cur_player_me 我方信息，cur_player_enemy 敌方信息
-def rewardBomb(cur_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerInfo,cur_player_enemy:PlayerInfo)->int:
+def rewardBomb(cur_resp:PacketResp,next_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerInfo,cur_player_enemy:PlayerInfo)->int:
     '''
     炸弹相关reward
     '''
@@ -27,9 +27,6 @@ def rewardBomb(cur_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerInfo
     #first step
     px1,py1 = nextPositionActual(cur_player_me.position_x,cur_player_me.position_y,action1,cur_map)
     
-    #没有炸弹时，不要放炸弹
-    if(cur_player_me.bomb_now_num ==0 and (action1 == ActionType.PLACED or action2 ==ActionType.PLACED)):
-        return -20
     #炸道具惩罚
     if action1 == ActionType.PLACED:
         for next_item in next_position:
@@ -69,7 +66,7 @@ def rewardBomb(cur_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerInfo
     
     return 0
     
-def awayFromBomb(cur_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerInfo,cur_player_enemy:PlayerInfo)->int:
+def awayFromBomb(cur_resp:PacketResp,next_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerInfo,cur_player_enemy:PlayerInfo)->int:
     '''
     远离炸弹reward
     '''    
@@ -92,9 +89,9 @@ def awayFromBomb(cur_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerIn
     
     return 0
 
-def nearItem(cur_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerInfo,cur_player_enemy:PlayerInfo)->int:
+def nearItem(cur_resp:PacketResp,next_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerInfo,cur_player_enemy:PlayerInfo)->int:
     '''
-    捡道具reward
+    剪道具reward
     '''
     action1=action[0]
     action2=action[1]
@@ -115,7 +112,7 @@ def nearItem(cur_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerInfo,c
     return reward1
     #TODO 实现靠近道具
     
-def collideWall(cur_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerInfo,cur_player_enemy:PlayerInfo)->int:
+def collideWall(cur_resp:PacketResp,next_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerInfo,cur_player_enemy:PlayerInfo)->int:
     '''
     撞墙reward
     '''
@@ -176,11 +173,10 @@ def collideWall(cur_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerInf
         elif cur_map[px1+1][py1]>=BombMinNum:  #撞炸弹
             reward1+=-30    
 
-    #不撞奖励
-    return 50
+    return reward1
 
 
-def awayFromPlayer(cur_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerInfo,cur_player_enemy:PlayerInfo)->int:
+def awayFromPlayer(cur_resp:PacketResp,next_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerInfo,cur_player_enemy:PlayerInfo)->int:
     '''
     防守型，和敌人保持一段距离
     '''    

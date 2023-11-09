@@ -87,10 +87,10 @@ class EnvManager():  # add your var and method under the class.
         self.train_manager = TrainManager(
             self.n_act,
             self.encode_shape,
-            batch_size=2,
+            batch_size=8,
             num_steps=4,
             memory_size=2000,
-            replay_start_size=10
+            replay_start_size=100
         )
         
         # log
@@ -243,9 +243,10 @@ class EnvManager():  # add your var and method under the class.
         
         reward:int = 0
         for i in sorted(rewardPriority.keys()):  # 按键值排序，先调用优先级高的，返回reward
-            reward=rewardPriority[i](cur_resp,action,cur_map,cur_player_me,cur_player_enemy)
-            if reward != 0:
-                return reward
+            # reward=rewardPriority[i](cur_resp,action,cur_map,cur_player_me,cur_player_enemy)
+            # if reward != 0:
+                # return reward
+            reward+=rewardPriority[i](cur_resp,action,cur_map,cur_player_me,cur_player_enemy)
         return reward
     
 

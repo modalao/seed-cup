@@ -5,7 +5,8 @@ from mapcode import Mapcode
 from config import *
 
 
-unmovable_block = [Mapcode.BlockRemovable,Mapcode.BlockUnRemovable,c for c in range(10,30)]
+unmovable_block = [Mapcode.BlockRemovable.value,Mapcode.BlockUnRemovable.value]
+unmovable_block.extend([c for c in range(10,30)])
 
 def nextPositionIdeal(x:int, y:int, action:ActionType):
     '''
@@ -26,6 +27,8 @@ def nextPositionActual(x:int, y:int, action:ActionType,cur_map):
     '''
     经过动作后坐标x,y,实际坐标
     '''
+    # global unmovable_block
+    # print(unmovable_block)#
     if action == ActionType.SILENT:
         return x,y
     elif action == ActionType.PLACED:
@@ -41,6 +44,7 @@ def nextPositionActual(x:int, y:int, action:ActionType,cur_map):
         else :
            return x-1,y
     elif action == ActionType.MOVE_LEFT:
+        # print(unmovable_block)#
         if y == 0 or cur_map[x][y-1] in unmovable_block:
             return x,y
         else :
