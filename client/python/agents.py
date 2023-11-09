@@ -48,9 +48,9 @@ class DQNAgent(object):
     def learn_batch(self,batch_obs, batch_action, batch_reward, batch_next_obs, batch_done):
 
         # predict_Q
-        pred_Vs = self.q_func(batch_obs)
+        pred_Vs = self.q_func(batch_obs)  # (B, 240)
         # print(f'pred_Vs: {pred_Vs.shape}')
-        action_onehot = torchUtils.one_hot(batch_action, self.n_act)
+        action_onehot = torchUtils.one_hot(batch_action, self.n_act)  # (B, n_act)
         predict_Q = (pred_Vs * action_onehot).sum(1)
         # print(f'predict_Q: {predict_Q.shape}')
         # target_Q

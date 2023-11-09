@@ -1,2 +1,2 @@
-[2023-11-09 20:18:17.817] [seednet] [debug] setup logger success
-[2023-11-09 20:18:17.817] [seednet] [error] bind socket 0.0.0.0:9999 failed.
+[2023-11-09 20:26:45.828] [seednet] [debug] setup logger success
+[2023-11-09 20:26:45.828] [seednet] [error] bind socket 0.0.0.0:9999 failed.

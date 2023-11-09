@@ -424,7 +424,7 @@ class EnvManager():  # add your var and method under the class.
 
             # restart server and bot
             target_directory = "../../bin"
-            cur_dir = "/home/yu/codings/seed-cup/client/python"
+            cur_dir = os.getcwd()
             os.chdir(target_directory)
             with open("server_tmp.log", "w") as server_log:
                 process_server = subprocess.Popen("./server", stdout=server_log, stderr=server_log)

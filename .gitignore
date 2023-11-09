@@ -1,0 +1,5 @@
+bin/seedcup_*
+bin/server_tmp.log
+bin/result.json
+
+client/python/__pycache__/*
