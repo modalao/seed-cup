@@ -90,7 +90,8 @@ class EnvManager():  # add your var and method under the class.
             batch_size=8,
             num_steps=4,
             memory_size=2000,
-            replay_start_size=100
+            replay_start_size=100,
+            update_target_steps=20
         )
         
         # log
