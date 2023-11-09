@@ -5,7 +5,7 @@ from mapcode import Mapcode
 from config import *
 
 
-unmovable_block = [Mapcode.BlockRemovable, Mapcode.BlockUnRemovable].extend([c for c in range(10,30)])
+unmovable_block = [Mapcode.BlockRemovable,Mapcode.BlockUnRemovable,c for c in range(10,30)]
 
 def nextPositionIdeal(x:int, y:int, action:ActionType):
     '''
@@ -34,12 +34,12 @@ def nextPositionActual(x:int, y:int, action:ActionType,cur_map):
         if x == config.get("map_size")-1 or cur_map[x+1][y] in unmovable_block:
             return x,y
         else :
-            return x-1,y
+            return x+1,y
     elif action == ActionType.MOVE_UP:
         if x == 0 or cur_map[x-1][y] in unmovable_block:
             return x,y
         else :
-           return x+1,y
+           return x-1,y
     elif action == ActionType.MOVE_LEFT:
         if y == 0 or cur_map[x][y-1] in unmovable_block:
             return x,y
@@ -59,7 +59,7 @@ def actionStepMap(action:ActionType,cur_map,x:int,y:int,bomb_range:int):#action�
     if action == ActionType.SILENT:
         return now_map
     elif action == ActionType.PLACED:
-        now_map[x][y] = Mapcode.BombHuman
+        now_map[x][y] = Mapcode.BombHuman.value
     elif action == ActionType.MOVE_DOWN:
         if x == config.get("map_size")-1 or now_map[x+1][y] in unmovable_block:
             pass
@@ -117,3 +117,18 @@ def checkPersonInBombRange(cur_map,x:int,y:int,bombrange:int)->bool:
             if(cur_map[tx][ty] == Mapcode.BombBase or cur_map[tx][ty] == Mapcode.BombHuman):
                 return True
     return False
+
+
+def distance(me_x:int,me_y:int,enemy_x:int,enemy_y:int)->int:
+    '''
+    计算敌人和自己的距离
+    '''
+    if me_x>=enemy_x:
+        dis_x=me_x-enemy_x
+    else: 
+        dis_x=enemy_x-me_x
+    if me_y>=enemy_y:
+        dis_y=me_y-enemy_y
+    else:
+        dis_y=enemy_y-me_y
+    return dis_x+dis_y
