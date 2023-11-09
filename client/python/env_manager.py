@@ -490,7 +490,7 @@ with open("env.log", "w") as f:
                    (ActionType.MOVE_LEFT, ActionType.SILENT), 
                    (ActionType.MOVE_RIGHT, ActionType.SILENT)]
     
-    env.train(20)
+    env.train(50)
         # cur_state2, reward2, is_over2 = env.step((ActionType.MOVE_RIGHT, ActionType.SILENT))
     # f.write(str(reward1))
     # f.write("\n")
