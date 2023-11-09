@@ -167,7 +167,137 @@
 [2023-11-09 20:17:58.148] [seednet] [error] bind socket 0.0.0.0:9999 failed.
 [2023-11-09 20:18:17.817] [seednet] [debug] setup logger success
 [2023-11-09 20:18:17.817] [seednet] [error] bind socket 0.0.0.0:9999 failed.
-[2023-11-09 20:26:37.723] [seednet] [debug] setup logger success
-[2023-11-09 20:26:37.723] [seednet] [error] bind socket 0.0.0.0:9999 failed.
-[2023-11-09 20:26:45.828] [seednet] [debug] setup logger success
-[2023-11-09 20:26:45.828] [seednet] [error] bind socket 0.0.0.0:9999 failed.
+[2023-11-09 12:36:21.323] [seednet] [debug] setup logger success
+[2023-11-09 12:36:21.323] [seednet] [error] bind socket 0.0.0.0:9999 failed.
+[2023-11-09 12:36:30.124] [seednet] [debug] setup logger success
+[2023-11-09 12:36:30.125] [seednet] [error] bind socket 0.0.0.0:9999 failed.
+[2023-11-09 12:36:39.137] [seednet] [debug] setup logger success
+[2023-11-09 12:36:39.137] [seednet] [error] bind socket 0.0.0.0:9999 failed.
+[2023-11-09 12:36:54.192] [seednet] [debug] setup logger success
+[2023-11-09 12:36:54.193] [seednet] [error] bind socket 0.0.0.0:9999 failed.
+[2023-11-09 12:37:03.153] [seednet] [debug] setup logger success
+[2023-11-09 12:37:03.153] [seednet] [error] bind socket 0.0.0.0:9999 failed.
+[2023-11-09 12:37:29.866] [seednet] [debug] setup logger success
+[2023-11-09 12:37:29.866] [seednet] [error] bind socket 0.0.0.0:9999 failed.
+[2023-11-09 12:37:47.163] [seednet] [debug] setup logger success
+[2023-11-09 12:37:47.163] [seednet] [error] bind socket 0.0.0.0:9999 failed.
+[2023-11-09 12:37:58.322] [seednet] [debug] setup logger success
+[2023-11-09 12:37:58.322] [seednet] [error] bind socket 0.0.0.0:9999 failed.
+[2023-11-09 12:38:23.261] [seednet] [debug] setup logger success
+[2023-11-09 12:38:23.261] [seednet] [error] bind socket 0.0.0.0:9999 failed.
+[2023-11-09 12:38:42.229] [seednet] [debug] setup logger success
+[2023-11-09 12:38:42.229] [seednet] [error] bind socket 0.0.0.0:9999 failed.
+[2023-11-09 12:39:08.234] [seednet] [debug] setup logger success
+[2023-11-09 12:39:08.234] [seednet] [error] bind socket 0.0.0.0:9999 failed.
+[2023-11-09 12:39:23.257] [seednet] [debug] setup logger success
+[2023-11-09 12:39:23.258] [seednet] [error] bind socket 0.0.0.0:9999 failed.
+[2023-11-09 12:40:01.862] [seednet] [debug] setup logger success
+[2023-11-09 12:40:01.862] [seednet] [error] bind socket 0.0.0.0:9999 failed.
+[2023-11-09 12:40:28.268] [seednet] [debug] setup logger success
+[2023-11-09 12:40:28.268] [seednet] [error] bind socket 0.0.0.0:9999 failed.
+[2023-11-09 12:40:40.302] [seednet] [debug] setup logger success
+[2023-11-09 12:40:40.302] [seednet] [error] bind socket 0.0.0.0:9999 failed.
+[2023-11-09 12:41:45.495] [seednet] [debug] setup logger success
+[2023-11-09 12:41:45.495] [seednet] [error] bind socket 0.0.0.0:9999 failed.
+[2023-11-09 12:42:18.277] [seednet] [debug] setup logger success
+[2023-11-09 12:42:18.277] [seednet] [error] bind socket 0.0.0.0:9999 failed.
+[2023-11-09 12:42:31.309] [seednet] [debug] setup logger success
+[2023-11-09 12:42:31.309] [seednet] [error] bind socket 0.0.0.0:9999 failed.
+[2023-11-09 12:42:40.566] [seednet] [debug] setup logger success
+[2023-11-09 12:42:40.566] [seednet] [error] bind socket 0.0.0.0:9999 failed.
+[2023-11-09 12:42:58.413] [seednet] [debug] setup logger success
+[2023-11-09 12:42:58.413] [seednet] [error] bind socket 0.0.0.0:9999 failed.
+[2023-11-09 12:43:09.367] [seednet] [debug] setup logger success
+[2023-11-09 12:43:09.367] [seednet] [error] bind socket 0.0.0.0:9999 failed.
+[2023-11-09 12:43:18.405] [seednet] [debug] setup logger success
+[2023-11-09 12:43:18.405] [seednet] [error] bind socket 0.0.0.0:9999 failed.
+[2023-11-09 12:43:31.455] [seednet] [debug] setup logger success
+[2023-11-09 12:43:31.455] [seednet] [error] bind socket 0.0.0.0:9999 failed.
+[2023-11-09 12:43:40.493] [seednet] [debug] setup logger success
+[2023-11-09 12:43:40.493] [seednet] [error] bind socket 0.0.0.0:9999 failed.
+[2023-11-09 12:44:09.913] [seednet] [debug] setup logger success
+[2023-11-09 12:44:09.913] [seednet] [error] bind socket 0.0.0.0:9999 failed.
+[2023-11-09 12:44:31.927] [seednet] [debug] setup logger success
+[2023-11-09 12:44:31.927] [seednet] [error] bind socket 0.0.0.0:9999 failed.
+[2023-11-09 12:44:58.511] [seednet] [debug] setup logger success
+[2023-11-09 12:44:58.511] [seednet] [error] bind socket 0.0.0.0:9999 failed.
+[2023-11-09 12:45:07.524] [seednet] [debug] setup logger success
+[2023-11-09 12:45:07.524] [seednet] [error] bind socket 0.0.0.0:9999 failed.
+[2023-11-09 12:45:21.549] [seednet] [debug] setup logger success
+[2023-11-09 12:45:21.549] [seednet] [error] bind socket 0.0.0.0:9999 failed.
+[2023-11-09 12:45:32.223] [seednet] [debug] setup logger success
+[2023-11-09 12:45:32.223] [seednet] [error] bind socket 0.0.0.0:9999 failed.
+[2023-11-09 12:45:43.121] [seednet] [debug] setup logger success
+[2023-11-09 12:45:43.121] [seednet] [error] bind socket 0.0.0.0:9999 failed.
+[2023-11-09 12:45:54.289] [seednet] [debug] setup logger success
+[2023-11-09 12:45:54.289] [seednet] [error] bind socket 0.0.0.0:9999 failed.
+[2023-11-09 12:46:21.014] [seednet] [debug] setup logger success
+[2023-11-09 12:46:21.015] [seednet] [error] bind socket 0.0.0.0:9999 failed.
+[2023-11-09 12:46:31.714] [seednet] [debug] setup logger success
+[2023-11-09 12:46:31.715] [seednet] [error] bind socket 0.0.0.0:9999 failed.
+[2023-11-09 12:46:56.058] [seednet] [debug] setup logger success
+[2023-11-09 12:46:56.059] [seednet] [error] bind socket 0.0.0.0:9999 failed.
+[2023-11-09 12:47:05.927] [seednet] [debug] setup logger success
+[2023-11-09 12:47:05.927] [seednet] [error] bind socket 0.0.0.0:9999 failed.
+[2023-11-09 12:47:15.786] [seednet] [debug] setup logger success
+[2023-11-09 12:47:15.787] [seednet] [error] bind socket 0.0.0.0:9999 failed.
+[2023-11-09 12:47:30.869] [seednet] [debug] setup logger success
+[2023-11-09 12:47:30.869] [seednet] [error] bind socket 0.0.0.0:9999 failed.
+[2023-11-09 12:47:41.619] [seednet] [debug] setup logger success
+[2023-11-09 12:47:41.619] [seednet] [error] bind socket 0.0.0.0:9999 failed.
+[2023-11-09 12:48:36.365] [seednet] [debug] setup logger success
+[2023-11-09 12:48:36.366] [seednet] [error] bind socket 0.0.0.0:9999 failed.
+[2023-11-09 12:48:44.597] [seednet] [debug] setup logger success
+[2023-11-09 12:48:44.598] [seednet] [error] bind socket 0.0.0.0:9999 failed.
+[2023-11-09 12:48:56.276] [seednet] [debug] setup logger success
+[2023-11-09 12:48:56.276] [seednet] [error] bind socket 0.0.0.0:9999 failed.
+[2023-11-09 12:49:07.712] [seednet] [debug] setup logger success
+[2023-11-09 12:49:07.712] [seednet] [error] bind socket 0.0.0.0:9999 failed.
+[2023-11-09 12:49:19.594] [seednet] [debug] setup logger success
+[2023-11-09 12:49:19.594] [seednet] [error] bind socket 0.0.0.0:9999 failed.
+[2023-11-09 12:49:28.626] [seednet] [debug] setup logger success
+[2023-11-09 12:49:28.626] [seednet] [error] bind socket 0.0.0.0:9999 failed.
+[2023-11-09 12:49:38.963] [seednet] [debug] setup logger success
+[2023-11-09 12:49:38.963] [seednet] [error] bind socket 0.0.0.0:9999 failed.
+[2023-11-09 12:50:01.636] [seednet] [debug] setup logger success
+[2023-11-09 12:50:01.636] [seednet] [error] bind socket 0.0.0.0:9999 failed.
+[2023-11-09 12:50:13.630] [seednet] [debug] setup logger success
+[2023-11-09 12:50:13.630] [seednet] [error] bind socket 0.0.0.0:9999 failed.
+[2023-11-09 12:50:23.648] [seednet] [debug] setup logger success
+[2023-11-09 12:50:23.648] [seednet] [error] bind socket 0.0.0.0:9999 failed.
+[2023-11-09 12:50:32.767] [seednet] [debug] setup logger success
+[2023-11-09 12:50:32.767] [seednet] [error] bind socket 0.0.0.0:9999 failed.
+[2023-11-09 12:50:52.650] [seednet] [debug] setup logger success
+[2023-11-09 12:50:52.651] [seednet] [error] bind socket 0.0.0.0:9999 failed.
+[2023-11-09 12:51:03.201] [seednet] [debug] setup logger success
+[2023-11-09 12:51:03.202] [seednet] [error] bind socket 0.0.0.0:9999 failed.
+[2023-11-09 12:51:19.152] [seednet] [debug] setup logger success
+[2023-11-09 12:51:19.153] [seednet] [error] bind socket 0.0.0.0:9999 failed.
+[2023-11-09 12:51:36.167] [seednet] [debug] setup logger success
+[2023-11-09 12:51:36.167] [seednet] [error] bind socket 0.0.0.0:9999 failed.
+[2023-11-09 12:52:07.527] [seednet] [debug] setup logger success
+[2023-11-09 12:52:07.527] [seednet] [error] bind socket 0.0.0.0:9999 failed.
+[2023-11-09 12:52:30.357] [seednet] [debug] setup logger success
+[2023-11-09 12:52:30.357] [seednet] [error] bind socket 0.0.0.0:9999 failed.
+[2023-11-09 12:52:53.185] [seednet] [debug] setup logger success
+[2023-11-09 12:52:53.185] [seednet] [error] bind socket 0.0.0.0:9999 failed.
+[2023-11-09 12:53:11.395] [seednet] [debug] setup logger success
+[2023-11-09 12:53:11.396] [seednet] [error] bind socket 0.0.0.0:9999 failed.
+[2023-11-09 12:53:38.450] [seednet] [debug] setup logger success
+[2023-11-09 12:53:38.450] [seednet] [error] bind socket 0.0.0.0:9999 failed.
+[2023-11-09 12:54:09.946] [seednet] [debug] setup logger success
+[2023-11-09 12:54:09.946] [seednet] [error] bind socket 0.0.0.0:9999 failed.
+[2023-11-09 12:55:15.899] [seednet] [debug] setup logger success
+[2023-11-09 12:55:15.899] [seednet] [error] bind socket 0.0.0.0:9999 failed.
+[2023-11-09 12:55:53.382] [seednet] [debug] setup logger success
+[2023-11-09 12:55:53.382] [seednet] [error] bind socket 0.0.0.0:9999 failed.
+[2023-11-09 12:56:16.278] [seednet] [debug] setup logger success
+[2023-11-09 12:56:16.278] [seednet] [error] bind socket 0.0.0.0:9999 failed.
+[2023-11-09 12:56:39.031] [seednet] [debug] setup logger success
+[2023-11-09 12:56:39.031] [seednet] [error] bind socket 0.0.0.0:9999 failed.
+[2023-11-09 12:56:57.086] [seednet] [debug] setup logger success
+[2023-11-09 12:56:57.086] [seednet] [error] bind socket 0.0.0.0:9999 failed.
+[2023-11-09 12:57:10.895] [seednet] [debug] setup logger success
+[2023-11-09 12:57:10.895] [seednet] [error] bind socket 0.0.0.0:9999 failed.
+[2023-11-09 12:58:17.774] [seednet] [debug] setup logger success
+[2023-11-09 12:58:17.774] [seednet] [error] bind socket 0.0.0.0:9999 failed.

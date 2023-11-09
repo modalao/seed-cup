@@ -243,10 +243,10 @@ class EnvManager():  # add your var and method under the class.
         
         reward:int = 0
         for i in sorted(rewardPriority.keys()):  # 按键值排序，先调用优先级高的，返回reward
-            # reward=rewardPriority[i](cur_resp,action,cur_map,cur_player_me,cur_player_enemy)
-            # if reward != 0:
-                # return reward
-            reward+=rewardPriority[i](cur_resp,action,cur_map,cur_player_me,cur_player_enemy)
+            reward=rewardPriority[i](cur_resp,action,cur_map,cur_player_me,cur_player_enemy)
+            if reward != 0:
+                return reward
+            # reward+=rewardPriority[i](cur_resp,action,cur_map,cur_player_me,cur_player_enemy)
         return reward
     
 
@@ -382,7 +382,10 @@ class EnvManager():  # add your var and method under the class.
                 self.resp = client.recv()
                 print(f'receive resp, type={self.resp.type}')
                 inter_lock.release()
-
+                
+                #死亡扣分
+                if self.resp.type == PacketType.GameOver:
+                    reward = -100
                 # calculate state
                 next_obs_state = self.encode_state(self.resp)
                 next_player_my_state, next_player_enemy_state = self.playerState(self.resp)
@@ -394,6 +397,7 @@ class EnvManager():  # add your var and method under the class.
                                                   reward, 
                                                   next_state,
                                                   is_over)
+                
                 
 
             print(f"Game Over!")
@@ -489,7 +493,7 @@ with open("env.log", "w") as f:
                    (ActionType.MOVE_LEFT, ActionType.SILENT), 
                    (ActionType.MOVE_RIGHT, ActionType.SILENT)]
     
-    env.train(10)
+    env.train(50)
         # cur_state2, reward2, is_over2 = env.step((ActionType.MOVE_RIGHT, ActionType.SILENT))
     # f.write(str(reward1))
     # f.write("\n")
