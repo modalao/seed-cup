@@ -49,12 +49,17 @@ class DQNAgent(object):
 
         # predict_Q
         pred_Vs = self.q_func(batch_obs)
+        # print(f'pred_Vs: {pred_Vs.shape}')
         action_onehot = torchUtils.one_hot(batch_action, self.n_act)
         predict_Q = (pred_Vs * action_onehot).sum(1)
+        # print(f'predict_Q: {predict_Q.shape}')
         # target_Q
         next_pred_Vs = self.q_func(batch_next_obs)
+        # print(f'next_pred_Vs: {next_pred_Vs.shape}')
         best_V = next_pred_Vs.max(1)[0]
+        # print(f'best_V: {best_V.shape}')
         target_Q = batch_reward + (1 - batch_done) * self.gamma * best_V
+        # print(f'target_Q: {target_Q.shape}')
 
         # 更新参数
         self.optimizer.zero_grad()
@@ -64,6 +69,8 @@ class DQNAgent(object):
 
     def learn(self, obs, action, reward, next_obs, done):
         self.global_step += 1
+        # print(obs.shape)
+        # print(next_obs.shape)
         self.rb.append((obs, action, reward, next_obs, done))
         if len(self.rb) > self.replay_start_size and self.global_step % self.rb.num_steps==0:
             self.learn_batch(*self.rb.sample(self.batch_size))

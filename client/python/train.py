@@ -1,15 +1,14 @@
 from model import MLP
 import replay_buffers
 import agents
-import env_manager
 
 import torch
 
 class TrainManager():
 
     def __init__(self,
-                 env,  #环境
-                 episodes = 1000,  #轮次数量
+                 n_action,
+                 input_shape,
                  batch_size = 32,  #每一批次的数量
                  num_steps = 4,  #进行学习的频次
                  memory_size = 2000,  #经验回放池的容量
@@ -18,12 +17,14 @@ class TrainManager():
                  gamma = 0.9,  #收益衰减率
                  e_greed = 0.1  #探索与利用中的探索概率
                  ):
-        self.env = env
-        self.episodes = episodes
+        self.n_action = n_action
+        self.input_shape = input_shape
+        self.cur_episode = 0
+        self.obs = None
+        self.total_reward = 0
+        self.eval = False
 
-        n_act = env.n_act
-        input_shape = env.encode_shape  # TODO: according to EnvManager
-        q_func = MLP(input_shape, n_act)
+        q_func = MLP(self.input_shape, self.n_action)
         optimizer = torch.optim.AdamW(q_func.parameters(), lr=lr)
         rb = replay_buffers.ReplayBuffer(memory_size, num_steps)
 
@@ -33,9 +34,53 @@ class TrainManager():
             replay_buffer = rb,
             batch_size = batch_size,
             replay_start_size = replay_start_size,
-            n_act = n_act,
+            n_act = self.n_action,
             gamma = gamma,
             e_greed = e_greed)
+        
+    
+    def agent_act(self):
+        return self.agent.act(self.obs)
+    
+    
+    def agent_predict(self):
+        return self.agent.predict(self.obs)
+    
+
+    def get_action(self):
+        if self.eval:
+            print(f'get action with no epsilon')
+            return self.agent_predict()
+        else:
+            print(f'get action with epsilon')
+            return self.agent_act()
+        
+    
+    def eval_mode(self):
+        self.eval = True
+
+    def train_mode(self):
+        self.eval = False
+
+
+    def init_obs(self, first_obs):
+        self.obs = first_obs
+
+    def train_one_step(self, action, reward, next_obs, done):
+        if self.eval:
+            self.total_reward += reward
+            self.obs = next_obs
+        else:
+            self.total_reward += reward
+            self.agent.learn(self.obs, action, reward, next_obs, done)
+            self.obs = next_obs
+        if done:
+            if self.eval:
+                print('test reward = %.1f' % (self.total_reward))
+            else:
+                print('train reward = %.1f' % (self.total_reward))
+            self.total_reward = 0
+
 
     # 训练一轮游戏
     def train_episode(self):
@@ -49,6 +94,7 @@ class TrainManager():
             obs = next_obs  # TODO: don't need cur_obs in step() ?
             if done: break
         return total_reward
+    
 
     # 测试一轮游戏
     def test_episode(self):
@@ -63,6 +109,7 @@ class TrainManager():
             if done: break
         return total_reward
 
+
     def train(self):
         for e in range(self.episodes):
             ep_reward = self.train_episode()
@@ -74,6 +121,7 @@ class TrainManager():
 
 
 if __name__ == '__main__':
-    env = env_manager.EnvManager()
-    tm = TrainManager(env)
-    tm.train()
+    # env = env_manager.EnvManager()
+    # tm = TrainManager(env)
+    # tm.train()
+    pass

@@ -1,3 +1,5 @@
+import torch
+
 class PlayerInfo:
     #记录个人信息,用于神经网络和reward计算
     def __init__(
@@ -67,3 +69,23 @@ class PlayerInfo:
         self.bomb_now_num = bomb_now_num
         self.speed = speed
         self.game_over =game_over
+
+
+    def to_tensor(self):
+        info_list = [self.position_x,
+                     self.position_y,
+                     self.position,
+                     self.player_is_me,
+                     self.player_id,
+                     self.alive,
+                     self.hp,
+                     self.shield_time,
+                     self.invincible_time,
+                     self.score,
+                     self.bomb_range,
+                     self.bomb_max_num,
+                     self.bomb_now_num,
+                     self.speed,
+                     self.game_over]
+        return torch.Tensor(info_list)
+    

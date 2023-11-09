@@ -16,8 +16,7 @@ class MLP(torch.nn.Module):
             torch.nn.Linear(512, 256),
             torch.nn.ReLU(),
             torch.nn.Linear(256, n_act),
-            torch.nn.ReLU(),
-            torch.nn.Softmax(n_act)
+            torch.nn.ReLU()
         )
 
     def forward(self, x):
