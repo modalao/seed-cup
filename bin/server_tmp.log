@@ -1,0 +1,313 @@
+[2023-11-09 17:34:56.497] [seednet] [debug] setup logger success
+[2023-11-09 17:34:56.497] [seednet] [info] create and bind socket 0.0.0.0:9999 success!
+[2023-11-09 17:34:56.497] [seednet] [info] EpollTcpServer Init Success.
+[2023-11-09 17:34:56.497] [seednet] [info] Epoll op: add, Epoll events: read.
+[2023-11-09 17:34:56.497] [seednet] [info] Epoll op: add, Epoll events: read.
+[2023-11-09 17:34:56.497] [seedgame] [debug] setup logger success
+[2023-11-09 17:34:56.498] [seedgame] [debug] init map success 15*15
+[2023-11-09 17:34:56.499] [seednet] [info] accepting connection from 127.0.0.1.
+[2023-11-09 17:34:56.499] [seednet] [info] Epoll op: add, Epoll events: read.
+[2023-11-09 17:34:56.499] [seednet] [info] accepting all connections.
+[2023-11-09 17:34:56.499] [seednet] [info] fd 8 recv 52 bytes, content: {"type": 1, "data": {"player_name": "seed-soldier"}}
+[2023-11-09 17:34:56.499] [seedgame] [debug] player 0 add success in 14,14
+
+
+[32m👤player_name:seed-soldier 0 player_id:0 💖HP:1 🗽invincible_time:0 🔰shield_time:0 🧪bomb_range:1 💊bomb_max_num:2 💣bomb_now_num:0 🚅speed:2 💯mark:0 💺pos:14,14[0m
+[33m🎮game_round:0 🟫block_num:170
+[0m
+_ _ [32m6 [0m[32m6 [0m[32m6 [0m_ [32m6 [0m[32m6 [0m_ _ [32m6 [0m[32m6 [0m_ _ _ 
+_ 9 [32m6 [0m9 _ 9 9 9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 _ 
+[32m6 [0m9 [32m6 [0m[32m6 [0m[32m6 [0m_ [32m6 [0m_ [32m6 [0m9 _ [32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m
+[32m6 [0m9 9 9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 9 9 _ 
+_ 9 _ [32m6 [0m[32m6 [0m[32m6 [0m_ [32m6 [0m[32m6 [0m9 [32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m
+_ 9 [32m6 [0m9 _ 9 [32m6 [0m9 9 9 [32m6 [0m9 9 9 [32m6 [0m
+_ [32m6 [0m[32m6 [0m9 [32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m_ _ _ _ [32m6 [0m[32m6 [0m_ 
+[32m6 [0m9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 9 9 9 9 _ 9 _ 
+_ [32m6 [0m[32m6 [0m[32m6 [0m_ 9 [32m6 [0m[32m6 [0m[32m6 [0m9 [32m6 [0m9 _ [32m6 [0m_ 
+[32m6 [0m9 _ 9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 _ 9 _ 
+_ 9 [32m6 [0m[32m6 [0m[32m6 [0m_ _ 9 _ [32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m9 [32m6 [0m
+[32m6 [0m9 9 9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m
+_ [32m6 [0m[32m6 [0m9 [32m6 [0m[32m6 [0m_ [32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m_ _ _ [32m6 [0m
+_ 9 _ 9 9 9 _ 9 _ 9 [32m6 [0m9 [32m6 [0m9 _ 
+_ _ [32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m_ [32m6 [0m_ [32m6 [0m[32m6 [0m_ 0 
+
+PotionType:a :BOMB_RANGE b :BOMB_NUM c :INVINCIBLE d :SHIELD e :REBIRTH b :SPEED
+[2023-11-09 17:34:56.499] [seednet] [info] accepting connection from 127.0.0.1.
+[2023-11-09 17:34:56.499] [seednet] [info] Epoll op: add, Epoll events: read.
+[2023-11-09 17:34:56.499] [seednet] [info] accepting all connections.
+[2023-11-09 17:34:56.499] [seednet] [info] fd 9 recv 39 bytes, content: {"data":{"player_name":"bot"},"type":1}
+[2023-11-09 17:34:56.499] [seedgame] [debug] player 1 add success in 0,0
+[2023-11-09 17:34:56.499] [seedgame] [debug] player is enough
+
+
+[32m👤player_name:bot 1 player_id:1 💖HP:1 🗽invincible_time:0 🔰shield_time:0 🧪bomb_range:1 💊bomb_max_num:2 💣bomb_now_num:0 🚅speed:2 💯mark:0 💺pos:0,0[0m
+[32m👤player_name:seed-soldier 0 player_id:0 💖HP:1 🗽invincible_time:0 🔰shield_time:0 🧪bomb_range:1 💊bomb_max_num:2 💣bomb_now_num:0 🚅speed:2 💯mark:0 💺pos:14,14[0m
+[33m🎮game_round:0 🟫block_num:170
+[0m
+1 _ [32m6 [0m[32m6 [0m[32m6 [0m_ [32m6 [0m[32m6 [0m_ _ [32m6 [0m[32m6 [0m_ _ _ 
+_ 9 [32m6 [0m9 _ 9 9 9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 _ 
+[32m6 [0m9 [32m6 [0m[32m6 [0m[32m6 [0m_ [32m6 [0m_ [32m6 [0m9 _ [32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m
+[32m6 [0m9 9 9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 9 9 _ 
+_ 9 _ [32m6 [0m[32m6 [0m[32m6 [0m_ [32m6 [0m[32m6 [0m9 [32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m
+_ 9 [32m6 [0m9 _ 9 [32m6 [0m9 9 9 [32m6 [0m9 9 9 [32m6 [0m
+_ [32m6 [0m[32m6 [0m9 [32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m_ _ _ _ [32m6 [0m[32m6 [0m_ 
+[32m6 [0m9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 9 9 9 9 _ 9 _ 
+_ [32m6 [0m[32m6 [0m[32m6 [0m_ 9 [32m6 [0m[32m6 [0m[32m6 [0m9 [32m6 [0m9 _ [32m6 [0m_ 
+[32m6 [0m9 _ 9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 _ 9 _ 
+_ 9 [32m6 [0m[32m6 [0m[32m6 [0m_ _ 9 _ [32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m9 [32m6 [0m
+[32m6 [0m9 9 9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m
+_ [32m6 [0m[32m6 [0m9 [32m6 [0m[32m6 [0m_ [32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m_ _ _ [32m6 [0m
+_ 9 _ 9 9 9 _ 9 _ 9 [32m6 [0m9 [32m6 [0m9 _ 
+_ _ [32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m_ [32m6 [0m_ [32m6 [0m[32m6 [0m_ 0 
+
+PotionType:a :BOMB_RANGE b :BOMB_NUM c :INVINCIBLE d :SHIELD e :REBIRTH b :SPEED
+[2023-11-09 17:34:57.498] [seedgame] [debug] game continue now alive num 2,round 1,max round 200
+[2023-11-09 17:34:57.498] [seedgame] [debug] flush time success
+
+
+[32m👤player_name:bot 1 player_id:1 💖HP:1 🗽invincible_time:0 🔰shield_time:0 🧪bomb_range:1 💊bomb_max_num:2 💣bomb_now_num:0 🚅speed:2 💯mark:0 💺pos:0,0[0m
+[32m👤player_name:seed-soldier 0 player_id:0 💖HP:1 🗽invincible_time:0 🔰shield_time:0 🧪bomb_range:1 💊bomb_max_num:2 💣bomb_now_num:0 🚅speed:2 💯mark:0 💺pos:14,14[0m
+[33m🎮game_round:1 🟫block_num:170
+[0m
+1 _ [32m6 [0m[32m6 [0m[32m6 [0m_ [32m6 [0m[32m6 [0m_ _ [32m6 [0m[32m6 [0m_ _ _ 
+_ 9 [32m6 [0m9 _ 9 9 9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 _ 
+[32m6 [0m9 [32m6 [0m[32m6 [0m[32m6 [0m_ [32m6 [0m_ [32m6 [0m9 _ [32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m
+[32m6 [0m9 9 9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 9 9 _ 
+_ 9 _ [32m6 [0m[32m6 [0m[32m6 [0m_ [32m6 [0m[32m6 [0m9 [32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m
+_ 9 [32m6 [0m9 _ 9 [32m6 [0m9 9 9 [32m6 [0m9 9 9 [32m6 [0m
+_ [32m6 [0m[32m6 [0m9 [32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m_ _ _ _ [32m6 [0m[32m6 [0m_ 
+[32m6 [0m9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 9 9 9 9 _ 9 _ 
+_ [32m6 [0m[32m6 [0m[32m6 [0m_ 9 [32m6 [0m[32m6 [0m[32m6 [0m9 [32m6 [0m9 _ [32m6 [0m_ 
+[32m6 [0m9 _ 9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 _ 9 _ 
+_ 9 [32m6 [0m[32m6 [0m[32m6 [0m_ _ 9 _ [32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m9 [32m6 [0m
+[32m6 [0m9 9 9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m
+_ [32m6 [0m[32m6 [0m9 [32m6 [0m[32m6 [0m_ [32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m_ _ _ [32m6 [0m
+_ 9 _ 9 9 9 _ 9 _ 9 [32m6 [0m9 [32m6 [0m9 _ 
+_ _ [32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m_ [32m6 [0m_ [32m6 [0m[32m6 [0m_ 0 
+
+PotionType:a :BOMB_RANGE b :BOMB_NUM c :INVINCIBLE d :SHIELD e :REBIRTH b :SPEED
+[2023-11-09 17:34:57.504] [seednet] [info] fd 8 write 20009 bytes data.
+[2023-11-09 17:34:57.504] [seednet] [info] fd 9 write 20009 bytes data.
+[2023-11-09 17:34:57.509] [seednet] [info] fd 9 recv 47 bytes, content: {"data":{"actionType":2,"playerID":1},"type":2}
+[2023-11-09 17:34:57.509] [seedgame] [debug] player 1 move to 0,1 success
+
+
+[32m👤player_name:bot 1 player_id:1 💖HP:1 🗽invincible_time:0 🔰shield_time:0 🧪bomb_range:1 💊bomb_max_num:2 💣bomb_now_num:0 🚅speed:2 💯mark:0 💺pos:0,1[0m
+[32m👤player_name:seed-soldier 0 player_id:0 💖HP:1 🗽invincible_time:0 🔰shield_time:0 🧪bomb_range:1 💊bomb_max_num:2 💣bomb_now_num:0 🚅speed:2 💯mark:0 💺pos:14,14[0m
+[33m🎮game_round:1 🟫block_num:170
+[0m
+_ 1 [32m6 [0m[32m6 [0m[32m6 [0m_ [32m6 [0m[32m6 [0m_ _ [32m6 [0m[32m6 [0m_ _ _ 
+_ 9 [32m6 [0m9 _ 9 9 9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 _ 
+[32m6 [0m9 [32m6 [0m[32m6 [0m[32m6 [0m_ [32m6 [0m_ [32m6 [0m9 _ [32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m
+[32m6 [0m9 9 9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 9 9 _ 
+_ 9 _ [32m6 [0m[32m6 [0m[32m6 [0m_ [32m6 [0m[32m6 [0m9 [32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m
+_ 9 [32m6 [0m9 _ 9 [32m6 [0m9 9 9 [32m6 [0m9 9 9 [32m6 [0m
+_ [32m6 [0m[32m6 [0m9 [32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m_ _ _ _ [32m6 [0m[32m6 [0m_ 
+[32m6 [0m9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 9 9 9 9 _ 9 _ 
+_ [32m6 [0m[32m6 [0m[32m6 [0m_ 9 [32m6 [0m[32m6 [0m[32m6 [0m9 [32m6 [0m9 _ [32m6 [0m_ 
+[32m6 [0m9 _ 9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 _ 9 _ 
+_ 9 [32m6 [0m[32m6 [0m[32m6 [0m_ _ 9 _ [32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m9 [32m6 [0m
+[32m6 [0m9 9 9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m
+_ [32m6 [0m[32m6 [0m9 [32m6 [0m[32m6 [0m_ [32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m_ _ _ [32m6 [0m
+_ 9 _ 9 9 9 _ 9 _ 9 [32m6 [0m9 [32m6 [0m9 _ 
+_ _ [32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m_ [32m6 [0m_ [32m6 [0m[32m6 [0m_ 0 
+
+PotionType:a :BOMB_RANGE b :BOMB_NUM c :INVINCIBLE d :SHIELD e :REBIRTH b :SPEED
+[2023-11-09 17:34:57.583] [seednet] [info] Stream socket peer 8 closed connections.
+[2023-11-09 17:34:58.498] [seedgame] [debug] game continue now alive num 2,round 2,max round 200
+[2023-11-09 17:34:58.498] [seedgame] [debug] flush time success
+
+
+[32m👤player_name:bot 1 player_id:1 💖HP:1 🗽invincible_time:0 🔰shield_time:0 🧪bomb_range:1 💊bomb_max_num:2 💣bomb_now_num:0 🚅speed:2 💯mark:0 💺pos:0,1[0m
+[32m👤player_name:seed-soldier 0 player_id:0 💖HP:1 🗽invincible_time:0 🔰shield_time:0 🧪bomb_range:1 💊bomb_max_num:2 💣bomb_now_num:0 🚅speed:2 💯mark:0 💺pos:14,14[0m
+[33m🎮game_round:2 🟫block_num:170
+[0m
+_ 1 [32m6 [0m[32m6 [0m[32m6 [0m_ [32m6 [0m[32m6 [0m_ _ [32m6 [0m[32m6 [0m_ _ _ 
+_ 9 [32m6 [0m9 _ 9 9 9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 _ 
+[32m6 [0m9 [32m6 [0m[32m6 [0m[32m6 [0m_ [32m6 [0m_ [32m6 [0m9 _ [32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m
+[32m6 [0m9 9 9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 9 9 _ 
+_ 9 _ [32m6 [0m[32m6 [0m[32m6 [0m_ [32m6 [0m[32m6 [0m9 [32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m
+_ 9 [32m6 [0m9 _ 9 [32m6 [0m9 9 9 [32m6 [0m9 9 9 [32m6 [0m
+_ [32m6 [0m[32m6 [0m9 [32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m_ _ _ _ [32m6 [0m[32m6 [0m_ 
+[32m6 [0m9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 9 9 9 9 _ 9 _ 
+_ [32m6 [0m[32m6 [0m[32m6 [0m_ 9 [32m6 [0m[32m6 [0m[32m6 [0m9 [32m6 [0m9 _ [32m6 [0m_ 
+[32m6 [0m9 _ 9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 _ 9 _ 
+_ 9 [32m6 [0m[32m6 [0m[32m6 [0m_ _ 9 _ [32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m9 [32m6 [0m
+[32m6 [0m9 9 9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m
+_ [32m6 [0m[32m6 [0m9 [32m6 [0m[32m6 [0m_ [32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m_ _ _ [32m6 [0m
+_ 9 _ 9 9 9 _ 9 _ 9 [32m6 [0m9 [32m6 [0m9 _ 
+_ _ [32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m_ [32m6 [0m_ [32m6 [0m[32m6 [0m_ 0 
+
+PotionType:a :BOMB_RANGE b :BOMB_NUM c :INVINCIBLE d :SHIELD e :REBIRTH b :SPEED
+[2023-11-09 17:34:58.505] [seednet] [error] write header error occured on fd 8.
+[2023-11-09 17:34:58.505] [seednet] [error] write error occured on fd 8.
+[2023-11-09 17:34:58.505] [seednet] [info] fd 8 write -1 bytes data.
+[2023-11-09 17:34:58.505] [seednet] [info] fd 9 write 20009 bytes data.
+[2023-11-09 17:34:58.557] [seednet] [info] fd 9 recv 47 bytes, content: {"data":{"actionType":5,"playerID":1},"type":2}
+[2023-11-09 17:34:58.557] [seedgame] [debug] player_id 1 place a bomb 0 in 0,1
+
+[36m💣bomb_pos:0,1 👤owner_id:1 🕤bomb_time:6 🧪bomb_range:1
+[0m
+[32m👤player_name:bot 1 player_id:1 💖HP:1 🗽invincible_time:0 🔰shield_time:0 🧪bomb_range:1 💊bomb_max_num:2 💣bomb_now_num:1 🚅speed:2 💯mark:0 💺pos:0,1[0m
+[32m👤player_name:seed-soldier 0 player_id:0 💖HP:1 🗽invincible_time:0 🔰shield_time:0 🧪bomb_range:1 💊bomb_max_num:2 💣bomb_now_num:0 🚅speed:2 💯mark:0 💺pos:14,14[0m
+[33m🎮game_round:2 🟫block_num:170
+[0m
+_ 1 [32m6 [0m[32m6 [0m[32m6 [0m_ [32m6 [0m[32m6 [0m_ _ [32m6 [0m[32m6 [0m_ _ _ 
+_ 9 [32m6 [0m9 _ 9 9 9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 _ 
+[32m6 [0m9 [32m6 [0m[32m6 [0m[32m6 [0m_ [32m6 [0m_ [32m6 [0m9 _ [32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m
+[32m6 [0m9 9 9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 9 9 _ 
+_ 9 _ [32m6 [0m[32m6 [0m[32m6 [0m_ [32m6 [0m[32m6 [0m9 [32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m
+_ 9 [32m6 [0m9 _ 9 [32m6 [0m9 9 9 [32m6 [0m9 9 9 [32m6 [0m
+_ [32m6 [0m[32m6 [0m9 [32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m_ _ _ _ [32m6 [0m[32m6 [0m_ 
+[32m6 [0m9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 9 9 9 9 _ 9 _ 
+_ [32m6 [0m[32m6 [0m[32m6 [0m_ 9 [32m6 [0m[32m6 [0m[32m6 [0m9 [32m6 [0m9 _ [32m6 [0m_ 
+[32m6 [0m9 _ 9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 _ 9 _ 
+_ 9 [32m6 [0m[32m6 [0m[32m6 [0m_ _ 9 _ [32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m9 [32m6 [0m
+[32m6 [0m9 9 9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m
+_ [32m6 [0m[32m6 [0m9 [32m6 [0m[32m6 [0m_ [32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m_ _ _ [32m6 [0m
+_ 9 _ 9 9 9 _ 9 _ 9 [32m6 [0m9 [32m6 [0m9 _ 
+_ _ [32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m_ [32m6 [0m_ [32m6 [0m[32m6 [0m_ 0 
+
+PotionType:a :BOMB_RANGE b :BOMB_NUM c :INVINCIBLE d :SHIELD e :REBIRTH b :SPEED
+[2023-11-09 17:34:59.497] [seedgame] [debug] game continue now alive num 2,round 3,max round 200
+[2023-11-09 17:34:59.498] [seedgame] [debug] flush time success
+
+[36m💣bomb_pos:0,1 👤owner_id:1 🕤bomb_time:5 🧪bomb_range:1
+[0m
+[32m👤player_name:bot 1 player_id:1 💖HP:1 🗽invincible_time:0 🔰shield_time:0 🧪bomb_range:1 💊bomb_max_num:2 💣bomb_now_num:1 🚅speed:2 💯mark:0 💺pos:0,1[0m
+[32m👤player_name:seed-soldier 0 player_id:0 💖HP:1 🗽invincible_time:0 🔰shield_time:0 🧪bomb_range:1 💊bomb_max_num:2 💣bomb_now_num:0 🚅speed:2 💯mark:0 💺pos:14,14[0m
+[33m🎮game_round:3 🟫block_num:170
+[0m
+_ 1 [32m6 [0m[32m6 [0m[32m6 [0m_ [32m6 [0m[32m6 [0m_ _ [32m6 [0m[32m6 [0m_ _ _ 
+_ 9 [32m6 [0m9 _ 9 9 9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 _ 
+[32m6 [0m9 [32m6 [0m[32m6 [0m[32m6 [0m_ [32m6 [0m_ [32m6 [0m9 _ [32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m
+[32m6 [0m9 9 9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 9 9 _ 
+_ 9 _ [32m6 [0m[32m6 [0m[32m6 [0m_ [32m6 [0m[32m6 [0m9 [32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m
+_ 9 [32m6 [0m9 _ 9 [32m6 [0m9 9 9 [32m6 [0m9 9 9 [32m6 [0m
+_ [32m6 [0m[32m6 [0m9 [32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m_ _ _ _ [32m6 [0m[32m6 [0m_ 
+[32m6 [0m9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 9 9 9 9 _ 9 _ 
+_ [32m6 [0m[32m6 [0m[32m6 [0m_ 9 [32m6 [0m[32m6 [0m[32m6 [0m9 [32m6 [0m9 _ [32m6 [0m_ 
+[32m6 [0m9 _ 9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 _ 9 _ 
+_ 9 [32m6 [0m[32m6 [0m[32m6 [0m_ _ 9 _ [32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m9 [32m6 [0m
+[32m6 [0m9 9 9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m
+_ [32m6 [0m[32m6 [0m9 [32m6 [0m[32m6 [0m_ [32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m_ _ _ [32m6 [0m
+_ 9 _ 9 9 9 _ 9 _ 9 [32m6 [0m9 [32m6 [0m9 _ 
+_ _ [32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m_ [32m6 [0m_ [32m6 [0m[32m6 [0m_ 0 
+
+PotionType:a :BOMB_RANGE b :BOMB_NUM c :INVINCIBLE d :SHIELD e :REBIRTH b :SPEED
+[2023-11-09 17:34:59.504] [seednet] [error] write header error occured on fd 8.
+[2023-11-09 17:34:59.504] [seednet] [error] write error occured on fd 8.
+[2023-11-09 17:34:59.504] [seednet] [info] fd 8 write -1 bytes data.
+[2023-11-09 17:34:59.504] [seednet] [info] fd 9 write 20074 bytes data.
+[2023-11-09 17:34:59.556] [seednet] [info] fd 9 recv 47 bytes, content: {"data":{"actionType":1,"playerID":1},"type":2}
+[2023-11-09 17:34:59.557] [seedgame] [debug] player 1 move to 0,0 success
+
+[36m💣bomb_pos:0,1 👤owner_id:1 🕤bomb_time:5 🧪bomb_range:1
+[0m
+[32m👤player_name:bot 1 player_id:1 💖HP:1 🗽invincible_time:0 🔰shield_time:0 🧪bomb_range:1 💊bomb_max_num:2 💣bomb_now_num:1 🚅speed:2 💯mark:0 💺pos:0,0[0m
+[32m👤player_name:seed-soldier 0 player_id:0 💖HP:1 🗽invincible_time:0 🔰shield_time:0 🧪bomb_range:1 💊bomb_max_num:2 💣bomb_now_num:0 🚅speed:2 💯mark:0 💺pos:14,14[0m
+[33m🎮game_round:3 🟫block_num:170
+[0m
+1 [33m8 [0m[32m6 [0m[32m6 [0m[32m6 [0m_ [32m6 [0m[32m6 [0m_ _ [32m6 [0m[32m6 [0m_ _ _ 
+_ 9 [32m6 [0m9 _ 9 9 9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 _ 
+[32m6 [0m9 [32m6 [0m[32m6 [0m[32m6 [0m_ [32m6 [0m_ [32m6 [0m9 _ [32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m
+[32m6 [0m9 9 9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 9 9 _ 
+_ 9 _ [32m6 [0m[32m6 [0m[32m6 [0m_ [32m6 [0m[32m6 [0m9 [32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m
+_ 9 [32m6 [0m9 _ 9 [32m6 [0m9 9 9 [32m6 [0m9 9 9 [32m6 [0m
+_ [32m6 [0m[32m6 [0m9 [32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m_ _ _ _ [32m6 [0m[32m6 [0m_ 
+[32m6 [0m9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 9 9 9 9 _ 9 _ 
+_ [32m6 [0m[32m6 [0m[32m6 [0m_ 9 [32m6 [0m[32m6 [0m[32m6 [0m9 [32m6 [0m9 _ [32m6 [0m_ 
+[32m6 [0m9 _ 9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 _ 9 _ 
+_ 9 [32m6 [0m[32m6 [0m[32m6 [0m_ _ 9 _ [32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m9 [32m6 [0m
+[32m6 [0m9 9 9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m
+_ [32m6 [0m[32m6 [0m9 [32m6 [0m[32m6 [0m_ [32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m_ _ _ [32m6 [0m
+_ 9 _ 9 9 9 _ 9 _ 9 [32m6 [0m9 [32m6 [0m9 _ 
+_ _ [32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m_ [32m6 [0m_ [32m6 [0m[32m6 [0m_ 0 
+
+PotionType:a :BOMB_RANGE b :BOMB_NUM c :INVINCIBLE d :SHIELD e :REBIRTH b :SPEED
+[2023-11-09 17:35:00.498] [seedgame] [debug] game continue now alive num 2,round 4,max round 200
+[2023-11-09 17:35:00.498] [seedgame] [debug] flush time success
+
+[36m💣bomb_pos:0,1 👤owner_id:1 🕤bomb_time:4 🧪bomb_range:1
+[0m
+[32m👤player_name:bot 1 player_id:1 💖HP:1 🗽invincible_time:0 🔰shield_time:0 🧪bomb_range:1 💊bomb_max_num:2 💣bomb_now_num:1 🚅speed:2 💯mark:0 💺pos:0,0[0m
+[32m👤player_name:seed-soldier 0 player_id:0 💖HP:1 🗽invincible_time:0 🔰shield_time:0 🧪bomb_range:1 💊bomb_max_num:2 💣bomb_now_num:0 🚅speed:2 💯mark:0 💺pos:14,14[0m
+[33m🎮game_round:4 🟫block_num:170
+[0m
+1 [33m8 [0m[32m6 [0m[32m6 [0m[32m6 [0m_ [32m6 [0m[32m6 [0m_ _ [32m6 [0m[32m6 [0m_ _ _ 
+_ 9 [32m6 [0m9 _ 9 9 9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 _ 
+[32m6 [0m9 [32m6 [0m[32m6 [0m[32m6 [0m_ [32m6 [0m_ [32m6 [0m9 _ [32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m
+[32m6 [0m9 9 9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 9 9 _ 
+_ 9 _ [32m6 [0m[32m6 [0m[32m6 [0m_ [32m6 [0m[32m6 [0m9 [32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m
+_ 9 [32m6 [0m9 _ 9 [32m6 [0m9 9 9 [32m6 [0m9 9 9 [32m6 [0m
+_ [32m6 [0m[32m6 [0m9 [32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m_ _ _ _ [32m6 [0m[32m6 [0m_ 
+[32m6 [0m9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 9 9 9 9 _ 9 _ 
+_ [32m6 [0m[32m6 [0m[32m6 [0m_ 9 [32m6 [0m[32m6 [0m[32m6 [0m9 [32m6 [0m9 _ [32m6 [0m_ 
+[32m6 [0m9 _ 9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 _ 9 _ 
+_ 9 [32m6 [0m[32m6 [0m[32m6 [0m_ _ 9 _ [32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m9 [32m6 [0m
+[32m6 [0m9 9 9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m
+_ [32m6 [0m[32m6 [0m9 [32m6 [0m[32m6 [0m_ [32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m_ _ _ [32m6 [0m
+_ 9 _ 9 9 9 _ 9 _ 9 [32m6 [0m9 [32m6 [0m9 _ 
+_ _ [32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m_ [32m6 [0m_ [32m6 [0m[32m6 [0m_ 0 
+
+PotionType:a :BOMB_RANGE b :BOMB_NUM c :INVINCIBLE d :SHIELD e :REBIRTH b :SPEED
+[2023-11-09 17:35:00.504] [seednet] [error] write header error occured on fd 8.
+[2023-11-09 17:35:00.504] [seednet] [error] write error occured on fd 8.
+[2023-11-09 17:35:00.504] [seednet] [info] fd 8 write -1 bytes data.
+[2023-11-09 17:35:00.504] [seednet] [info] fd 9 write 20073 bytes data.
+[2023-11-09 17:35:00.556] [seednet] [info] fd 9 recv 47 bytes, content: {"data":{"actionType":4,"playerID":1},"type":2}
+[2023-11-09 17:35:00.557] [seedgame] [debug] player 1 move to 1,0 success
+
+[36m💣bomb_pos:0,1 👤owner_id:1 🕤bomb_time:4 🧪bomb_range:1
+[0m
+[32m👤player_name:bot 1 player_id:1 💖HP:1 🗽invincible_time:0 🔰shield_time:0 🧪bomb_range:1 💊bomb_max_num:2 💣bomb_now_num:1 🚅speed:2 💯mark:0 💺pos:1,0[0m
+[32m👤player_name:seed-soldier 0 player_id:0 💖HP:1 🗽invincible_time:0 🔰shield_time:0 🧪bomb_range:1 💊bomb_max_num:2 💣bomb_now_num:0 🚅speed:2 💯mark:0 💺pos:14,14[0m
+[33m🎮game_round:4 🟫block_num:170
+[0m
+_ [33m8 [0m[32m6 [0m[32m6 [0m[32m6 [0m_ [32m6 [0m[32m6 [0m_ _ [32m6 [0m[32m6 [0m_ _ _ 
+1 9 [32m6 [0m9 _ 9 9 9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 _ 
+[32m6 [0m9 [32m6 [0m[32m6 [0m[32m6 [0m_ [32m6 [0m_ [32m6 [0m9 _ [32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m
+[32m6 [0m9 9 9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 9 9 _ 
+_ 9 _ [32m6 [0m[32m6 [0m[32m6 [0m_ [32m6 [0m[32m6 [0m9 [32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m
+_ 9 [32m6 [0m9 _ 9 [32m6 [0m9 9 9 [32m6 [0m9 9 9 [32m6 [0m
+_ [32m6 [0m[32m6 [0m9 [32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m_ _ _ _ [32m6 [0m[32m6 [0m_ 
+[32m6 [0m9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 9 9 9 9 _ 9 _ 
+_ [32m6 [0m[32m6 [0m[32m6 [0m_ 9 [32m6 [0m[32m6 [0m[32m6 [0m9 [32m6 [0m9 _ [32m6 [0m_ 
+[32m6 [0m9 _ 9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 _ 9 _ 
+_ 9 [32m6 [0m[32m6 [0m[32m6 [0m_ _ 9 _ [32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m9 [32m6 [0m
+[32m6 [0m9 9 9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m
+_ [32m6 [0m[32m6 [0m9 [32m6 [0m[32m6 [0m_ [32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m_ _ _ [32m6 [0m
+_ 9 _ 9 9 9 _ 9 _ 9 [32m6 [0m9 [32m6 [0m9 _ 
+_ _ [32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m_ [32m6 [0m_ [32m6 [0m[32m6 [0m_ 0 
+
+PotionType:a :BOMB_RANGE b :BOMB_NUM c :INVINCIBLE d :SHIELD e :REBIRTH b :SPEED
+[2023-11-09 17:35:01.497] [seedgame] [debug] game continue now alive num 2,round 5,max round 200
+[2023-11-09 17:35:01.498] [seedgame] [debug] flush time success
+
+[36m💣bomb_pos:0,1 👤owner_id:1 🕤bomb_time:3 🧪bomb_range:1
+[0m
+[32m👤player_name:bot 1 player_id:1 💖HP:1 🗽invincible_time:0 🔰shield_time:0 🧪bomb_range:1 💊bomb_max_num:2 💣bomb_now_num:1 🚅speed:2 💯mark:0 💺pos:1,0[0m
+[32m👤player_name:seed-soldier 0 player_id:0 💖HP:1 🗽invincible_time:0 🔰shield_time:0 🧪bomb_range:1 💊bomb_max_num:2 💣bomb_now_num:0 🚅speed:2 💯mark:0 💺pos:14,14[0m
+[33m🎮game_round:5 🟫block_num:170
+[0m
+_ [33m8 [0m[32m6 [0m[32m6 [0m[32m6 [0m_ [32m6 [0m[32m6 [0m_ _ [32m6 [0m[32m6 [0m_ _ _ 
+1 9 [32m6 [0m9 _ 9 9 9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 _ 
+[32m6 [0m9 [32m6 [0m[32m6 [0m[32m6 [0m_ [32m6 [0m_ [32m6 [0m9 _ [32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m
+[32m6 [0m9 9 9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 9 9 _ 
+_ 9 _ [32m6 [0m[32m6 [0m[32m6 [0m_ [32m6 [0m[32m6 [0m9 [32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m
+_ 9 [32m6 [0m9 _ 9 [32m6 [0m9 9 9 [32m6 [0m9 9 9 [32m6 [0m
+_ [32m6 [0m[32m6 [0m9 [32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m_ _ _ _ [32m6 [0m[32m6 [0m_ 
+[32m6 [0m9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 9 9 9 9 _ 9 _ 
+_ [32m6 [0m[32m6 [0m[32m6 [0m_ 9 [32m6 [0m[32m6 [0m[32m6 [0m9 [32m6 [0m9 _ [32m6 [0m_ 
+[32m6 [0m9 _ 9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 _ 9 _ 
+_ 9 [32m6 [0m[32m6 [0m[32m6 [0m_ _ 9 _ [32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m9 [32m6 [0m
+[32m6 [0m9 9 9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m9 [32m6 [0m
+_ [32m6 [0m[32m6 [0m9 [32m6 [0m[32m6 [0m_ [32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m_ _ _ [32m6 [0m
+_ 9 _ 9 9 9 _ 9 _ 9 [32m6 [0m9 [32m6 [0m9 _ 
+_ _ [32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m[32m6 [0m_ [32m6 [0m_ [32m6 [0m[32m6 [0m_ 0 
+
+PotionType:a :BOMB_RANGE b :BOMB_NUM c :INVINCIBLE d :SHIELD e :REBIRTH b :SPEED
+[2023-11-09 17:35:01.504] [seednet] [error] write header error occured on fd 8.
+[2023-11-09 17:35:01.504] [seednet] [error] write error occured on fd 8.
+[2023-11-09 17:35:01.504] [seednet] [info] fd 8 write -1 bytes data.
+[2023-11-09 17:35:01.504] [seednet] [info] fd 9 write 20073 bytes data.

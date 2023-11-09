@@ -5,7 +5,7 @@ from mapcode import Mapcode
 from config import *
 
 
-unmovable_block = [Mapcode.BlockRemovable,Mapcode.BlockUnRemovable,Mapcode.BombBase]
+unmovable_block = [Mapcode.BlockRemovable, Mapcode.BlockUnRemovable].extend([c for c in range(10,30)])
 
 def nextPositionIdeal(x:int, y:int, action:ActionType):
     '''
