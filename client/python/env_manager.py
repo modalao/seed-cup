@@ -246,10 +246,10 @@ class EnvManager():  # add your var and method under the class.
         
         reward:int = 0
         for i in sorted(rewardPriority.keys()):  # 按键值排序，先调用优先级高的，返回reward
-            reward=rewardPriority[i](cur_resp,action,cur_map,cur_player_me,cur_player_enemy)
-            if reward != 0:
-                return reward
-            # reward+=rewardPriority[i](cur_resp,action,cur_map,cur_player_me,cur_player_enemy)
+            # reward=rewardPriority[i](cur_resp,action,cur_map,cur_player_me,cur_player_enemy)
+            # if reward != 0:
+            #     return reward
+            reward+=rewardPriority[i](cur_resp,action,cur_map,cur_player_me,cur_player_enemy)
         return reward
     
 
@@ -407,7 +407,10 @@ class EnvManager():  # add your var and method under the class.
                 is_over = self.resp.type == PacketType.GameOver
 
                 #综合score后的reward
-                reward1 = reward1*0.7 + next_player_my_state.score*0.3
+                if gContext["gameOverFlag"] :
+                    reward1 = reward1 -10
+                else:
+                    reward1 = reward1*0.95 + next_player_my_state.score*0.05
                 
                 # train
                 self.train_manager.train_one_step(action_idx, 
@@ -453,6 +456,7 @@ class EnvManager():  # add your var and method under the class.
             os.chdir(cur_dir)
 
             print(f'========== episode {i} begin ==========')
+            print(f'epsilon: {self.train_manager.agent.epsilon}')
             self.start_train()
             if self.process_server is not None:
                 print(f'kill ./server')
@@ -461,6 +465,7 @@ class EnvManager():  # add your var and method under the class.
                 print(f'kill ./silly-bot')
                 self.process_bot.kill()
             sleep(1)  # waiting for the exit of threads and process
+            self.train_manager.agent.decay()
             print(f'========== episode {i} finish ==========')
 
             if i != 0 and i % 100 == 0:

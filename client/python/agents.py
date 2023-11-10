@@ -5,7 +5,7 @@ import copy
 
 class DQNAgent(object):
 
-    def __init__(self,q_func, optimizer, replay_buffer, batch_size, replay_start_size,update_target_steps, n_act, gamma=0.9, e_greed=0.1):
+    def __init__(self,q_func, optimizer, replay_buffer, batch_size, replay_start_size,update_target_steps, n_act, gamma=0.9, e_greed=0.1, e_greed_decay=0.995):
         '''
         :param q_func: Q函数
         :param optimizer: 优化器
@@ -33,6 +33,10 @@ class DQNAgent(object):
         self.n_act = n_act  # 动作数量
         self.gamma = gamma  # 收益衰减率
         self.epsilon = e_greed  # 探索与利用中的探索概率
+        self.e_greed_decay = e_greed_decay
+        
+    def decay(self):
+        self.epsilon = self.epsilon * self.e_greed_decay
 
     # 根据经验得到action
     def predict(self, obs):
