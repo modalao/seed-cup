@@ -2,13 +2,17 @@ from enum import Enum
 from resp import *
 
 
-class Mapcode(Enum):#player 放置炸弹状态是否编码？？
+class Mapcode(Enum):#player  炸弹爆炸的时间没有编码？
     #矩阵中值对应的含义
     BlockRemovable = 2
     BlockUnRemovable = -2
-    #bomb 爆炸范围为range 对应矩阵值为BombBase+range
-    BombBase = 10 #自己放的炸弹
+    #bomb 爆炸范围为range 对应矩阵值为BombBase+bombrane*BombDelta
+    #炸弹
+    BombBase = 20 
+    BombDelta = 1
     
+    BombMyHuman = 20 #my 人和炸弹在同一个位置
+    BombEnemyHuman = -20 #enemy 人和炸弹在一个位置
     
     NullBlock = 0 
     BombedBlock = 9 #爆炸格
@@ -18,16 +22,19 @@ class Mapcode(Enum):#player 放置炸弹状态是否编码？？
     ItemBombRange = 6
     ItemInvencible = 7
     #ItemSpeed = 8 初赛不设置
-    BombHuman = 10 #my 人和炸弹在同一个位置
-    # players
+    
+    # players 人物
     enemy = -1
     me = 1
 
 
     def calulate(obj:Obj, enemy =False,last_bomb = False,HumanBomb=False) -> None:
-        if HumanBomb:
-            value = Mapcode.BombHuman.value
-        elif last_bomb:
+        if HumanBomb: #人和炸弹
+            if enemy:
+                value = Mapcode.BombEnemyHuman.value
+            else :
+                value = Mapcode.BombMyHuman.value
+        elif last_bomb:#爆炸
             value = Mapcode.BombedBlock.value
         
         elif obj is None or obj.type == ObjType.Null:
@@ -40,7 +47,7 @@ class Mapcode(Enum):#player 放置炸弹状态是否编码？？
                 value = Mapcode.me.value
 
         elif obj.type== ObjType.Bomb:
-            value = Mapcode.BombBase.value+obj.property.bomb_range
+            value = Mapcode.BombBase.value+obj.property.bomb_range*Mapcode.BombDelta.value
         
         elif obj.type == ObjType.Block:
             if obj.property.removable :

@@ -24,6 +24,7 @@ from train import TrainManager
 import os
 import torch
 import traceback
+from actionsteplist import ActionStepList
 
 inter_lock = threading.Lock()
 
@@ -93,6 +94,7 @@ class EnvManager():  # add your var and method under the class.
             replay_start_size=200,
             update_target_steps=200
         )
+        self.action_step_list = ActionStepList(10) #记录动作的个数
         
         # log
         f.write("init\n")
@@ -161,20 +163,20 @@ class EnvManager():  # add your var and method under the class.
                             enemy = True
                             freshed = True
                         
-                    if not freshed:
+                    if not freshed: #不是人，
                         mapcode[map.x][map.y]=Mapcode.calulate(map.objs[0])
                     else :
-                        if not BombFlag:
+                        if not BombFlag:#纯人
                             if enemy :
-                                mapcode[map.x][map.y]=Mapcode.calulate(obj,True)
+                                mapcode[map.x][map.y]=Mapcode.calulate(map.objs[0],True)
                             if me :
-                                mapcode[map.x][map.y]=Mapcode.calulate(obj,False)
+                                mapcode[map.x][map.y]=Mapcode.calulate(map.objs[0],False)
                         else :#人 炸弹一起
                             if enemy :
-                                mapcode[map.x][map.y]=Mapcode.calulate(obj,True,False,True)
+                                mapcode[map.x][map.y]=Mapcode.calulate(None,True,False,True)
                             if me :
-                                mapcode[map.x][map.y]=Mapcode.calulate(obj,False,False,True)
-                else: #爆炸
+                                mapcode[map.x][map.y]=Mapcode.calulate(None,False,False,True)
+                else: 
                     mapcode[map.x][map.y]=Mapcode.calulate(None,False, actionResp.round == map.last_bomb_round)
             return mapcode
         
@@ -383,6 +385,8 @@ class EnvManager():  # add your var and method under the class.
                 client.send(actionPacket)
                 print(f'send action 2: {action2.actionType}')
 
+                
+                self.action_step_list.update((action1,action2))#更新动作
                 inter_lock.acquire()
                 self.resp = client.recv()
                 print(f'receive resp, type={self.resp.type}')

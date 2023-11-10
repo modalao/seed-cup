@@ -6,7 +6,7 @@ from config import *
 
 
 unmovable_block = [Mapcode.BlockRemovable.value,Mapcode.BlockUnRemovable.value]
-unmovable_block.extend([c for c in range(10,30)])
+unmovable_block.extend([c for c in range(Mapcode.BombBase.value,Mapcode.BombBase.value+20)])
 
 def nextPositionIdeal(x:int, y:int, action:ActionType):
     '''
@@ -63,13 +63,13 @@ def actionStepMap(action:ActionType,cur_map,x:int,y:int,bomb_range:int):#actionå
     if action == ActionType.SILENT:
         return now_map
     elif action == ActionType.PLACED:
-        now_map[x][y] = Mapcode.BombHuman.value
+        now_map[x][y] = Mapcode.BombMyHuman.value
     elif action == ActionType.MOVE_DOWN:
         if x == config.get("map_size")-1 or now_map[x+1][y] in unmovable_block:
             pass
         else :
             now_map[x+1][y] = Mapcode.me.value
-            if now_map[x][y] == Mapcode.BombHuman:
+            if now_map[x][y] == Mapcode.BombMyHuman:
                 now_map[x][y] = Mapcode.BombBase.value + bomb_range
             else :
                 now_map[x][y] = Mapcode.NullBlock
@@ -78,7 +78,7 @@ def actionStepMap(action:ActionType,cur_map,x:int,y:int,bomb_range:int):#actionå
             pass
         else :
             now_map[x-1][y] = Mapcode.me.value
-            if now_map[x][y] == Mapcode.BombHuman:
+            if now_map[x][y] == Mapcode.BombMyHuman:
                 now_map[x][y] = Mapcode.BombBase.value + bomb_range
             else :
                 now_map[x][y] = Mapcode.NullBlock
@@ -87,7 +87,7 @@ def actionStepMap(action:ActionType,cur_map,x:int,y:int,bomb_range:int):#actionå
             pass
         else :
             now_map[x][y-1] = Mapcode.me.value
-            if now_map[x][y] == Mapcode.BombHuman:
+            if now_map[x][y] == Mapcode.BombMyHuman:
                 now_map[x][y] = Mapcode.BombBase.value + bomb_range
             else :
                 now_map[x][y] = Mapcode.NullBlock
@@ -96,7 +96,7 @@ def actionStepMap(action:ActionType,cur_map,x:int,y:int,bomb_range:int):#actionå
             pass
         else :
             now_map[x][y+1] = Mapcode.me.value
-            if now_map[x][y] == Mapcode.BombHuman:
+            if now_map[x][y] == Mapcode.BombMyHuman:
                 now_map[x][y] = Mapcode.BombBase.value + bomb_range
             else :
                 now_map[x][y] = Mapcode.NullBlock
