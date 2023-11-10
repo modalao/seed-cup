@@ -172,7 +172,7 @@ def collideWall(cur_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerInf
             reward1+=-20
         elif cur_map[px1][py1+1]>=BombMinNum:  #撞炸弹
             reward1+=-30    
-    elif action1 == ActionType.MOVE_DOWN:
+    elif action2 == ActionType.MOVE_DOWN:
         if cur_map[px1+1][py1] in (Mapcode.BlockRemovable,Mapcode.BlockUnRemovable): #撞障碍物
             reward1+=-20
         elif cur_map[px1+1][py1]>=BombMinNum:  #撞炸弹
