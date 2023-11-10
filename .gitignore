@@ -3,3 +3,4 @@ bin/server_tmp.log
 bin/result.json
 
 client/python/__pycache__/*
+client/python/*.log
