@@ -187,9 +187,8 @@ def collideWall(cur_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerInf
             reward1+=-20
         elif cur_map[px1+1][py1]>=BombMinNum or cur_map[px1+1][py1]==Mapcode.BombEnemyHuman.value:  #撞炸弹
             reward1+=-30    
-
-    #不撞奖励
-    return 50
+    
+    return reward1
 
 
 def awayFromPlayer(cur_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerInfo,cur_player_enemy:PlayerInfo)->int:

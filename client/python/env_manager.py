@@ -62,7 +62,7 @@ gContext = {
 action_list = [ActionType.MOVE_DOWN, ActionType.MOVE_LEFT, ActionType.MOVE_RIGHT, ActionType.MOVE_UP, 
                     ActionType.PLACED, ActionType.SILENT]
 
-
+MinBombPlaced =7 #必须在MinBombPlaced回合内放置炸弹
 class EnvManager():  # add your var and method under the class.
     def __init__(self) -> None:
         self.ui = None
@@ -94,7 +94,7 @@ class EnvManager():  # add your var and method under the class.
             replay_start_size=200,
             update_target_steps=200
         )
-        self.action_step_list = ActionStepList(10) #记录动作的个数
+        self.action_step_list = ActionStepList(MinBombPlaced) #记录动作的个数
         
         # log
         f.write("init\n")
@@ -395,6 +395,9 @@ class EnvManager():  # add your var and method under the class.
                 #死亡扣分
                 if self.resp.type == PacketType.GameOver:
                     reward = -100
+                #7回合不放炸弹扣分
+                if self.action_step_list.WhetherBombStep() == False and self.cur_action >MinBombPlaced:
+                    reward -=100   
                     
                 # calculate state
                 next_obs_state = self.encode_state(self.resp)

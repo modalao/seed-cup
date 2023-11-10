@@ -14,7 +14,7 @@ class ActionStepList:
         self.actionsteplist.append(actiontuple)
         self.actionsteplist.remove(self.actionsteplist[0])
     
-    def BombStep(self)->bool:
+    def WhetherBombStep(self)->bool:
         """
         动作列表中，是否存在炸弹
         """
