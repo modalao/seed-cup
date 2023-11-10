@@ -387,12 +387,16 @@ class EnvManager():  # add your var and method under the class.
                 #死亡扣分
                 if self.resp.type == PacketType.GameOver:
                     reward = -100
+                    
                 # calculate state
                 next_obs_state = self.encode_state(self.resp)
                 next_player_my_state, next_player_enemy_state = self.playerState(self.resp)
                 next_state = self.to_tensor(next_obs_state, next_player_my_state)
                 is_over = self.resp.type == PacketType.GameOver
 
+                #综合score后的reward
+                reward = reward*0.7 + self.ui._player.score*0.3
+                
                 # train
                 self.train_manager.train_one_step(action_idx, 
                                                   reward, 
@@ -458,7 +462,7 @@ class EnvManager():  # add your var and method under the class.
 
                 # restart server and bot
                 target_directory = "../../bin"
-                cur_dir = "/home/yu/codings/seed-cup/client/python"
+                cur_dir = os.getcwd()
                 os.chdir(target_directory)
                 with open("server_tmp.log", "w") as server_log:
                     process_server = subprocess.Popen("./server", stdout=server_log, stderr=server_log)

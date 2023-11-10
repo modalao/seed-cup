@@ -110,7 +110,7 @@ def checkoutofrange(x:int,y:int)->bool:
 
 def checkPersonInBombRange(cur_map,x:int,y:int,bombrange:int)->bool:
     '''
-    检测人是否在炸弹爆炸范围内
+    检测人是否在炸弹爆炸范围内,不精准
     '''
     for i in range(-bombrange,bombrange+1):
         for j in range(-bombrange,bombrange+1):
