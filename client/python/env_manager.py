@@ -386,7 +386,7 @@ class EnvManager():  # add your var and method under the class.
                 print(f'send action 2: {action2.actionType}')
 
                 
-                self.action_step_list.update((action1,action2))#更新动作
+                # self.action_step_list.update((action1,action2))#更新动作
                 inter_lock.acquire()
                 self.resp = client.recv()
                 print(f'receive resp, type={self.resp.type}')
@@ -395,9 +395,9 @@ class EnvManager():  # add your var and method under the class.
                 #死亡扣分
                 if self.resp.type == PacketType.GameOver:
                     reward = -100
-                #7回合不放炸弹扣分
-                if self.action_step_list.WhetherBombStep() == False and self.cur_action >MinBombPlaced:
-                    reward -=100   
+                # #7回合不放炸弹扣分
+                # if self.action_step_list.WhetherBombStep() == False and self.cur_action >MinBombPlaced:
+                #     reward -=100   
                     
                 # calculate state
                 next_obs_state = self.encode_state(self.resp)
