@@ -1,14 +1,17 @@
-from model import MLP
+from model import MLP, SimpleCNN
 import replay_buffers
 import agents
 
 import torch
+import copy
 
 class TrainManager():
 
     def __init__(self,
                  n_action,
-                 input_shape,
+                 conv_output_dim = 256, 
+                 fc_output_dim = 32,
+                 input_shape = 240,
                  batch_size = 32,  #每一批次的数量
                  num_steps = 4,  #进行学习的频次
                  memory_size = 2000,  #经验回放池的容量
@@ -16,16 +19,18 @@ class TrainManager():
                  update_target_steps = 200,#同步参数的次数
                  lr = 0.001,  #学习率
                  gamma = 0.9,  #收益衰减率
-                 e_greed = 0.3  #探索与利用中的探索概率
+                 e_greed = 0.2  #探索与利用中的探索概率
                  ):
         self.n_action = n_action
+        self.conv_output_dim = conv_output_dim
+        self.fc_output_dim = fc_output_dim
         self.input_shape = input_shape
         self.cur_episode = 0
         self.obs = None
         self.total_reward = 0
         self.eval = False
 
-        q_func = MLP(self.input_shape, self.n_action)
+        q_func = SimpleCNN(self.conv_output_dim, self.fc_output_dim, self.n_action)
         optimizer = torch.optim.AdamW(q_func.parameters(), lr=lr)
         rb = replay_buffers.ReplayBuffer(memory_size, num_steps)
 
@@ -71,11 +76,11 @@ class TrainManager():
     def train_one_step(self, action, reward, next_obs, done):
         if self.eval:
             self.total_reward += reward
-            self.obs = next_obs
+            self.obs = copy.deepcopy(next_obs)
         else:
             self.total_reward += reward
             self.agent.learn(self.obs, action, reward, next_obs, done)
-            self.obs = next_obs
+            self.obs = copy.deepcopy(next_obs)
         if done:
             if self.eval:
                 print('test reward = %.1f' % (self.total_reward))

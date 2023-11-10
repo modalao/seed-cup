@@ -36,8 +36,8 @@ class DQNAgent(object):
 
     # 根据经验得到action
     def predict(self, obs):
-        obs = torch.FloatTensor(obs)
-        Q_list = self.pred_func(obs)
+        # obs = torch.FloatTensor(obs)
+        Q_list = self.pred_func(obs[0].unsqueeze(0), obs[1].unsqueeze(0))
         action = int(torch.argmax(Q_list).detach().numpy())
         return action
 
@@ -49,16 +49,19 @@ class DQNAgent(object):
             action = self.predict(obs)
         return action
 
-    def learn_batch(self,batch_obs, batch_action, batch_reward, batch_next_obs, batch_done):
-
+    def learn_batch(self, batch_map_state, batch_player_state, batch_action, batch_reward, 
+                    batch_next_map_state, batch_next_player_state, batch_done):
+        """
+        batch_obs: ((tensor(15*15), tensor(15)), (), (), ...)
+        """
         # predict_Q
-        pred_Vs = self.pred_func(batch_obs)  # (B, n_act)
+        pred_Vs = self.pred_func(batch_map_state, batch_player_state)  # (B, n_act)
         # print(f'pred_Vs: {pred_Vs.shape}')
         action_onehot = torchUtils.one_hot(batch_action, self.n_act)  # (B, n_act)
         predict_Q = (pred_Vs * action_onehot).sum(1)  #(B)
         # print(f'predict_Q: {predict_Q.shape}')
         # target_Q
-        next_pred_Vs = self.target_func(batch_next_obs)  # (B, n_act)
+        next_pred_Vs = self.target_func(batch_next_map_state, batch_next_player_state)  # (B, n_act)
         # print(f'next_pred_Vs: {next_pred_Vs.shape}')
         best_V = next_pred_Vs.max(1)[0]  # (B)
         # print(f'best_V: {best_V.shape}')
@@ -71,9 +74,21 @@ class DQNAgent(object):
         loss.backward()
         self.optimizer.step()
 
+    
+    def preprocess_rb_data(self, obs:tuple, action, reward, next_obs:tuple, done):
+        """
+        return value are all tensors
+        """
+        # print(obs)
+        map_state, player_state = obs
+        next_map_state, next_player_state = next_obs
+        done = int(done)
+        return (map_state, player_state, action, reward, next_map_state, next_player_state, done)
+        
+
     def learn(self, obs, action, reward, next_obs, done):
         self.global_step += 1
-        self.rb.append((obs, action, reward, next_obs, done))
+        self.rb.append(self.preprocess_rb_data(obs, action, reward, next_obs, done))
         if len(self.rb) > self.replay_start_size and self.global_step % self.rb.num_steps == 0:
             self.learn_batch(*self.rb.sample(self.batch_size))
         if self.global_step % self.update_target_steps==0:

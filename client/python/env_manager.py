@@ -23,6 +23,7 @@ import reward
 from train import TrainManager
 import os
 import torch
+import traceback
 
 inter_lock = threading.Lock()
 
@@ -85,13 +86,12 @@ class EnvManager():  # add your var and method under the class.
         self.process_bot = None
 
         self.train_manager = TrainManager(
-            self.n_act,
-            self.encode_shape,
-            batch_size=8,
+            n_action=self.n_act,
+            batch_size=16,
             num_steps=4,
             memory_size=2000,
-            replay_start_size=100,
-            update_target_steps=20
+            replay_start_size=200,
+            update_target_steps=200
         )
         
         # log
@@ -321,6 +321,10 @@ class EnvManager():  # add your var and method under the class.
         state_tensor = torch.Tensor(obs_state).reshape((1, -1)).squeeze()
         player_tensor = player_state.to_tensor()
         return torch.cat([state_tensor, player_tensor])
+    
+
+    def state2Tuple(self, obs_state, player_state:PlayerInfo):
+        return (torch.Tensor(obs_state), player_state.to_tensor())
 
 
     def start_train(self):
@@ -349,7 +353,7 @@ class EnvManager():  # add your var and method under the class.
                 # init obs in train_manager
                 cur_obs_state = self.encode_state(self.resp)
                 cur_player_my_state, cur_player_enemy_state = self.playerState(self.resp)
-                cur_state = self.to_tensor(cur_obs_state, cur_player_my_state)
+                cur_state = self.state2Tuple(cur_obs_state, cur_player_my_state)
                 self.train_manager.init_obs(cur_state)
 
             while self.resp.type != PacketType.GameOver:
@@ -391,7 +395,8 @@ class EnvManager():  # add your var and method under the class.
                 # calculate state
                 next_obs_state = self.encode_state(self.resp)
                 next_player_my_state, next_player_enemy_state = self.playerState(self.resp)
-                next_state = self.to_tensor(next_obs_state, next_player_my_state)
+                # next_state = self.to_tensor(next_obs_state, next_player_my_state)
+                next_state = self.state2Tuple(next_obs_state, next_player_my_state)
                 is_over = self.resp.type == PacketType.GameOver
 
                 #综合score后的reward
@@ -436,18 +441,18 @@ class EnvManager():  # add your var and method under the class.
             cur_dir = os.getcwd()
             os.chdir(target_directory)
             with open("server_tmp.log", "w") as server_log:
-                process_server = subprocess.Popen("./server", stdout=server_log, stderr=server_log)
-            process_bot = subprocess.Popen("./silly-bot")
+                self.process_server = subprocess.Popen("./server", stdout=server_log, stderr=server_log)
+            self.process_bot = subprocess.Popen("./silly-bot")
             os.chdir(cur_dir)
 
             print(f'========== episode {i} begin ==========')
             self.start_train()
-            if process_server is not None:
+            if self.process_server is not None:
                 print(f'kill ./server')
-                process_server.kill()
-            if process_bot is not None:
+                self.process_server.kill()
+            if self.process_bot is not None:
                 print(f'kill ./silly-bot')
-                process_bot.kill()
+                self.process_bot.kill()
             sleep(1)  # waiting for the exit of threads and process
             print(f'========== episode {i} finish ==========')
 
@@ -465,18 +470,18 @@ class EnvManager():  # add your var and method under the class.
                 cur_dir = os.getcwd()
                 os.chdir(target_directory)
                 with open("server_tmp.log", "w") as server_log:
-                    process_server = subprocess.Popen("./server", stdout=server_log, stderr=server_log)
-                process_bot = subprocess.Popen("./silly-bot")
+                    self.process_server = subprocess.Popen("./server", stdout=server_log, stderr=server_log)
+                self.process_bot = subprocess.Popen("./silly-bot")
                 os.chdir(cur_dir)
 
                 print(f'========== test begin ==========')
                 self.start_train()
-                if process_server is not None:
+                if self.process_server is not None:
                     print(f'kill ./server')
-                    process_server.kill()
-                if process_bot is not None:
+                    self.process_server.kill()
+                if self.process_bot is not None:
                     print(f'kill ./silly-bot')
-                    process_bot.kill()
+                    self.process_bot.kill()
                 sleep(1)  # waiting for the exit of threads and process
                 print(f'========== test finish ==========')
 
@@ -498,7 +503,19 @@ with open("env.log", "w") as f:
                    (ActionType.MOVE_LEFT, ActionType.SILENT), 
                    (ActionType.MOVE_RIGHT, ActionType.SILENT)]
     
-    env.train(50)
+    try:
+        env.train(500)
+    except:
+        traceback.print_exc()  # 打印详细的错误信息堆栈
+        print(f'error occured!')
+        if env.process_server is not None:
+            print(f'kill ./server')
+            env.process_server.kill()
+        if env.process_bot is not None:
+            print(f'kill ./silly-bot')
+            env.process_bot.kill()
+        exit(1)
+
         # cur_state2, reward2, is_over2 = env.step((ActionType.MOVE_RIGHT, ActionType.SILENT))
     # f.write(str(reward1))
     # f.write("\n")
