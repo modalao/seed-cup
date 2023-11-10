@@ -14,14 +14,15 @@ class ReplayBuffer(object):
     def sample(self, batch_size):
         print('sample from buffer')
         mini_batch = random.sample(self.buffer, batch_size)
-        obs_batch, action_batch, reward_batch, next_obs_batch, done_batch = zip(*mini_batch)
-        # print(obs_batch)
-        obs_batch = torch.stack(obs_batch, dim=0)
-        action_batch = FloatTensor(action_batch)
-        reward_batch = FloatTensor(reward_batch)
-        next_obs_batch = torch.stack(next_obs_batch, dim=0)
-        done_batch = FloatTensor(done_batch)
-        return obs_batch, action_batch, reward_batch, next_obs_batch, done_batch
+        map_state, player_state, action, reward, next_map_state, next_player_state, done = zip(*mini_batch)
+        map_state = torch.stack(map_state, dim=0)
+        player_state = torch.stack(player_state, dim=0)
+        next_map_state = torch.stack(next_map_state, dim=0)
+        next_player_state = torch.stack(next_player_state, dim=0)
+        action = torch.FloatTensor(action)
+        reward = torch.FloatTensor(reward)
+        done = torch.FloatTensor(done)
+        return map_state, player_state, action, reward, next_map_state, next_player_state, done
 
     def __len__(self):
         return len(self.buffer)

@@ -7,7 +7,8 @@ class Mapcode(Enum):#player 放置炸弹状态是否编码？？
     BlockRemovable = 2
     BlockUnRemovable = -2
     #bomb 爆炸范围为range 对应矩阵值为BombBase+range
-    BombBase = 10
+    BombBase = 10 #自己放的炸弹
+    
     
     NullBlock = 0 
     BombedBlock = 9 #爆炸格
