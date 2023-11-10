@@ -62,7 +62,7 @@ gContext = {
 action_list = [ActionType.MOVE_DOWN, ActionType.MOVE_LEFT, ActionType.MOVE_RIGHT, ActionType.MOVE_UP, 
                     ActionType.PLACED, ActionType.SILENT]
 
-MinBombPlaced =7 #必须在MinBombPlaced回合内放置炸弹
+MinBombPlaced =10 #必须在MinBombPlaced回合内放置炸弹
 class EnvManager():  # add your var and method under the class.
     def __init__(self) -> None:
         self.ui = None
@@ -375,7 +375,7 @@ class EnvManager():  # add your var and method under the class.
                 # action2 = ActionReq(gContext["playerID"], ActionType.SILENT)
 
                 # calculate reward
-                reward = self.calculateReward(self.resp, new_action)
+                reward1 = self.calculateReward(self.resp, new_action)
 
                 # send action
                 actionPacket = PacketReq(PacketType.ActionReq, action1)  # need time
@@ -394,10 +394,10 @@ class EnvManager():  # add your var and method under the class.
                 
                 #死亡扣分
                 if self.resp.type == PacketType.GameOver:
-                    reward = -100
-                # #7回合不放炸弹扣分
-                # if self.action_step_list.WhetherBombStep() == False and self.cur_action >MinBombPlaced:
-                #     reward -=100   
+                    reward1 = reward.rewardValue["reward-5"]
+                #10回合不放炸弹扣分
+                if self.action_step_list.WhetherBombStep() == False and self.cur_round >MinBombPlaced:
+                    reward1 = reward.rewardValue["reward-5"]   
                     
                 # calculate state
                 next_obs_state = self.encode_state(self.resp)
@@ -407,11 +407,11 @@ class EnvManager():  # add your var and method under the class.
                 is_over = self.resp.type == PacketType.GameOver
 
                 #综合score后的reward
-                reward = reward*0.7 + self.ui._player.score*0.3
+                reward1 = reward1*0.7 + next_player_my_state.score*0.3
                 
                 # train
                 self.train_manager.train_one_step(action_idx, 
-                                                  reward, 
+                                                  reward1, 
                                                   next_state,
                                                   is_over)
                 

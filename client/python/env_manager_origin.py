@@ -20,8 +20,13 @@ import termios
 import tty
 import copy
 import reward
+from train import TrainManager
+import os
+import torch
+import traceback
+from actionsteplist import ActionStepList
 
-
+inter_lock = threading.Lock()
 
 rewardPriority={
     2:reward.rewardBomb,
@@ -57,20 +62,15 @@ gContext = {
 action_list = [ActionType.MOVE_DOWN, ActionType.MOVE_LEFT, ActionType.MOVE_RIGHT, ActionType.MOVE_UP, 
                     ActionType.PLACED, ActionType.SILENT]
 
-
+MinBombPlaced =10 #必须在MinBombPlaced回合内放置炸弹
 class EnvManager():  # add your var and method under the class.
     def __init__(self) -> None:
         self.ui = None
-        self.next_resp: PacketResp = None  # NOTE: when you use it, this var should be read only
-        self.cur_resp: PacketResp = None  # last_resp = resp before update self.resp
-        
-        self.cur_action: tuple[ActionType, ActionType] = None  # action to take in this round
-        self.cur_round = 0  # round_num of this round
+        self.resp: PacketResp = None  # NOTE: when you use it, this var should be read only
+        self.cur_round = 1  # round_num of this round
 
-        self.t_game = None  # thread for game.
         self.t_ui = None  # thread for recvAndRefresh
-
-        self.lock_interaction = threading.Lock()  # lock for action/resp
+        # self.lock_interaction = threading.Lock()  # lock for action/resp
 
         # init new action list(36 actions total)
         self.new_action_list = []
@@ -81,78 +81,32 @@ class EnvManager():  # add your var and method under the class.
 
         # encode shape
         self.encode_shape = 15 * 15 + 15
+
+        # process to be controled
+        self.process_server = None
+        self.process_bot = None
+
+        self.train_manager = TrainManager(
+            n_action=self.n_act,
+            batch_size=16,
+            num_steps=4,
+            memory_size=2000,
+            replay_start_size=200,
+            update_target_steps=200
+        )
+        self.action_step_list = ActionStepList(MinBombPlaced) #记录动作的个数
         
         # log
         f.write("init\n")
-
-
-    def step(self, action:tuple):#TODO:add bomb time?
-        """
-        handle 1 action and return response
-        you should only return the response when the response round changed.
-        """
-        global gContext
-        f.write("enter step\n")
-        if self.next_resp is None:
-            while self.next_resp is None:
-                continue
-            self.lock_interaction.acquire()
-            self.cur_round = self.next_resp.data.round  # first round, there will be no interaction.
-            # print(self.cur_round)
-            assert self.cur_round == 1
-            self.cur_resp = copy.deepcopy(self.next_resp)
-            self.lock_interaction.release()
-            
-        try:
-            while gContext["gameOverFlag"] == False and self.next_resp.data.round == self.cur_round:
-                # if self.next_resp is not None:
-                #     print(self.next_resp.data.round)
-                continue
-        except:
-            print("conflict!")
-            return None, None, None, 1
-        else:
-            print("normal! keep going")
-            if gContext["gameOverFlag"] == True:
-                return None, None, None, 1
-         
-        self.lock_interaction.acquire()  # avoid the competence
-        f.write("enter step lock\n")
-
-        # encode  
-        self.cur_action = action
-        cur_player_my_state, cur_player_enemy_state = self.playerState(self.cur_resp)  # action未执行 player State
-        # next_player_my_state,next_player_enemy_state =self.playerState(self.next_resp) #action执行完后player state
-        cur_state = self.encode_state(self.cur_resp)  # map state
-        f.write(str(self.cur_resp.data.round))
-        f.write("\n")
-        f.write(str(self.next_resp.data.round))
-        next_state = self.encode_state(self.next_resp)  # 
-        reward = self.calculateReward(self.cur_resp, self.next_resp, self.cur_action, cur_state, 
-                                      cur_player_my_state, 
-                                      cur_player_enemy_state)         
-        is_over = self.next_resp.type == PacketType.GameOver
-
-        # update
-        self.cur_round = self.next_resp.data.round
-        self.cur_resp = copy.deepcopy(self.next_resp)  # NOTE: deepcopy.
-
-        self.lock_interaction.release()  # avoid the competence
-        f.write("leave step\n")
-
-        # return
-        return cur_state, next_state, reward, is_over
-    
-
-    def start(self):
-        self.t_game = Thread(target=self.start_game)
-        self.t_game.start()
 
 
     def reset(self):
         """
         restart the game
         """
+        target_directory = "../../bin"
+        process_server = subprocess.Popen(["server"], cwd=target_directory)
+        process_bot = subprocess.Popen(["silly-bot"], ced=target_directory)
         global gContext
         # 设置终止标志
         gContext["gameOverFlag"]= True
@@ -164,8 +118,7 @@ class EnvManager():  # add your var and method under the class.
 
         # 重新启动
         self.ui = None
-        self.next_resp = None
-        self.cur_resp = None
+        self.resp = None
         self.cur_action = None
         self.cur_round = 0
         gContext["gameOverFlag"] = False
@@ -179,7 +132,9 @@ class EnvManager():  # add your var and method under the class.
         if resp == None:
             return None
         if resp.type==PacketType.GameOver:
-            return None
+            range_x = config.get("map_size")
+            range_y = config.get("map_size")
+            return [[Mapcode.NullBlock.value for _ in range(range_x)] for __ in range(range_y)]
         else:
             range_x = config.get("map_size")
             range_y = config.get("map_size")
@@ -190,22 +145,38 @@ class EnvManager():  # add your var and method under the class.
             for map in actionResp.map:
                 freshed = False
                 if len(map.objs):
+                    BombFlag = False
+                    enemy = False
+                    me = False
                     for obj in map.objs:
+                        if obj.type == ObjType.Bomb:
+                            BombFlag = True
                         if not obj.type == ObjType.Player:
                             continue 
                         #me
                         if myplayer_id == obj.property.player_id and obj.property.alive:
-                            mapcode[map.x][map.y]=Mapcode.calulate(obj,False)
+                            me = True
                             freshed = True
 
                         #enemy  玩家可以重叠**
                         if myplayer_id != obj.property.player_id and obj.property.alive:
-                            mapcode[map.x][map.y]=Mapcode.calulate(obj,True)
+                            enemy = True
                             freshed = True
-                
-                    if not freshed:
+                        
+                    if not freshed: #不是人，
                         mapcode[map.x][map.y]=Mapcode.calulate(map.objs[0])
-                else:
+                    else :
+                        if not BombFlag:#纯人
+                            if enemy :
+                                mapcode[map.x][map.y]=Mapcode.calulate(map.objs[0],True)
+                            if me :
+                                mapcode[map.x][map.y]=Mapcode.calulate(map.objs[0],False)
+                        else :#人 炸弹一起
+                            if enemy :
+                                mapcode[map.x][map.y]=Mapcode.calulate(None,True,False,True)
+                            if me :
+                                mapcode[map.x][map.y]=Mapcode.calulate(None,False,False,True)
+                else: 
                     mapcode[map.x][map.y]=Mapcode.calulate(None,False, actionResp.round == map.last_bomb_round)
             return mapcode
         
@@ -265,20 +236,31 @@ class EnvManager():  # add your var and method under the class.
                                                     speed=obj.property.speed)
                 if flag and enemy_id != -1:
                     break
-        return my_player,enemy_player
-     
-    def calculateReward(self,cur_resp:PacketResp,next_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerInfo,cur_player_enemy:PlayerInfo)->int:
-        #形参为cur_resp当前resp报文，next_resp下一回合resp报文，action为该回合的两个动作，cur_map 当前状态地图信息,cur_player_me 我方信息，cur_player_enemy 敌方信息
+        return my_player, enemy_player
+    
+    
+    def calculateReward_(self,cur_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerInfo,cur_player_enemy:PlayerInfo)->int:
+        #形参为cur_resp当前resp报文(动作前），action为该回合的两个动作，cur_map 当前状态地图信息,cur_player_me 我方信息，cur_player_enemy 敌方信息
         #可利用形参计算当前操作reward函数,根据实际情况奖惩，
         #TODO 填写rewardBomb，rewardItem，awayFromBomb，nearItem函数
-        if cur_resp.type == PacketType.ActionResp and next_resp.type == PacketType.GameOver:#被炸死
-            return -100
         
         reward:int = 0
-        for i in sorted(rewardPriority.keys()):#按键值排序，先调用优先级高的，返回reward
-            reward=rewardPriority[i](cur_resp,next_resp,action,cur_map,cur_player_me,cur_player_enemy)
+        for i in sorted(rewardPriority.keys()):  # 按键值排序，先调用优先级高的，返回reward
+            reward=rewardPriority[i](cur_resp,action,cur_map,cur_player_me,cur_player_enemy)
             if reward != 0:
                 return reward
+            # reward+=rewardPriority[i](cur_resp,action,cur_map,cur_player_me,cur_player_enemy)
+        return reward
+    
+
+    def calculateReward(self, resp:PacketResp, action):
+        cur_state = self.encode_state(self.resp)
+        cur_player_my_state, cur_player_enemy_state = self.playerState(self.resp)
+        reward = self.calculateReward_(self.resp, 
+                                       action, 
+                                       cur_state, 
+                                       cur_player_my_state, 
+                                       cur_player_enemy_state)
         return reward
 
 
@@ -288,45 +270,27 @@ class EnvManager():  # add your var and method under the class.
         return InitReq(config.get("player_name"))
 
 
-    def recvAndRefresh(self, client: Client):
-        """Recv packet and refresh ui."""
+    def uiRefresh(self):
         global gContext
-        self.lock_interaction.acquire()
-        self.next_resp = client.recv()
-        self.lock_interaction.release()        # print(self.next_resp.data.round)
+        global inter_lock
 
-        self.lock_interaction.acquire()
-        if self.next_resp.type == PacketType.ActionResp:
-            gContext["gameBeginFlag"] = True
-            gContext["playerID"] = self.next_resp.data.player_id
-            self.ui.player_id = gContext["playerID"]
-        self.lock_interaction.release()
+        self.ui = UI()
+        while gContext["gameBeginFlag"] == False:
+            continue
 
-        while self.next_resp.type != PacketType.GameOver:
-            if gContext["gameOverFlag"]: #add
+        while True:
+            # inter_lock.acquire()
+            if gContext["gameOverFlag"] == True:
+                # inter_lock.release()
                 break
-            subprocess.run(["clear"])
-            self.lock_interaction.acquire()  # add lock
-            self.ui.refresh(self.next_resp.data)
-            self.ui.display()
-            self.lock_interaction.release()
-            
-            # self.lock_interaction.acquire()
-            self.next_resp = client.recv()
-            # self.lock_interaction.release()
-
-        print(f"Game Over!")
-        print(f"Final scores \33[1m{self.next_resp.data.scores}\33[0m")
-
-        if gContext["playerID"] in self.next_resp.data.winner_ids:
-            print("\33[1mCongratulations! You win! \33[0m")
-        else:
-            print(
-                "\33[1mThe goddess of victory is not on your side this time, but there is still a chance next time!\33[0m"
-            )
-
-        gContext["gameOverFlag"] = True
-        print("press any key to quit")
+            # subprocess.run(["clear"])
+            # try:
+            #     self.ui.refresh(self.resp.data)
+            #     self.ui.display()
+            # except:
+            #     # inter_lock.release()
+            #     break
+        print('ui thread exit success.')
 
 
     def getActionFromIO(self):
@@ -348,64 +312,188 @@ class EnvManager():  # add your var and method under the class.
         while self.cur_action is None:
             continue
 
-        self.lock_interaction.acquire()
         action1 = ActionReq(gContext["playerID"], self.cur_action[0])
         action2 = ActionReq(gContext["playerID"], self.cur_action[1])
         self.cur_action = None
-        self.lock_interaction.release()
 
         return action1, action2
-
-
-    def start_game(self):
-        self.ui = UI()  # create new ui
     
+
+    def to_tensor(self, obs_state, player_state:PlayerInfo):
+        state_tensor = torch.Tensor(obs_state).reshape((1, -1)).squeeze()
+        player_tensor = player_state.to_tensor()
+        return torch.cat([state_tensor, player_tensor])
+    
+
+    def state2Tuple(self, obs_state, player_state:PlayerInfo):
+        return (torch.Tensor(obs_state), player_state.to_tensor())
+
+
+    def start_train(self):
+        global gContext
+        global inter_lock
+
         with Client() as client:
             client.connect()
-
             initPacket = PacketReq(PacketType.InitReq, self.cliGetInitReq())
             client.send(initPacket)
 
-            # IO thread to display UI
-            self.t_ui = Thread(target=self.recvAndRefresh, args=(client,))
+            self.t_ui = Thread(target=self.uiRefresh)
             self.t_ui.start()
 
-            print(gContext["prompt"])
-            for c in cycle(gContext["steps"]):
-                if gContext["gameBeginFlag"]:
-                    break
-                print(
-                    f"\r\033[0;32m{c}\033[0m \33[1mWaiting for the other player to connect...\033[0m",
-                    flush=True,
-                    end="",
-                )
-                sleep(0.1)
+            print('waiting for connection...')
+            inter_lock.acquire()
+            self.resp = client.recv()
+            inter_lock.release()
 
-            while not gContext["gameOverFlag"]:
-                print('stuck here')
-                ######### IO mode ##########
-                # action = self.getActionFromIO()  # this need time.
-                # if gContext["gameOverFlag"]:
-                #     break
-                # actionPacket = PacketReq(PacketType.ActionReq, action)
-                # client.send(actionPacket)
+            if self.resp.type == PacketType.ActionResp:
+                print('connection success! game start!')
+                gContext["gameBeginFlag"] = True
+                gContext["playerID"] = self.resp.data.player_id
+                self.ui.player_id = gContext["playerID"]
 
-                ####### model mode ########
-                action1, action2 = self.getActionFromModel()  # need time
+                # init obs in train_manager
+                cur_obs_state = self.encode_state(self.resp)
+                cur_player_my_state, cur_player_enemy_state = self.playerState(self.resp)
+                cur_state = self.state2Tuple(cur_obs_state, cur_player_my_state)
+                self.train_manager.init_obs(cur_state)
 
-                if gContext["gameOverFlag"]:
+            while self.resp.type != PacketType.GameOver:
+                if gContext["gameOverFlag"]: #add
                     break
 
+                # NOTE: the train code is added here.
+                print(f'round {self.resp.data.round}: ')
+
+                action_idx = self.train_manager.get_action()
+                new_action = self.new_action_list[action_idx]
+                action1 = ActionReq(gContext["playerID"], new_action[0])
+                action2 = ActionReq(gContext["playerID"], new_action[1])
+
+                # for test
+                # action1 = ActionReq(gContext["playerID"], ActionType.PLACED)
+                # action2 = ActionReq(gContext["playerID"], ActionType.SILENT)
+
+                # calculate reward
+                reward = self.calculateReward(self.resp, new_action)
+
+                # send action
                 actionPacket = PacketReq(PacketType.ActionReq, action1)  # need time
                 client.send(actionPacket)
-                # print("send action1")
-
-                if gContext["gameOverFlag"]:
-                    break
-
+                print(f'send action 1: {action1.actionType}')
                 actionPacket = PacketReq(PacketType.ActionReq, action2)  # need time
                 client.send(actionPacket)
-                # print("send action2")
+                print(f'send action 2: {action2.actionType}')
+
+                
+                # self.action_step_list.update((action1,action2))#更新动作
+                inter_lock.acquire()
+                self.resp = client.recv()
+                print(f'receive resp, type={self.resp.type}')
+                inter_lock.release()
+                
+                #死亡扣分
+                if self.resp.type == PacketType.GameOver:
+                    reward = -100
+                #10回合不放炸弹扣分
+                if self.action_step_list.WhetherBombStep() == False and self.cur_round >MinBombPlaced:
+                    reward = -100   
+                    
+                # calculate state
+                next_obs_state = self.encode_state(self.resp)
+                next_player_my_state, next_player_enemy_state = self.playerState(self.resp)
+                # next_state = self.to_tensor(next_obs_state, next_player_my_state)
+                next_state = self.state2Tuple(next_obs_state, next_player_my_state)
+                is_over = self.resp.type == PacketType.GameOver
+
+                #综合score后的reward
+                reward = reward*0.7 + next_player_my_state.score*0.3
+                
+                # train
+                self.train_manager.train_one_step(action_idx, 
+                                                  reward, 
+                                                  next_state,
+                                                  is_over)
+                
+                
+
+            print(f"Game Over!")
+            print(f"Final scores \33[1m{self.resp.data.scores}\33[0m")
+
+            if gContext["playerID"] in self.resp.data.winner_ids:
+                print("\33[1mCongratulations! You win! \33[0m")
+            else:
+                print(
+                    "\33[1mThe goddess of victory is not on your side this time, but there is still a chance next time!\33[0m"
+                )
+
+            gContext["gameOverFlag"] = True
+
+
+    
+    def train(self, episodes):
+        global gContext
+
+        for i in range(episodes):
+            self.train_manager.train_mode()
+
+            # initialize gContext
+            self.resp = None
+            gContext["gameOverFlag"] = False
+            gContext["gameBeginFlag"] = False
+            gContext["playerID"] = -1
+
+            # restart server and bot
+            target_directory = "../../bin"
+            cur_dir = os.getcwd()
+            os.chdir(target_directory)
+            with open("server_tmp.log", "w") as server_log:
+                self.process_server = subprocess.Popen("./server", stdout=server_log, stderr=server_log)
+            self.process_bot = subprocess.Popen("./silly-bot")
+            os.chdir(cur_dir)
+
+            print(f'========== episode {i} begin ==========')
+            self.start_train()
+            if self.process_server is not None:
+                print(f'kill ./server')
+                self.process_server.kill()
+            if self.process_bot is not None:
+                print(f'kill ./silly-bot')
+                self.process_bot.kill()
+            sleep(1)  # waiting for the exit of threads and process
+            print(f'========== episode {i} finish ==========')
+
+            if i != 0 and i % 100 == 0:
+                self.train_manager.eval_mode()
+
+                # initialize gContext
+                self.resp = None
+                gContext["gameOverFlag"] = False
+                gContext["gameBeginFlag"] = False
+                gContext["playerID"] = -1
+
+                # restart server and bot
+                target_directory = "../../bin"
+                cur_dir = os.getcwd()
+                os.chdir(target_directory)
+                with open("server_tmp.log", "w") as server_log:
+                    self.process_server = subprocess.Popen("./server", stdout=server_log, stderr=server_log)
+                self.process_bot = subprocess.Popen("./silly-bot")
+                os.chdir(cur_dir)
+
+                print(f'========== test begin ==========')
+                self.start_train()
+                if self.process_server is not None:
+                    print(f'kill ./server')
+                    self.process_server.kill()
+                if self.process_bot is not None:
+                    print(f'kill ./silly-bot')
+                    self.process_bot.kill()
+                sleep(1)  # waiting for the exit of threads and process
+                print(f'========== test finish ==========')
+
+
+
 
 
 
@@ -421,17 +509,21 @@ with open("env.log", "w") as f:
                    (ActionType.MOVE_RIGHT, ActionType.SILENT),
                    (ActionType.MOVE_LEFT, ActionType.SILENT), 
                    (ActionType.MOVE_RIGHT, ActionType.SILENT)]
-    env.start()
-    while True:
-        cur_state1, next_state1, reward1, is_over1 = env.step((ActionType.PLACED, ActionType.SILENT))
-        print(is_over1)
-        if is_over1:
-            # if env.t_ui is not None:
-            #     env.t_ui.join() 
-            # if env.t_game is not None:
-            #     env.t_game.join() 
-            print('leave')
-            break
+    
+    try:
+        env.train(500)
+    except:
+        traceback.print_exc()  # 打印详细的错误信息堆栈
+        print(f'error occured!')
+        if env.process_server is not None:
+            print(f'kill ./server')
+            env.process_server.kill()
+        if env.process_bot is not None:
+            print(f'kill ./silly-bot')
+            env.process_bot.kill()
+        exit(1)
+
+        # cur_state2, reward2, is_over2 = env.step((ActionType.MOVE_RIGHT, ActionType.SILENT))
     # f.write(str(reward1))
     # f.write("\n")
     # f.write(str(is_over1))
