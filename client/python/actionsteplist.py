@@ -24,3 +24,19 @@ class ActionStepList:
             if action1 == ActionType.PLACED or action2 == ActionType.PLACED:
                 return True
         return False
+    
+    def repeatStep(self)->bool:
+        '''
+        一直重复一个动作惩罚
+        '''
+        actionnow = self.actionsteplist[0]
+        actionnow1 = actionnow[0]
+        actionnow2 = actionnow[1]
+        for action in self.actionsteplist: 
+            action1 = action[0]
+            action2 = action[1]
+            if action1 == actionnow1 and action2 == actionnow2 :
+                continue
+            else :
+                return False
+        return True

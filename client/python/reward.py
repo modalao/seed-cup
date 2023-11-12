@@ -23,6 +23,8 @@ rewardValue ={
     "reward-3" : -3,
     "reward-4" : -4,
     "reward-5" : -5,
+    "reward10" : 10,
+    "reward-10" : -10,
 }
     
 #reward 范围[10,100],[-100,-10]
@@ -41,9 +43,9 @@ def rewardBomb(cur_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerInfo
     
     #没有炸弹时，不要放炸弹
     if(cur_player_me.bomb_now_num ==0 and (action1 == ActionType.PLACED or action2 ==ActionType.PLACED)):
-        return rewardValue["reward-3"]
+        return rewardValue["reward-5"]
     if action1 == ActionType.PLACED and action2 == ActionType.PLACED:#同一个位置不能重复放炸弹
-        return rewardValue["reward-2"]
+        return rewardValue["reward-5"]
     #炸道具惩罚
     if action1 == ActionType.PLACED:
         for next_item in next_position:
@@ -70,7 +72,7 @@ def rewardBomb(cur_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerInfo
             if checkoutofrange(tx,ty):
                 continue
             if cur_map[tx][ty] == Mapcode.BlockRemovable:
-                return rewardValue["reward1"]
+                return rewardValue["reward5"]
     if action2 == ActionType.PLACED:
         for next_item in next_position:
             tx = px1+next_item[0]
@@ -78,7 +80,7 @@ def rewardBomb(cur_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerInfo
             if checkoutofrange(tx,ty):
                 continue
             if cur_map[tx][ty] == Mapcode.BlockRemovable:
-                return rewardValue["reward1"]
+                return rewardValue["reward5"]
     #TODO 其他 
     
     return 0
@@ -118,14 +120,14 @@ def awayFromBomb(cur_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerIn
     if(m_distance1 ==0 and m_distance2==0): 
         reward1+=0
     elif(m_distance1>0 and m_distance2==0):
-        reward1+=rewardValue["reward3"]
+        reward1+=rewardValue["reward10"]
     elif(m_distance1==0 and m_distance2>0):
-        reward1+=rewardValue["reward-3"]
+        reward1+=rewardValue["reward-10"]
     else:
         if(m_distance1>m_distance2):
-            reward1+=rewardValue["reward-3"]
+            reward1+=rewardValue["reward-5"]
         elif(m_distance1<m_distance2):
-            reward1+=rewardValue["reward3"]
+            reward1+=rewardValue["reward5"]
         else:
             reward1+=0
     return reward1        
@@ -141,13 +143,13 @@ def nearItem(cur_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerInfo,c
     px1,py1 = nextPositionActual(cur_player_me.position_x,cur_player_me.position_y,action1,cur_map)  #action1后我的位置
     reward1=0
     if cur_map[px1][py1] in (Mapcode.ItemBombRange,Mapcode.ItemHp,Mapcode.ItemInvencible,Mapcode.ItemNum,Mapcode.ItemShield):
-        reward1+=rewardValue["reward2"]  #action1就捡到了道具，非常好
+        reward1+=rewardValue["reward5"]  #action1就捡到了道具，非常好
     else:
         reward1+=0
     now_map = actionStepMap(action1,cur_map,x,y,cur_player_me.bomb_range) #action1后地图
     px2,py2 = nextPositionActual(px1,py1,action2,now_map)  #action2后我的位置
     if cur_map[px2][py2] in (Mapcode.ItemBombRange,Mapcode.ItemHp,Mapcode.ItemInvencible,Mapcode.ItemNum,Mapcode.ItemShield):
-        reward1+=rewardValue["reward2"]  #action2捡到道具，非常好
+        reward1+=rewardValue["reward5"]  #action2捡到道具，非常好
     else: 
         reward1+=0
     return reward1
@@ -164,11 +166,11 @@ def collideWall(cur_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerInf
     #两步的边界判断
     if x==0 and action1 == ActionType.MOVE_UP or x == config.get("map_size")-1 and action1 == ActionType.MOVE_DOWN or \
     y == 0 and action1 == ActionType.MOVE_LEFT or y == config.get("map_size")-1 and action1 == ActionType.MOVE_RIGHT:
-        return rewardValue["reward-1"]
+        return rewardValue["reward-2"]
     px1,py1 = nextPositionActual(cur_player_me.position_x,cur_player_me.position_y,action1,cur_map)
     if px1==0 and action2 == ActionType.MOVE_UP or px1 == config.get("map_size")-1 and action2 == ActionType.MOVE_DOWN or \
     py1 == 0 and action2 == ActionType.MOVE_LEFT or py1 == config.get("map_size")-1 and action2 == ActionType.MOVE_RIGHT:
-        return rewardValue["reward-1"]
+        return rewardValue["reward-2"]
     #撞block判断,bomb,unremoveblock,removeblock
     reward1=0
     if action1 == ActionType.MOVE_UP:
