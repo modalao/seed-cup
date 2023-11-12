@@ -10,22 +10,28 @@ class MLP(torch.nn.Module):
 
     def __mlp(self, obs_size, n_act):
         return torch.nn.Sequential(
-            torch.nn.Linear(obs_size, 512),
+            torch.nn.Linear(obs_size, 128),
             torch.nn.ReLU(),
-            torch.nn.Linear(512, 256),
+            torch.nn.Linear(128, 64),
             torch.nn.ReLU(),
-            torch.nn.Linear(256, n_act)
+            torch.nn.Linear(64, n_act),
+            torch.nn.ReLU(),
+            torch.nn.Softmax(dim=1)
         )
 
     def forward(self, x_map, x_player):
-        x_map = torch.stack(x_map, dim=0)  # (B, 15, 15)
+        """
+        x_map: (B, 15, 15)
+        x_player: (B, 15)
+        """
+        # x_map = torch.stack(x_map, dim=0)  # (B, 15, 15)
         B = x_map.shape[0]
         x_map = x_map.reshape((B, 1, -1)).squeeze(dim=1)  # (B, 225)
-        print(x_map.shape)
-        x_player = torch.stack(x_player, dim=0)  # (B, 15)
-        print(x_player.shape)
+        # print(x_map.shape)
+        # x_player = torch.stack(x_player, dim=0)  # (B, 15)
+        # print(x_player.shape)
         x = torch.concat((x_map, x_player), dim=1)
-        print(x.shape)
+        # print(x.shape)
 
         return self.mlp(x)
 
@@ -36,17 +42,17 @@ class SimpleCNN(nn.Module):
         self.conv_output_dim = conv_output_dim
         self.fc_output_dim = fc_output_dim
 
-        self.conv1 = nn.Conv2d(in_channels=1, out_channels=8, kernel_size=3, stride=1, padding=1)
+        self.conv1 = nn.Conv2d(in_channels=1, out_channels=3, kernel_size=2, stride=1)
         self.relu = nn.ReLU()
         self.maxpool = nn.MaxPool2d(kernel_size=2, stride=2)
-        self.fc1 = nn.Linear(8 * 7 * 7, conv_output_dim)  # Adjust the output size based on your requirements
+        self.fc1 = nn.Linear(3 * 7 * 7, conv_output_dim)  # Adjust the output size based on your requirements
 
-        self.fc2 = torch.nn.Linear(15, 32)
+        self.fc2 = torch.nn.Linear(15, fc_output_dim)
         self.relu2 = torch.nn.ReLU()
 
-        self.final_fc1 = nn.Linear(self.fc_output_dim + self.conv_output_dim, 256)
+        self.final_fc1 = nn.Linear(self.fc_output_dim + self.conv_output_dim, 128)
         self.final_relu1 = nn.ReLU()
-        self.final_fc2 = nn.Linear(256, n_act)
+        self.final_fc2 = nn.Linear(128, n_act)
 
 
     def cnn(self, x):

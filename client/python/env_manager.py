@@ -25,6 +25,7 @@ import os
 import torch
 import traceback
 from actionsteplist import ActionStepList
+import pickle
 
 inter_lock = threading.Lock()
 
@@ -62,7 +63,7 @@ gContext = {
 action_list = [ActionType.MOVE_DOWN, ActionType.MOVE_LEFT, ActionType.MOVE_RIGHT, ActionType.MOVE_UP, 
                     ActionType.PLACED, ActionType.SILENT]
 
-MinBombPlaced =10 #必须在MinBombPlaced回合内放置炸弹
+MinBombPlaced = 10 #必须在MinBombPlaced回合内放置炸弹
 class EnvManager():  # add your var and method under the class.
     def __init__(self) -> None:
         self.ui = None
@@ -88,9 +89,9 @@ class EnvManager():  # add your var and method under the class.
 
         self.train_manager = TrainManager(
             n_action=self.n_act,
-            batch_size=16,
+            batch_size=32,
             num_steps=4,
-            memory_size=2000,
+            memory_size=4000,
             replay_start_size=200,
             update_target_steps=200
         )
@@ -461,9 +462,11 @@ class EnvManager():  # add your var and method under the class.
             if self.process_server is not None:
                 print(f'kill ./server')
                 self.process_server.kill()
+                self.process_server.wait()
             if self.process_bot is not None:
                 print(f'kill ./silly-bot')
                 self.process_bot.kill()
+                self.process_bot.wait()
             sleep(1)  # waiting for the exit of threads and process
             self.train_manager.agent.decay()
             print(f'========== episode {i} finish ==========')
@@ -491,9 +494,11 @@ class EnvManager():  # add your var and method under the class.
                 if self.process_server is not None:
                     print(f'kill ./server')
                     self.process_server.kill()
+                    self.process_server.wait()
                 if self.process_bot is not None:
                     print(f'kill ./silly-bot')
                     self.process_bot.kill()
+                    self.process_bot.wait()
                 sleep(1)  # waiting for the exit of threads and process
                 print(f'========== test finish ==========')
 
@@ -516,17 +521,21 @@ with open("env.log", "w") as f:
                    (ActionType.MOVE_RIGHT, ActionType.SILENT)]
     
     try:
-        env.train(500)
+        env.train(2000)
+        torch.save(env.train_manager.agent.pred_func.state_dict(), 'checkpoint_mlp_2000.pt')
     except:
         traceback.print_exc()  # 打印详细的错误信息堆栈
         print(f'error occured!')
+        torch.save(env.train_manager.agent.pred_func.state_dict(), 'checkpoint_mlp_2000.pt')
         if env.process_server is not None:
             print(f'kill ./server')
             env.process_server.kill()
+            env.process_server.wait()
         if env.process_bot is not None:
             print(f'kill ./silly-bot')
             env.process_bot.kill()
-        exit(1)
+            env.process_bot.wait()
+        exit(-1)
 
         # cur_state2, reward2, is_over2 = env.step((ActionType.MOVE_RIGHT, ActionType.SILENT))
     # f.write(str(reward1))

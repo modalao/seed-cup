@@ -13,7 +13,9 @@ class ReplayBuffer(object):
 
     def sample(self, batch_size):
         print('sample from buffer')
-        mini_batch = random.sample(self.buffer, batch_size)
+        start_index = random.randint(0, len(self.buffer) - batch_size)
+        mini_batch = list(self.buffer)[start_index:start_index + batch_size + 1]
+        # mini_batch = random.sample(self.buffer, batch_size)
         map_state, player_state, action, reward, next_map_state, next_player_state, done = zip(*mini_batch)
         map_state = torch.stack(map_state, dim=0)
         player_state = torch.stack(player_state, dim=0)
