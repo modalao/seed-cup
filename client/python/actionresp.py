@@ -5,8 +5,9 @@ from mapcode import Mapcode
 from config import *
 
 
-unmovable_block = [Mapcode.BlockRemovable.value,Mapcode.BlockUnRemovable.value]
+unmovable_block = [Mapcode.BlockRemovable.value,Mapcode.BlockUnRemovable.value,Mapcode.BombEnemyHuman.value]
 unmovable_block.extend([c for c in range(Mapcode.BombBase.value,Mapcode.BombBase.value+20)])
+
 
 def nextPositionIdeal(x:int, y:int, action:ActionType):
     '''
@@ -70,7 +71,7 @@ def actionStepMap(action:ActionType,cur_map,x:int,y:int,bomb_range:int):#actionå
         else :
             now_map[x+1][y] = Mapcode.me.value
             if now_map[x][y] == Mapcode.BombMyHuman:
-                now_map[x][y] = Mapcode.BombBase.value + bomb_range
+                now_map[x][y] = Mapcode.BombBase.value + bomb_range*Mapcode.BombDelta.value
             else :
                 now_map[x][y] = Mapcode.NullBlock
     elif action == ActionType.MOVE_UP:
@@ -79,7 +80,7 @@ def actionStepMap(action:ActionType,cur_map,x:int,y:int,bomb_range:int):#actionå
         else :
             now_map[x-1][y] = Mapcode.me.value
             if now_map[x][y] == Mapcode.BombMyHuman:
-                now_map[x][y] = Mapcode.BombBase.value + bomb_range
+                now_map[x][y] = Mapcode.BombBase.value + bomb_range*Mapcode.BombDelta.value
             else :
                 now_map[x][y] = Mapcode.NullBlock
     elif action == ActionType.MOVE_LEFT:
@@ -88,7 +89,7 @@ def actionStepMap(action:ActionType,cur_map,x:int,y:int,bomb_range:int):#actionå
         else :
             now_map[x][y-1] = Mapcode.me.value
             if now_map[x][y] == Mapcode.BombMyHuman:
-                now_map[x][y] = Mapcode.BombBase.value + bomb_range
+                now_map[x][y] = Mapcode.BombBase.value + bomb_range*Mapcode.BombDelta.value
             else :
                 now_map[x][y] = Mapcode.NullBlock
     else :
@@ -97,10 +98,10 @@ def actionStepMap(action:ActionType,cur_map,x:int,y:int,bomb_range:int):#actionå
         else :
             now_map[x][y+1] = Mapcode.me.value
             if now_map[x][y] == Mapcode.BombMyHuman:
-                now_map[x][y] = Mapcode.BombBase.value + bomb_range
+                now_map[x][y] = Mapcode.BombBase.value + bomb_range*Mapcode.BombDelta.value
             else :
                 now_map[x][y] = Mapcode.NullBlock
-    return cur_map
+    return now_map
 
 
 def checkoutofrange(x:int,y:int)->bool:

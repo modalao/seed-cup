@@ -149,6 +149,8 @@ class EnvManager():  # add your var and method under the class.
                     BombFlag = False
                     enemy = False
                     me = False
+                    me_obj = None
+                    enemy_obj = None
                     for obj in map.objs:
                         if obj.type == ObjType.Bomb:
                             BombFlag = True
@@ -158,20 +160,22 @@ class EnvManager():  # add your var and method under the class.
                         if myplayer_id == obj.property.player_id and obj.property.alive:
                             me = True
                             freshed = True
+                            me_obj = obj
 
                         #enemy  玩家可以重叠**
                         if myplayer_id != obj.property.player_id and obj.property.alive:
                             enemy = True
                             freshed = True
+                            enemy_obj = obj
                         
                     if not freshed: #不是人，
                         mapcode[map.x][map.y]=Mapcode.calulate(map.objs[0])
                     else :
-                        if not BombFlag:#纯人
+                        if not BombFlag:#纯人，补充了两个人位置重叠
                             if enemy :
-                                mapcode[map.x][map.y]=Mapcode.calulate(map.objs[0],True)
+                                mapcode[map.x][map.y]=Mapcode.calulate(me_obj,True)
                             if me :
-                                mapcode[map.x][map.y]=Mapcode.calulate(map.objs[0],False)
+                                mapcode[map.x][map.y]=Mapcode.calulate(enemy_obj,False)
                         else :#人 炸弹一起
                             if enemy :
                                 mapcode[map.x][map.y]=Mapcode.calulate(None,True,False,True)
