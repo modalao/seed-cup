@@ -102,6 +102,7 @@ def actionStepMap(action:ActionType,cur_map,x:int,y:int,bomb_range:int):#actionå
                 now_map[x][y] = Mapcode.NullBlock
     return cur_map
 
+
 def checkoutofrange(x:int,y:int)->bool:
     if x<0 or y < 0 or x >=config.get("map_size") or y >=config.get("map_size"):
         return True
