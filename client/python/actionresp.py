@@ -8,6 +8,15 @@ from config import *
 unmovable_block = [Mapcode.BlockRemovable.value,Mapcode.BlockUnRemovable.value]
 unmovable_block.extend([c for c in range(Mapcode.BombBase.value,Mapcode.BombBase.value+20)])
 
+def outputMap(map):
+    '''
+    输出map
+    '''
+    for i in range(config.get("map_size")):
+        for j in range(config.get("map_size")):
+            print(f'{map[i][j]:>5d} ',end='')
+        print()
+
 def nextPositionIdeal(x:int, y:int, action:ActionType):
     '''
     经过动作后坐标x,y,可能不是实际坐标，因为有边界和障碍物
@@ -69,57 +78,42 @@ def actionStepMap(action:ActionType,cur_map,x:int,y:int,bomb_range:int):#action�
             pass
         else :
             now_map[x+1][y] = Mapcode.me.value
-            if now_map[x][y] == Mapcode.BombMyHuman:
+            if now_map[x][y] == Mapcode.BombMyHuman.value:
                 now_map[x][y] = Mapcode.BombBase.value + bomb_range
             else :
-                now_map[x][y] = Mapcode.NullBlock
+                now_map[x][y] = Mapcode.NullBlock.value
     elif action == ActionType.MOVE_UP:
         if x == 0 or now_map[x-1][y] in unmovable_block:
             pass
         else :
             now_map[x-1][y] = Mapcode.me.value
-            if now_map[x][y] == Mapcode.BombMyHuman:
+            if now_map[x][y] == Mapcode.BombMyHuman.value:
                 now_map[x][y] = Mapcode.BombBase.value + bomb_range
             else :
-                now_map[x][y] = Mapcode.NullBlock
+                now_map[x][y] = Mapcode.NullBlock.value
     elif action == ActionType.MOVE_LEFT:
         if y == 0 or now_map[x][y-1] in unmovable_block:
             pass
         else :
             now_map[x][y-1] = Mapcode.me.value
-            if now_map[x][y] == Mapcode.BombMyHuman:
+            if now_map[x][y] == Mapcode.BombMyHuman.value:
                 now_map[x][y] = Mapcode.BombBase.value + bomb_range
             else :
-                now_map[x][y] = Mapcode.NullBlock
+                now_map[x][y] = Mapcode.NullBlock.value
     else :
         if y == config.get("map_size")-1 or now_map[x][y+1] in unmovable_block:
             pass
         else :
             now_map[x][y+1] = Mapcode.me.value
-            if now_map[x][y] == Mapcode.BombMyHuman:
+            if now_map[x][y] == Mapcode.BombMyHuman.value:
                 now_map[x][y] = Mapcode.BombBase.value + bomb_range
             else :
-                now_map[x][y] = Mapcode.NullBlock
+                now_map[x][y] = Mapcode.NullBlock.value
     return cur_map
 
 def checkoutofrange(x:int,y:int)->bool:
     if x<0 or y < 0 or x >=config.get("map_size") or y >=config.get("map_size"):
         return True
-    return False
-
-
-def checkPersonInBombRange(cur_map,x:int,y:int,bombrange:int)->bool:
-    '''
-    检测人是否在炸弹爆炸范围内,不精准
-    '''
-    for i in range(-bombrange,bombrange+1):
-        for j in range(-bombrange,bombrange+1):
-            tx = x+i
-            ty = y+j
-            if checkoutofrange(tx,ty):
-                continue
-            if(cur_map[tx][ty] == Mapcode.BombBase or cur_map[tx][ty] == Mapcode.BombHuman):
-                return True
     return False
 
 

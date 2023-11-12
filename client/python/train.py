@@ -19,7 +19,7 @@ class TrainManager():
                  update_target_steps = 200,#同步参数的次数
                  lr = 0.001,  #学习率
                  gamma = 0.9,  #收益衰减率
-                 e_greed = 0.35  #探索与利用中的探索概率
+                 e_greed = 0.2  #探索与利用中的探索概率
                  ):
         self.n_action = n_action
         self.conv_output_dim = conv_output_dim
@@ -32,7 +32,7 @@ class TrainManager():
 
         # q_func = SimpleCNN(self.conv_output_dim, self.fc_output_dim, self.n_action)
         q_func = MLP(self.input_shape, self.n_action)
-        # q_func.load_state_dict(torch.load('./checkpoint_2000.pt'), strict=True)
+        q_func.load_state_dict(torch.load('./checkpoint_mlp_2000.pt'), strict=True)
         # print(f'load state dict true!')
         optimizer = torch.optim.AdamW(q_func.parameters(), lr=lr)
         rb = replay_buffers.ReplayBuffer(memory_size, num_steps)
