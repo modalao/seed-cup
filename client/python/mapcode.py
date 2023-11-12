@@ -28,7 +28,7 @@ class Mapcode(Enum):#player  炸弹爆炸的时间没有编码？
     me = 30
 
 
-    def calulate(obj:Obj, enemy =False,last_bomb = False,HumanBomb=False) -> None:
+    def calulate(obj:Obj, enemy =False,last_bomb = False,HumanBomb=False) -> int:
         if HumanBomb: #人和炸弹
             if enemy:
                 value = Mapcode.BombEnemyHuman.value

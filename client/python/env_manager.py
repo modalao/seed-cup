@@ -26,6 +26,7 @@ import torch
 import traceback
 from actionsteplist import ActionStepList
 import pickle
+import actionresp
 
 inter_lock = threading.Lock()
 
@@ -89,7 +90,7 @@ class EnvManager():  # add your var and method under the class.
 
         self.train_manager = TrainManager(
             n_action=self.n_act,
-            batch_size=8,
+            batch_size=32,
             num_steps=4,
             memory_size=4000,
             replay_start_size=200,
@@ -247,8 +248,6 @@ class EnvManager():  # add your var and method under the class.
     def calculateReward_(self,cur_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerInfo,cur_player_enemy:PlayerInfo)->int:
         #形参为cur_resp当前resp报文(动作前），action为该回合的两个动作，cur_map 当前状态地图信息,cur_player_me 我方信息，cur_player_enemy 敌方信息
         #可利用形参计算当前操作reward函数,根据实际情况奖惩，
-        #TODO 填写rewardBomb，rewardItem，awayFromBomb，nearItem函数
-        
         reward:int = 0
         for i in sorted(rewardPriority.keys()):  # 按键值排序，先调用优先级高的，返回reward
             # reward=rewardPriority[i](cur_resp,action,cur_map,cur_player_me,cur_player_enemy)
@@ -389,7 +388,8 @@ class EnvManager():  # add your var and method under the class.
                 actionPacket = PacketReq(PacketType.ActionReq, action2)  # need time
                 client.send(actionPacket)
                 print(f'send action 2: {action2.actionType}')
-
+                print(f"map before action")
+                actionresp.outputMap(self.encode_state(self.resp))
                 
                 # self.action_step_list.update((action1,action2))#更新动作
                 inter_lock.acquire()
@@ -420,6 +420,8 @@ class EnvManager():  # add your var and method under the class.
                 # else:
                 #     reward1 = reward1*0.95 + next_player_my_state.score*0.05
                 print(f'now step reward: {reward1}')
+                print(f"map after action")
+                actionresp.outputMap(next_obs_state)
                 # train
                 self.train_manager.train_one_step(action_idx, 
                                                   reward1, 
