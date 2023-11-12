@@ -4,28 +4,28 @@ from resp import *
 
 class Mapcode(Enum):#player  炸弹爆炸的时间没有编码？
     #矩阵中值对应的含义
-    BlockRemovable = 2
-    BlockUnRemovable = -2
+    BlockRemovable = 20
+    BlockUnRemovable = 21
     #bomb 爆炸范围为range 对应矩阵值为BombBase+bombrane*BombDelta
     #炸弹
-    BombBase = 20 
+    BombBase = 40 
     BombDelta = 1
     
-    BombMyHuman = 20 #my 人和炸弹在同一个位置
-    BombEnemyHuman = -20 #enemy 人和炸弹在一个位置
+    BombMyHuman = 40 #my 人和炸弹在同一个位置
+    BombEnemyHuman = -40 #enemy 人和炸弹在一个位置
     
     NullBlock = 0 
-    BombedBlock = 9 #爆炸格
-    ItemHp = 3
-    ItemNum = 4
-    ItemShield = 5
-    ItemBombRange = 6
-    ItemInvencible = 7
+    BombedBlock = 1 #爆炸格
+    ItemHp = 11
+    ItemNum = 12
+    ItemShield = 13
+    ItemBombRange = 14
+    ItemInvencible = 15
     #ItemSpeed = 8 初赛不设置
     
     # players 人物
-    enemy = -1
-    me = 1
+    enemy = -30
+    me = 30
 
 
     def calulate(obj:Obj, enemy =False,last_bomb = False,HumanBomb=False) -> None:

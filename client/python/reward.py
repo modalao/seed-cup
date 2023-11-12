@@ -120,14 +120,14 @@ def awayFromBomb(cur_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerIn
     if(m_distance1 ==0 and m_distance2==0): 
         reward1+=0
     elif(m_distance1>0 and m_distance2==0):
-        reward1+=rewardValue["reward10"]
+        reward1+=rewardValue["reward3"]
     elif(m_distance1==0 and m_distance2>0):
-        reward1+=rewardValue["reward-10"]
+        reward1+=rewardValue["reward-3"]
     else:
         if(m_distance1>m_distance2):
-            reward1+=rewardValue["reward-5"]
+            reward1+=rewardValue["reward-3"]
         elif(m_distance1<m_distance2):
-            reward1+=rewardValue["reward5"]
+            reward1+=rewardValue["reward3"]
         else:
             reward1+=0
     return reward1        
