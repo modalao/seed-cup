@@ -44,9 +44,9 @@ def rewardBomb(cur_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerInfo
     
     #没有炸弹时，不要放炸弹
     if(cur_player_me.bomb_now_num ==0 and (action1 == ActionType.PLACED or action2 ==ActionType.PLACED)):
-        reward1 -= rewardValue["reward-5"]
+        return rewardValue["reward-5"]
     if action1 == ActionType.PLACED and action2 == ActionType.PLACED:#同一个位置不能重复放炸弹
-        reward1 -= rewardValue["reward-5"]
+        return rewardValue["reward-5"]
     #炸道具惩罚
     if action1 == ActionType.PLACED:
         for next_item in next_position:
@@ -55,7 +55,7 @@ def rewardBomb(cur_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerInfo
             if checkoutofrange(tx,ty)  :
                 continue
             if cur_map[tx][ty] in (Mapcode.ItemBombRange.value,Mapcode.ItemHp.value,Mapcode.ItemInvencible.value,Mapcode.ItemNum.value,Mapcode.ItemShield.value):
-                reward1 -= rewardValue["reward-2"]
+                reward1 += rewardValue["reward-2"]
             
     if action2 == ActionType.PLACED:
         for next_item in next_position:
@@ -64,7 +64,7 @@ def rewardBomb(cur_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerInfo
             if checkoutofrange(tx,ty):
                 continue
             if cur_map[tx][ty] in (Mapcode.ItemBombRange.value,Mapcode.ItemHp.value,Mapcode.ItemInvencible.value,Mapcode.ItemNum.value,Mapcode.ItemShield.value):
-                reward1 -=  rewardValue["reward-2"]  
+                reward1 +=  rewardValue["reward-2"]  
     #炸removable障碍物奖励
     if action1 == ActionType.PLACED:
         for next_item in next_position:
@@ -73,7 +73,7 @@ def rewardBomb(cur_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerInfo
             if checkoutofrange(tx,ty):
                 continue
             if cur_map[tx][ty] == Mapcode.BlockRemovable.value:
-                reward1 -= rewardValue["reward5"]
+                reward1 += rewardValue["reward5"]
     if action2 == ActionType.PLACED:
         for next_item in next_position:
             tx = px1+next_item[0]
@@ -81,7 +81,7 @@ def rewardBomb(cur_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerInfo
             if checkoutofrange(tx,ty):
                 continue
             if cur_map[tx][ty] == Mapcode.BlockRemovable.value:
-                reward1 -= rewardValue["reward5"]
+                reward1 += rewardValue["reward5"]
     #TODO 其他 
     
     return reward1
@@ -106,14 +106,14 @@ def awayFromBomb(cur_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerIn
     reward1=0
     for i in range(size):
         for j in range(size):
-            if(cur_map[i][j]>=Mapcode.BombBase.value): #找到炸弹
+            if(cur_map[i][j]>Mapcode.BombBase.value): #找到炸弹
                 range1 = (cur_map[i][j]- Mapcode.BombBase.value)/Mapcode.BombDelta.value #炸弹范围
                 if (x>=i-range1 and x<=i+range1 and y==j or x==i and y>=j-range1 and y<=j+range1):
                     m_distance1+=distance(i,j,x,y)
     #遍历地图，找到action之后的炸弹
     for i in range(size):
         for j in range(size):
-            if(now_map[i][j]>=Mapcode.BombBase.value): #找到炸弹
+            if(now_map[i][j]>Mapcode.BombBase.value): #找到炸弹
                 range1 = (now_map[i][j]- Mapcode.BombBase.value)/Mapcode.BombDelta.value #炸弹范围
                 if (px2>=i-range1 and px2<=i+range1 and py2==j or px2==i and py2>=j-range1 and py2<=j+range1):
                     m_distance2+=distance(i,j,px2,py2)  
@@ -161,7 +161,7 @@ def collideWall(cur_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerInf
     撞墙reward
     '''
     reward1=0
-    print("collideWall")
+    # print("collideWall")
     action1 = action[0]
     action2 = action[1]
     x = cur_player_me.position_x
@@ -173,69 +173,69 @@ def collideWall(cur_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerInf
     #撞block判断,bomb,unremoveblock,removeblock
     if x==0 and action1 == ActionType.MOVE_UP or x == config.get("map_size")-1 and action1 == ActionType.MOVE_DOWN or \
     y == 0 and action1 == ActionType.MOVE_LEFT or y == config.get("map_size")-1 and action1 == ActionType.MOVE_RIGHT:
-        print("map border")
-        reward1-=rewardValue["reward-2"]
+        # print("map border")
+        reward1+=rewardValue["reward-2"]
     elif action1 == ActionType.MOVE_UP:
         if cur_map[x-1][y] in (Mapcode.BlockRemovable.value,Mapcode.BlockUnRemovable.value): #撞障碍物
             reward1+=rewardValue["reward-2"]
         elif cur_map[x-1][y]>=BombMinNum or cur_map[x-1][y]==Mapcode.BombEnemyHuman.value:  #撞炸弹
             reward1+=rewardValue["reward-3"]
-        print("up collide block")    
+        # print("up collide block")    
     elif action1 == ActionType.MOVE_LEFT:
         if cur_map[x][y-1] in (Mapcode.BlockRemovable.value,Mapcode.BlockUnRemovable.value) : #撞障碍物
             reward1+=rewardValue["reward-2"]
         elif cur_map[x][y-1]>=BombMinNum or cur_map[x][y-1]==Mapcode.BombEnemyHuman.value:  #撞炸弹
             reward1+=rewardValue["reward-3"]    
-        print("left collide block")    
+        # print("left collide block")    
     elif action1 == ActionType.MOVE_RIGHT:
         if cur_map[x][y+1] in (Mapcode.BlockRemovable.value,Mapcode.BlockUnRemovable.value): #撞障碍物
             reward1+=rewardValue["reward-2"]
         elif cur_map[x][y+1]>=BombMinNum or cur_map[x][y+1]==Mapcode.BombEnemyHuman.value:  #撞炸弹
             reward1+=rewardValue["reward-3"]  
-        print("right collide block")      
+        # print("right collide block")      
     elif action1 == ActionType.MOVE_DOWN:
         if cur_map[x+1][y] in (Mapcode.BlockRemovable.value,Mapcode.BlockUnRemovable.value): #撞障碍物
             reward1+=rewardValue["reward-2"]
         elif cur_map[x+1][y]>=BombMinNum or cur_map[x+1][y]==Mapcode.BombEnemyHuman.value:  #撞炸弹
             reward1+=rewardValue["reward-3"]    
-        print("down collide block")    
-    print(f'px1={px1}  py1={py1}')   
-    print(f'now_map :')
-    outputMap(now_map) 
+        # print("down collide block")    
+    # print(f'px1={px1}  py1={py1}')   
+    # print(f'now_map :')
+    # outputMap(now_map) 
     #第二步
     if px1==0 and action2 == ActionType.MOVE_UP or px1 == config.get("map_size")-1 and action2 == ActionType.MOVE_DOWN or \
     py1 == 0 and action2 == ActionType.MOVE_LEFT or py1 == config.get("map_size")-1 and action2 == ActionType.MOVE_RIGHT:
-        print("map border")
-        reward1-=rewardValue["reward-2"]
+        # print("map border")
+        reward1+=rewardValue["reward-2"]
     elif action2 == ActionType.MOVE_UP:
         if now_map[px1-1][py1] in (Mapcode.BlockRemovable.value,Mapcode.BlockUnRemovable.value): #撞障碍物
             reward1+=rewardValue["reward-2"]
-            print("collide block -2")
+            # print("collide block -2")
         elif now_map[px1-1][py1]>=BombMinNum or now_map[px1-1][py1]==Mapcode.BombEnemyHuman.value:  #撞炸弹
             reward1+=rewardValue["reward-3"]   
-        print("up collide block")     
+        # print("up collide block")     
     elif action2 == ActionType.MOVE_LEFT:
         if now_map[px1][py1-1] in (Mapcode.BlockRemovable.value,Mapcode.BlockUnRemovable.value): #撞障碍物
             reward1+=rewardValue["reward-2"]
-            print("collide block -2")
+            # print("collide block -2")
         elif now_map[px1][py1-1]>=BombMinNum or now_map[px1][py1-1]==Mapcode.BombEnemyHuman.value:  #撞炸弹
             reward1+=rewardValue["reward-3"]    
-        print("left collide block")    
+        # print("left collide block")    
     elif action2 == ActionType.MOVE_RIGHT:
         if now_map[px1][py1+1] in (Mapcode.BlockRemovable.value,Mapcode.BlockUnRemovable.value): #撞障碍物
             reward1+=rewardValue["reward-2"]
-            print("collide block -2")
+            # print("collide block -2")
         elif now_map[px1][py1+1]>=BombMinNum or now_map[px1][py1+1]==Mapcode.BombEnemyHuman.value:  #撞炸弹
             reward1+=rewardValue["reward-3"]  
-        print("right collide block")     
+        # print("right collide block")     
     elif action2 == ActionType.MOVE_DOWN:
         if now_map[px1+1][py1] in (Mapcode.BlockRemovable.value,Mapcode.BlockUnRemovable.value): #撞障碍物
             reward1+=rewardValue["reward-2"]
-            print("collide block -2")
+            # print("collide block -2")
         elif now_map[px1+1][py1]>=BombMinNum or now_map[px1+1][py1]==Mapcode.BombEnemyHuman.value:  #撞炸弹
             reward1+=rewardValue["reward-3"]    
-        print("down collide block")    
-    print(f'reward = {reward1}')
+        # print("down collide block")    
+    # print(f'reward = {reward1}')
     return reward1
 
 

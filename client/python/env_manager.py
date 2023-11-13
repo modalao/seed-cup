@@ -150,8 +150,8 @@ class EnvManager():  # add your var and method under the class.
                     BombFlag = False
                     enemy = False
                     me = False
-                    me_obj = None
-                    enemy_obj = None
+                    me_obj:Obj = None
+                    enemy_obj:Obj = None
                     for obj in map.objs:
                         if obj.type == ObjType.Bomb:
                             BombFlag = True
@@ -161,22 +161,22 @@ class EnvManager():  # add your var and method under the class.
                         if myplayer_id == obj.property.player_id and obj.property.alive:
                             me = True
                             freshed = True
-                            me_obj = obj
+                            me_obj = copy.deepcopy(obj)
 
                         #enemy  玩家可以重叠**
                         if myplayer_id != obj.property.player_id and obj.property.alive:
                             enemy = True
                             freshed = True
-                            enemy_obj = obj
+                            enemy_obj = copy.deepcopy(obj)
                         
                     if not freshed: #不是人，
                         mapcode[map.x][map.y]=Mapcode.calulate(map.objs[0])
                     else :
                         if not BombFlag:#纯人，补充了两个人位置重叠
                             if enemy :
-                                mapcode[map.x][map.y]=Mapcode.calulate(me_obj,True)
+                                mapcode[map.x][map.y]=Mapcode.calulate(map.objs[0],True)
                             if me :
-                                mapcode[map.x][map.y]=Mapcode.calulate(enemy_obj,False)
+                                mapcode[map.x][map.y]=Mapcode.calulate(map.objs[0],False)
                         else :#人 炸弹一起
                             if enemy :
                                 mapcode[map.x][map.y]=Mapcode.calulate(None,True,False,True)
@@ -253,7 +253,9 @@ class EnvManager():  # add your var and method under the class.
             # reward=rewardPriority[i](cur_resp,action,cur_map,cur_player_me,cur_player_enemy)
             # if reward != 0:
             #     return reward
-            reward+=rewardPriority[i](cur_resp,action,cur_map,cur_player_me,cur_player_enemy)
+            tem=rewardPriority[i](cur_resp,action,cur_map,cur_player_me,cur_player_enemy)
+            print(f"{rewardPriority[i]} reward: {tem}")
+            reward+=tem
         return reward
     
 
@@ -380,7 +382,7 @@ class EnvManager():  # add your var and method under the class.
 
                 # calculate reward
                 reward1 = self.calculateReward(self.resp, new_action)
-
+                # print(f'reward now :{reward1}')
                 # send action
                 actionPacket = PacketReq(PacketType.ActionReq, action1)  # need time
                 client.send(actionPacket)
@@ -388,31 +390,36 @@ class EnvManager():  # add your var and method under the class.
                 actionPacket = PacketReq(PacketType.ActionReq, action2)  # need time
                 client.send(actionPacket)
                 print(f'send action 2: {action2.actionType}')
-                print(f"map before action")
-                actionresp.outputMap(self.encode_state(self.resp))
+                # print(f"map before action")
+                # actionresp.outputMap(self.encode_state(self.resp))
                 
                 # self.action_step_list.update((action1,action2))#更新动作
                 inter_lock.acquire()
                 self.resp = client.recv()
                 print(f'receive resp, type={self.resp.type}')
                 inter_lock.release()
-                
+                # print(f'cur_round :{self.cur_round}')
                 #死亡扣分
                 if self.resp.type == PacketType.GameOver:
-                    reward1 -= reward.rewardValue["reward-5"]
+                    reward1 += reward.rewardValue["reward-5"]
                 #10回合不放炸弹扣分
                 if self.action_step_list.WhetherBombStep() == False and self.cur_round >MinBombPlaced:
-                    reward1 -= reward.rewardValue["reward-5"]
-                # #重复动作扣分
-                # if self.action_step_list.repeatStep():
-                #     reward1 -= reward.rewardValue["reward-5"] 
-                
+                    reward1 += reward.rewardValue["reward-5"]
+                #重复动作扣分
+                if self.action_step_list.repeatStep() and self.cur_round >MinBombPlaced:
+                    reward1 += reward.rewardValue["reward-5"] 
+                #放炸弹加分,鼓励放炸弹
+                if action1 ==ActionType.PLACED or action2 == ActionType.PLACED :
+                    reward1 += reward.rewardValue["reward5"] 
+
                 # calculate state
                 next_obs_state = self.encode_state(self.resp)
                 next_player_my_state, next_player_enemy_state = self.playerState(self.resp)
                 # next_state = self.to_tensor(next_obs_state, next_player_my_state)
                 next_state = self.state2Tuple(next_obs_state, next_player_my_state)
                 is_over = self.resp.type == PacketType.GameOver
+                if self.resp.type != PacketType.GameOver:
+                    self.cur_round = self.resp.data.round  #更新cur_round
 
                 # #综合score后的reward
                 # if gContext["gameOverFlag"] :
@@ -420,8 +427,8 @@ class EnvManager():  # add your var and method under the class.
                 # else:
                 #     reward1 = reward1*0.95 + next_player_my_state.score*0.05
                 print(f'now step reward: {reward1}')
-                print(f"map after action")
-                actionresp.outputMap(next_obs_state)
+                # print(f"map after action")
+                # actionresp.outputMap(next_obs_state)
                 # train
                 self.train_manager.train_one_step(action_idx, 
                                                   reward1, 
