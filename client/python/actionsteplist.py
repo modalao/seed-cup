@@ -40,3 +40,13 @@ class ActionStepList:
             else :
                 return False
         return True
+    
+    def outputList(self):
+        '''
+        输出整个动作list
+        '''
+        print('actionStepList')
+        for action in self.actionsteplist:
+            action1 = action[0]
+            action2 = action[1]
+            print(f'action1 = {action1},action2 = {action2}')
