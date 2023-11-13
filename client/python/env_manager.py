@@ -99,7 +99,7 @@ class EnvManager():  # add your var and method under the class.
             update_target_steps=200
         )
         self.action_step_list = ActionStepList(MinBombPlaced) #记录动作的个数
-        
+        self.max_score = -2000 #所有轮中最大分数
         # log
         f.write("init\n")
 
@@ -252,14 +252,12 @@ class EnvManager():  # add your var and method under the class.
         #可利用形参计算当前操作reward函数,根据实际情况奖惩，
         reward:int = 0
         for i in sorted(rewardPriority.keys()):  # 按键值排序，先调用优先级高的，返回reward
-            reward=rewardPriority[i](cur_resp,action,cur_map,cur_player_me,cur_player_enemy)
-            if reward >0:
-                return reward
+            # reward=rewardPriority[i](cur_resp,action,cur_map,cur_player_me,cur_player_enemy)
             # if reward != 0:
             #     return reward
-            # tem=rewardPriority[i](cur_resp,action,cur_map,cur_player_me,cur_player_enemy)
-            # print(f"{rewardPriority[i]} reward: {tem}")
-            # reward+=tem
+            tem=rewardPriority[i](cur_resp,action,cur_map,cur_player_me,cur_player_enemy)
+            print(f"{rewardPriority[i]} reward: {tem}")
+            reward+=tem
         return reward
     
 
@@ -395,9 +393,9 @@ class EnvManager():  # add your var and method under the class.
                 client.send(actionPacket)
                 print(f'send action 2: {action2.actionType}')
                 
-                #action后前ap输出
-                # print(f"map before action")
-                # actionresp.outputMap(self.encode_state(self.resp))
+                # action后前map输出
+                print(f"map before action")
+                actionresp.outputMap(self.encode_state(self.resp))
                 
                 self.action_step_list.update((action1.actionType,action2.actionType))#更新动作
                 inter_lock.acquire()
@@ -433,9 +431,9 @@ class EnvManager():  # add your var and method under the class.
                 reward1 = reward1*1.0/maxtotreward #归一化
                 print(f'now step reward: {reward1}')
                 
-                #action后map输出
-                # print(f"map after action")
-                # actionresp.outputMap(next_obs_state)
+                # action后map输出
+                print(f"map after action")
+                actionresp.outputMap(next_obs_state)
                 
                 # train
                 self.train_manager.train_one_step(action_idx, 
@@ -448,6 +446,10 @@ class EnvManager():  # add your var and method under the class.
             print(f"Game Over!")
             print(f"Final scores \33[1m{self.resp.data.scores}\33[0m")
 
+            for score in self.resp.data.scores:
+                if gContext["playerID"] == score["player_id"]:
+                    self.max_score= max(self.max_score,score["score"])
+                    
             if gContext["playerID"] in self.resp.data.winner_ids:
                 print("\33[1mCongratulations! You win! \33[0m")
             else:
@@ -525,7 +527,7 @@ class EnvManager():  # add your var and method under the class.
                     self.process_bot.wait()
                 sleep(1)  # waiting for the exit of threads and process
                 print(f'========== test finish ==========')
-
+                print(f'max score :{self.max_score}')
 
 
 

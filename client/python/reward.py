@@ -43,14 +43,14 @@ def rewardBomb(cur_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerInfo
     px2,py2 = nextPositionActual(px1,py1,action2,tem_map)
     #没有炸弹时，不要放炸弹
     if(cur_player_me.bomb_now_num ==0 and (action1 == ActionType.PLACED or action2 ==ActionType.PLACED)):
-        return rewardValue["reward-5"]
+        return rewardValue["reward-10"]
     #有炸弹的位置不能重复放炸弹
     if cur_map[x][y] == Mapcode.BombMyHuman.value and action1 == ActionType.PLACED:
-        return rewardValue["reward-5"]
+        return rewardValue["reward-10"]
     if action1 == ActionType.PLACED  and action2 == ActionType.PLACED:
-        return rewardValue["reward-5"]
+        return rewardValue["reward-10"]
     if tem_map[px1][py1] == Mapcode.BombMyHuman.value and action2 == ActionType.PLACED:
-        return rewardValue["reward-5"]
+        return rewardValue["reward-10"]
     
     elif action1 == ActionType.PLACED and (px2 != px1 or py2 != py1):#放了炸弹并且走开了
         reward1+=rewardValue["reward5"]
