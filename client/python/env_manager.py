@@ -99,7 +99,7 @@ class EnvManager():  # add your var and method under the class.
             update_target_steps=200
         )
         self.action_step_list = ActionStepList(MinBombPlaced) #记录动作的个数
-        
+        self.max_score = -2000 #记录最高得分
         # log
         f.write("init\n")
 
@@ -252,14 +252,12 @@ class EnvManager():  # add your var and method under the class.
         #可利用形参计算当前操作reward函数,根据实际情况奖惩，
         reward:int = 0
         for i in sorted(rewardPriority.keys()):  # 按键值排序，先调用优先级高的，返回reward
-            reward=rewardPriority[i](cur_resp,action,cur_map,cur_player_me,cur_player_enemy)
-            if reward >0:
-                return reward
+            # reward=rewardPriority[i](cur_resp,action,cur_map,cur_player_me,cur_player_enemy)
             # if reward != 0:
             #     return reward
-            # tem=rewardPriority[i](cur_resp,action,cur_map,cur_player_me,cur_player_enemy)
-            # print(f"{rewardPriority[i]} reward: {tem}")
-            # reward+=tem
+            tem=rewardPriority[i](cur_resp,action,cur_map,cur_player_me,cur_player_enemy)
+            print(f"{rewardPriority[i]} reward: {tem}")
+            reward+=tem
         return reward
     
 
@@ -447,6 +445,11 @@ class EnvManager():  # add your var and method under the class.
 
             print(f"Game Over!")
             print(f"Final scores \33[1m{self.resp.data.scores}\33[0m")
+            
+            #记录max_score
+            for score in self.resp.data.scores:
+                if gContext["playerID"] == score["player_id"]:
+                    self.max_score = max(self.max_score,score["score"])
 
             if gContext["playerID"] in self.resp.data.winner_ids:
                 print("\33[1mCongratulations! You win! \33[0m")
@@ -525,6 +528,9 @@ class EnvManager():  # add your var and method under the class.
                     self.process_bot.wait()
                 sleep(1)  # waiting for the exit of threads and process
                 print(f'========== test finish ==========')
+                
+                
+        print(f'max score is {self.max_score}')
 
 
 
