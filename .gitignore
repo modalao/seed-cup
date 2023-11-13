@@ -4,3 +4,4 @@ bin/result.json
 
 client/python/__pycache__/*
 client/python/*.log
+client/python/*.pt
