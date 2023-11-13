@@ -256,7 +256,7 @@ class EnvManager():  # add your var and method under the class.
             # if reward != 0:
             #     return reward
             tem=rewardPriority[i](cur_resp,action,cur_map,cur_player_me,cur_player_enemy)
-            print(f"{rewardPriority[i]} reward: {tem}")
+            # print(f"{rewardPriority[i]} reward: {tem}")
             reward+=tem
         return reward
     
@@ -528,9 +528,9 @@ class EnvManager():  # add your var and method under the class.
                     self.process_bot.wait()
                 sleep(1)  # waiting for the exit of threads and process
                 print(f'========== test finish ==========')
+            print(f'max score is {self.max_score}')
                 
-                
-        print(f'max score is {self.max_score}')
+        
 
 
 
