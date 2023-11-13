@@ -19,7 +19,7 @@ class TrainManager():
                  update_target_steps = 200,#同步参数的次数
                  lr = 0.001,  #学习率
                  gamma = 0.9,  #收益衰减率
-                 e_greed = 0.25  #探索与利用中的探索概率
+                 e_greed = 0.4  #探索与利用中的探索概率
                  ):
         self.n_action = n_action
         self.conv_output_dim = conv_output_dim

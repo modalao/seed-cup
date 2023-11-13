@@ -16,7 +16,7 @@ class TrainManager():
                  replay_start_size = 200,  #开始回放的次数
                  lr = 0.001,  #学习率
                  gamma = 0.9,  #收益衰减率
-                 e_greed = 0.1  #探索与利用中的探索概率
+                 e_greed = 0.5  #探索与利用中的探索概率
                  ):
         self.env = env
         self.episodes = episodes

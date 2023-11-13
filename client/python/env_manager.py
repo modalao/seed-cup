@@ -34,8 +34,8 @@ rewardPriority={
     2:reward.rewardBomb,
     # 5:reward.awayFromPlayer,
     1:reward.awayFromBomb,
-    4:reward.nearItem,
-    3:reward.collideWall
+    3:reward.nearItem,
+    4:reward.collideWall
 }
 
 key2ActionReq = {
@@ -60,6 +60,8 @@ gContext = {
     "steps": ["⢿", "⣻", "⣽", "⣾", "⣷", "⣯", "⣟", "⡿"],
     "gameBeginFlag": False,
 }
+
+maxtotreward = 20 #奖励分母，用来归一化 最大约为15+4+10+6+5 
 
 action_list = [ActionType.MOVE_DOWN, ActionType.MOVE_LEFT, ActionType.MOVE_RIGHT, ActionType.MOVE_UP, 
                     ActionType.PLACED, ActionType.SILENT]
@@ -250,12 +252,14 @@ class EnvManager():  # add your var and method under the class.
         #可利用形参计算当前操作reward函数,根据实际情况奖惩，
         reward:int = 0
         for i in sorted(rewardPriority.keys()):  # 按键值排序，先调用优先级高的，返回reward
-            # reward=rewardPriority[i](cur_resp,action,cur_map,cur_player_me,cur_player_enemy)
+            reward=rewardPriority[i](cur_resp,action,cur_map,cur_player_me,cur_player_enemy)
+            if reward >0:
+                return reward
             # if reward != 0:
             #     return reward
-            tem=rewardPriority[i](cur_resp,action,cur_map,cur_player_me,cur_player_enemy)
+            # tem=rewardPriority[i](cur_resp,action,cur_map,cur_player_me,cur_player_enemy)
             # print(f"{rewardPriority[i]} reward: {tem}")
-            reward+=tem
+            # reward+=tem
         return reward
     
 
@@ -426,6 +430,7 @@ class EnvManager():  # add your var and method under the class.
                 #     pass
                 # else:
                 #     reward1 = reward1*0.95 + next_player_my_state.score*0.05
+                reward1 = reward1*1.0/maxtotreward #归一化
                 print(f'now step reward: {reward1}')
                 
                 #action后map输出
