@@ -35,7 +35,7 @@ rewardPriority={
     # 5:reward.awayFromPlayer,
     1:reward.awayFromBomb,
     3:reward.nearItem,
-    4:reward.collideWall
+    4:reward.collideWall,
 }
 
 key2ActionReq = {
@@ -250,15 +250,16 @@ class EnvManager():  # add your var and method under the class.
     def calculateReward_(self,cur_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerInfo,cur_player_enemy:PlayerInfo)->int:
         #形参为cur_resp当前resp报文(动作前），action为该回合的两个动作，cur_map 当前状态地图信息,cur_player_me 我方信息，cur_player_enemy 敌方信息
         #可利用形参计算当前操作reward函数,根据实际情况奖惩，
-        reward:int = 0
+        reward1:int = 0
+        reward.optimize(cur_player_me.position_x,cur_player_me.position_y,cur_map,action[0],action[1],cur_player_me)
         for i in sorted(rewardPriority.keys()):  # 按键值排序，先调用优先级高的，返回reward
             # reward=rewardPriority[i](cur_resp,action,cur_map,cur_player_me,cur_player_enemy)
             # if reward != 0:
             #     return reward
             tem=rewardPriority[i](cur_resp,action,cur_map,cur_player_me,cur_player_enemy)
             # print(f"{rewardPriority[i]} reward: {tem}")
-            reward+=tem
-        return reward
+            reward1+=tem
+        return reward1
     
 
     def calculateReward(self, resp:PacketResp, action):
