@@ -256,7 +256,7 @@ class EnvManager():  # add your var and method under the class.
             # if reward != 0:
             #     return reward
             tem=rewardPriority[i](cur_resp,action,cur_map,cur_player_me,cur_player_enemy)
-            print(f"{rewardPriority[i]} reward: {tem}")
+            # print(f"{rewardPriority[i]} reward: {tem}")
             reward+=tem
         return reward
     
@@ -394,8 +394,8 @@ class EnvManager():  # add your var and method under the class.
                 print(f'send action 2: {action2.actionType}')
                 
                 # action后前map输出
-                print(f"map before action")
-                actionresp.outputMap(self.encode_state(self.resp))
+                # print(f"map before action")
+                # actionresp.outputMap(self.encode_state(self.resp))
                 
                 self.action_step_list.update((action1.actionType,action2.actionType))#更新动作
                 inter_lock.acquire()
@@ -432,8 +432,8 @@ class EnvManager():  # add your var and method under the class.
                 print(f'now step reward: {reward1}')
                 
                 # action后map输出
-                print(f"map after action")
-                actionresp.outputMap(next_obs_state)
+                # print(f"map after action")
+                # actionresp.outputMap(next_obs_state)
                 
                 # train
                 self.train_manager.train_one_step(action_idx, 
@@ -527,7 +527,7 @@ class EnvManager():  # add your var and method under the class.
                     self.process_bot.wait()
                 sleep(1)  # waiting for the exit of threads and process
                 print(f'========== test finish ==========')
-                print(f'max score :{self.max_score}')
+            print(f'max score :{self.max_score}')
 
 
 
