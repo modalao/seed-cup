@@ -546,11 +546,11 @@ with open("env.log", "w") as f:
     
     try:
         env.train(2000)
-        torch.save(env.train_manager.agent.pred_func.state_dict(), 'checkpoint_mlp_2000.pt')
+        torch.save(env.train_manager.agent.pred_func.state_dict(), './checkpoint_mlp_2000.pt')
     except:
         traceback.print_exc()  # 打印详细的错误信息堆栈
         print(f'error occured!')
-        torch.save(env.train_manager.agent.pred_func.state_dict(), 'checkpoint_mlp_2000.pt')
+        torch.save(env.train_manager.agent.pred_func.state_dict(), './checkpoint_mlp_2000.pt')
         if env.process_server is not None:
             print(f'kill ./server')
             env.process_server.kill()
