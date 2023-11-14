@@ -11,7 +11,12 @@ from actionresp import *
 next_position = [[0,-1],[0,1],[1,0],[-1,0]]
 SAFEDISTANCE = 7  #和敌人保持的安全距离
 BombMinNum = Mapcode.BombBase.value #炸弹的最小编号
-
+px1,py1=0
+px2,py2=0
+range_x = config.get("map_size")
+range_y = config.get("map_size")
+tem_map = [[Mapcode.NullBlock.value for _ in range(range_x)] for __ in range(range_y)]
+now_map=[[Mapcode.NullBlock.value for _ in range(range_x)] for __ in range(range_y)]
 rewardValue ={
     "reward5" : 5,
     "reward4" : 4,
@@ -26,7 +31,15 @@ rewardValue ={
     "reward10" : 10,
     "reward-10" : -10,
 }
-    
+
+
+def optimize(x:int,y:int,cur_map,action1,action2,cur_player_me:PlayerInfo):
+    px1,py1 = nextPositionActual(x,y,action1,cur_map) #action1后我的位置
+    tem_map = actionStepMap(action1,cur_map,x,y,cur_player_me.bomb_range) #action1后的地图
+    px2,py2 = nextPositionActual(px1,py1,action2,tem_map) #action2后我的位置
+    now_map = actionStepMap(action2,tem_map,px1,py1,cur_player_me.bomb_range) #action2后的地图
+
+#2    
 #形参为cur_resp当前resp报文，action为该回合的两个动作，cur_map 当前状态地图信息,cur_player_me 我方信息，cur_player_enemy 敌方信息
 def rewardBomb(cur_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerInfo,cur_player_enemy:PlayerInfo)->int:
     '''
@@ -38,9 +51,9 @@ def rewardBomb(cur_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerInfo
     x=cur_player_me.position_x
     y=cur_player_me.position_y
     #first step
-    px1,py1 = nextPositionActual(cur_player_me.position_x,cur_player_me.position_y,action1,cur_map)
-    tem_map = actionStepMap(action1,cur_map,x,y,cur_player_me.bomb_range) #action1后的地图
-    px2,py2 = nextPositionActual(px1,py1,action2,tem_map)
+    #px1,py1 = nextPositionActual(cur_player_me.position_x,cur_player_me.position_y,action1,cur_map)
+    #tem_map = actionStepMap(action1,cur_map,x,y,cur_player_me.bomb_range) #action1后的地图
+    #px2,py2 = nextPositionActual(px1,py1,action2,tem_map)
     #只能放一个炸弹，暂时限制
     if cur_player_me.bomb_max_num - cur_player_me.bomb_now_num == 1 and (action1 == ActionType.PLACED or action2 == ActionType.PLACED):
         return rewardValue["reward-10"]
@@ -97,20 +110,17 @@ def rewardBomb(cur_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerInfo
     #TODO 其他 
     
     return reward1
-    
+
+#1    
 def awayFromBomb(cur_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerInfo,cur_player_enemy:PlayerInfo)->int:
     '''
     远离炸弹reward,不考虑放炸弹的情况，只考虑有炸弹躲炸弹
     '''    
-
     action1 = action[0]
     action2 = action[1]
     x=cur_player_me.position_x
     y=cur_player_me.position_y
-    px1,py1 = nextPositionActual(x,y,action1,cur_map) #action1后我的位置
-    tem_map = actionStepMap(action1,cur_map,x,y,cur_player_me.bomb_range) #action1后的地图
-    px2,py2 = nextPositionActual(px1,py1,action2,tem_map) #action2后我的位置
-    now_map = actionStepMap(action2,tem_map,px1,py1,cur_player_me.bomb_range) #action2后的地图
+    optimize(x,y,cur_map,action1,action2,cur_player_me)
     #遍历地图，找到action之前的炸弹
     size=config.get("map_size")
     m_distance1=0 #action之前的曼氏距离，若累计和为0则表示不在爆炸范围内
@@ -150,6 +160,7 @@ def awayFromBomb(cur_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerIn
             reward1+=rewardValue["reward4"]
     return reward1        
 
+#3
 def nearItem(cur_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerInfo,cur_player_enemy:PlayerInfo)->int:
     '''
     捡道具reward
@@ -158,21 +169,22 @@ def nearItem(cur_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerInfo,c
     action2=action[1]  
     x = cur_player_me.position_x
     y = cur_player_me.position_y
-    px1,py1 = nextPositionActual(cur_player_me.position_x,cur_player_me.position_y,action1,cur_map)  #action1后我的位置
+    #px1,py1 = nextPositionActual(cur_player_me.position_x,cur_player_me.position_y,action1,cur_map)  #action1后我的位置
     reward1=0
     if cur_map[px1][py1] in (Mapcode.ItemBombRange.value,Mapcode.ItemHp.value,Mapcode.ItemInvencible.value,Mapcode.ItemNum.value,Mapcode.ItemShield.value):
         reward1+=rewardValue["reward5"]  #action1就捡到了道具，非常好
     else:
         reward1+=0
-    now_map = actionStepMap(action1,cur_map,x,y,cur_player_me.bomb_range) #action1后地图
-    px2,py2 = nextPositionActual(px1,py1,action2,now_map)  #action2后我的位置
-    if now_map[px2][py2] in (Mapcode.ItemBombRange.value,Mapcode.ItemHp.value,Mapcode.ItemInvencible.value,Mapcode.ItemNum.value,Mapcode.ItemShield.value):
+    #now_map = actionStepMap(action1,cur_map,x,y,cur_player_me.bomb_range) #action1后地图
+    #px2,py2 = nextPositionActual(px1,py1,action2,now_map)  #action2后我的位置
+    if tem_map[px2][py2] in (Mapcode.ItemBombRange.value,Mapcode.ItemHp.value,Mapcode.ItemInvencible.value,Mapcode.ItemNum.value,Mapcode.ItemShield.value):
         reward1+=rewardValue["reward5"]  #action2捡到道具，非常好
     else: 
         reward1+=0
     return reward1
     #TODO 实现靠近道具
-    
+
+#4    
 def collideWall(cur_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerInfo,cur_player_enemy:PlayerInfo)->int:
     '''
     撞墙reward
@@ -184,8 +196,8 @@ def collideWall(cur_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerInf
     x = cur_player_me.position_x
     y = cur_player_me.position_y
     #两步的边界判断
-    px1,py1 = nextPositionActual(cur_player_me.position_x,cur_player_me.position_y,action1,cur_map)
-    now_map = actionStepMap(action1,cur_map,x,y,cur_player_me.bomb_range)
+    #px1,py1 = nextPositionActual(cur_player_me.position_x,cur_player_me.position_y,action1,cur_map)
+    #now_map = actionStepMap(action1,cur_map,x,y,cur_player_me.bomb_range)
 
     #撞block判断,bomb,unremoveblock,removeblock
     if x==0 and action1 == ActionType.MOVE_UP or x == config.get("map_size")-1 and action1 == ActionType.MOVE_DOWN or \
@@ -222,52 +234,52 @@ def collideWall(cur_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerInf
         # print("map border")
         reward1+=rewardValue["reward-2"]
     elif action2 == ActionType.MOVE_UP:
-        if now_map[px1-1][py1] in (Mapcode.BlockRemovable.value,Mapcode.BlockUnRemovable.value): #撞障碍物
+        if tem_map[px1-1][py1] in (Mapcode.BlockRemovable.value,Mapcode.BlockUnRemovable.value): #撞障碍物
             reward1+=rewardValue["reward-2"]
             # print("collide block -2")
-        elif now_map[px1-1][py1]>=BombMinNum or now_map[px1-1][py1]==Mapcode.BombEnemyHuman.value:  #撞炸弹
+        elif tem_map[px1-1][py1]>=BombMinNum or tem_map[px1-1][py1]==Mapcode.BombEnemyHuman.value:  #撞炸弹
             reward1+=rewardValue["reward-3"]   
         # print("up collide block")     
     elif action2 == ActionType.MOVE_LEFT:
-        if now_map[px1][py1-1] in (Mapcode.BlockRemovable.value,Mapcode.BlockUnRemovable.value): #撞障碍物
+        if tem_map[px1][py1-1] in (Mapcode.BlockRemovable.value,Mapcode.BlockUnRemovable.value): #撞障碍物
             reward1+=rewardValue["reward-2"]
             # print("collide block -2")
-        elif now_map[px1][py1-1]>=BombMinNum or now_map[px1][py1-1]==Mapcode.BombEnemyHuman.value:  #撞炸弹
+        elif tem_map[px1][py1-1]>=BombMinNum or tem_map[px1][py1-1]==Mapcode.BombEnemyHuman.value:  #撞炸弹
             reward1+=rewardValue["reward-3"]    
         # print("left collide block")    
     elif action2 == ActionType.MOVE_RIGHT:
-        if now_map[px1][py1+1] in (Mapcode.BlockRemovable.value,Mapcode.BlockUnRemovable.value): #撞障碍物
+        if tem_map[px1][py1+1] in (Mapcode.BlockRemovable.value,Mapcode.BlockUnRemovable.value): #撞障碍物
             reward1+=rewardValue["reward-2"]
             # print("collide block -2")
-        elif now_map[px1][py1+1]>=BombMinNum or now_map[px1][py1+1]==Mapcode.BombEnemyHuman.value:  #撞炸弹
+        elif tem_map[px1][py1+1]>=BombMinNum or tem_map[px1][py1+1]==Mapcode.BombEnemyHuman.value:  #撞炸弹
             reward1+=rewardValue["reward-3"]  
         # print("right collide block")     
     elif action2 == ActionType.MOVE_DOWN:
-        if now_map[px1+1][py1] in (Mapcode.BlockRemovable.value,Mapcode.BlockUnRemovable.value): #撞障碍物
+        if tem_map[px1+1][py1] in (Mapcode.BlockRemovable.value,Mapcode.BlockUnRemovable.value): #撞障碍物
             reward1+=rewardValue["reward-2"]
             # print("collide block -2")
-        elif now_map[px1+1][py1]>=BombMinNum or now_map[px1+1][py1]==Mapcode.BombEnemyHuman.value:  #撞炸弹
+        elif tem_map[px1+1][py1]>=BombMinNum or tem_map[px1+1][py1]==Mapcode.BombEnemyHuman.value:  #撞炸弹
             reward1+=rewardValue["reward-3"]    
         # print("down collide block")    
     # print(f'reward = {reward1}')
     return reward1
 
-
+#5
 def awayFromPlayer(cur_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerInfo,cur_player_enemy:PlayerInfo)->int:
     '''
     防守型，和敌人保持一段距离
     '''    
     action1 = action[0]
     action2 = action[1]
-    x1=cur_player_me.position_x
-    y1=cur_player_me.position_y   #当前自己位置 
-    x = cur_player_enemy.position_x
-    y = cur_player_enemy.position_y  #当前敌人位置
-    px1,py1 = nextPositionActual(cur_player_me.position_x,cur_player_me.position_y,action1,cur_map)  #action1后我的位置
-    now_map = actionStepMap(action1,cur_map,x1,y1,cur_player_me.bomb_range) #action1后地图
-    px2,py2=nextPositionActual(px1,py1,action2,now_map) #action2后我的位置
-    distance1=distance(x1,y1,x,y) #移动前敌我距离
-    distance2=distance(px2,py2,x,y) #移动后敌我距离
+    x=cur_player_me.position_x
+    y=cur_player_me.position_y   #当前自己位置 
+    x1 = cur_player_enemy.position_x
+    y1 = cur_player_enemy.position_y  #当前敌人位置
+    #px1,py1 = nextPositionActual(cur_player_me.position_x,cur_player_me.position_y,action1,cur_map)  #action1后我的位置
+    #now_map = actionStepMap(action1,cur_map,x1,y1,cur_player_me.bomb_range) #action1后地图
+    #px2,py2=nextPositionActual(px1,py1,action2,now_map) #action2后我的位置
+    distance1=distance(x,y,x1,y1) #移动前敌我距离
+    distance2=distance(px2,py2,x1,y1) #移动后敌我距离
     if distance1>=SAFEDISTANCE and distance2>=SAFEDISTANCE:
         return 0
     elif distance1>distance2:  #靠近了不合适
