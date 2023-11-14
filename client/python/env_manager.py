@@ -275,7 +275,7 @@ class EnvManager():  # add your var and method under the class.
     def cliGetInitReq(self):
         """Get init request from user input."""
         # input("enter to start!")
-        return InitReq(config.get("player_name"))
+        return InitReq("python-client")
 
 
     def uiRefresh(self):
@@ -389,19 +389,19 @@ class EnvManager():  # add your var and method under the class.
                 actionPacket = PacketReq(PacketType.ActionReq, action1)  # need time
                 client.send(actionPacket)
                 print(f'send action 1: {action1.actionType}')
-                f.write("action1 :"+str(action1.actionType)+'\n')
+                # f.write("action1 :"+str(action1.actionType)+'\n')
                 actionPacket = PacketReq(PacketType.ActionReq, action2)  # need time
                 client.send(actionPacket)
                 print(f'send action 2: {action2.actionType}')
-                f.write("action2 :"+str(action2.actionType)+'\n')
+                # f.write("action2 :"+str(action2.actionType)+'\n')
                 
                 # action前map输出
-                f.write("map before action\n")
-                map=self.encode_state(self.resp)
-                for i in range(config.get("map_size")):
-                    for j in range(config.get("map_size")):
-                        f.write(str(map[i][j])+"  ")
-                    f.write('\n')
+                # f.write("map before action\n")
+                # map=self.encode_state(self.resp)
+                # for i in range(config.get("map_size")):
+                #     for j in range(config.get("map_size")):
+                #         f.write(str(map[i][j])+"  ")
+                #     f.write('\n')
                 # actionresp.outputMap(self.encode_state(self.resp))
                 
                 self.action_step_list.update((action1.actionType,action2.actionType))#更新动作
@@ -439,13 +439,13 @@ class EnvManager():  # add your var and method under the class.
                 print(f'now step reward: {reward1}')
                 
                 # action后map输出
-                f.write("map after action\n")
+                # f.write("map after action\n")
                 # actionresp.outputMap(next_obs_state)
-                map=next_obs_state
-                for i in range(config.get("map_size")):
-                    for j in range(config.get("map_size")):
-                        f.write(str(map[i][j])+"  ")
-                    f.write('\n')
+                # map=next_obs_state
+                # for i in range(config.get("map_size")):
+                #     for j in range(config.get("map_size")):
+                #         f.write(str(map[i][j])+"  ")
+                #     f.write('\n')
                 # train
                 self.train_manager.train_one_step(action_idx, 
                                                   reward1, 
@@ -491,6 +491,7 @@ class EnvManager():  # add your var and method under the class.
             with open("server_tmp.log", "w") as server_log:
                 self.process_server = subprocess.Popen("./server", stdout=server_log, stderr=server_log)
             self.process_bot = subprocess.Popen("./silly-bot")
+            sleep(2)  # waiting
             os.chdir(cur_dir)
 
             print(f'========== episode {i} begin ==========')
@@ -524,6 +525,7 @@ class EnvManager():  # add your var and method under the class.
                 with open("server_tmp.log", "w") as server_log:
                     self.process_server = subprocess.Popen("./server", stdout=server_log, stderr=server_log)
                 self.process_bot = subprocess.Popen("./silly-bot")
+                sleep(2)  # waiting
                 os.chdir(cur_dir)
 
                 print(f'========== test begin ==========')

@@ -19,6 +19,8 @@ cd client/python
 python main.py
 ```
 
+<font color=red>注意，上述命令是运行三个可执行文件的命令，由于shell执行程序的时候会被当前程序占用（除非你用 &放在后台运行），因此三个程序并不能在同一个终端中运行。正确的做法是开三个终端分别运行。~~如果你神通广大~~，你也可以使用tmux等分屏在同一个终端中分出三个部分分别运行。</font>
+
 ## Client开发指南
 
 ### Client-Server运行流程
@@ -91,11 +93,13 @@ enum ActionType {
 };
 ```
 
-- ActionReq的packet样例
+- <font color=red>ActionReq的packet样例</font>
 
 ```json  
-{"type": 2, "data": {"playerID": 0, "actionType": 5}}
+{"type": 2, "data": [{"playerID": 0, "actionType": 0}, {"playerID": 0, "actionType": 1}]}
 ```
+
+<font color=red>这里的data字段是一个列表，每一个元素代表一个动作，一个回合内可以在行动速度的限制下执行多个动作</font>
 
 
 ### Response协议
