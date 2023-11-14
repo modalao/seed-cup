@@ -393,7 +393,7 @@ class EnvManager():  # add your var and method under the class.
                 client.send(actionPacket)
                 print(f'send action 2: {action2.actionType}')
                 
-                #action后前ap输出
+                #action后前map输出
                 # print(f"map before action")
                 # actionresp.outputMap(self.encode_state(self.resp))
                 
@@ -481,6 +481,7 @@ class EnvManager():  # add your var and method under the class.
             with open("server_tmp.log", "w") as server_log:
                 self.process_server = subprocess.Popen("./server", stdout=server_log, stderr=server_log)
             self.process_bot = subprocess.Popen("./silly-bot")
+            sleep(2)  # waiting for open
             os.chdir(cur_dir)
 
             print(f'========== episode {i} begin ==========')
@@ -514,6 +515,7 @@ class EnvManager():  # add your var and method under the class.
                 with open("server_tmp.log", "w") as server_log:
                     self.process_server = subprocess.Popen("./server", stdout=server_log, stderr=server_log)
                 self.process_bot = subprocess.Popen("./silly-bot")
+                sleep(2)  # waiting for open
                 os.chdir(cur_dir)
 
                 print(f'========== test begin ==========')
