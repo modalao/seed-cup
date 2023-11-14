@@ -275,7 +275,7 @@ class EnvManager():  # add your var and method under the class.
     def cliGetInitReq(self):
         """Get init request from user input."""
         # input("enter to start!")
-        return InitReq(config.get("player_name"))
+        return InitReq("python-client")
 
 
     def uiRefresh(self):
