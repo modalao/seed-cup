@@ -63,17 +63,17 @@ def rewardBomb(cur_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerInfo
     #px2,py2 = nextPositionActual(px1,py1,action2,tem_map)
     #只能放一个炸弹，暂时限制
     if cur_player_me.bomb_max_num - cur_player_me.bomb_now_num == 1 and (action1 == ActionType.PLACED or action2 == ActionType.PLACED):
-        return rewardValue["reward-10"]
+        return rewardValue["reward-5"]
     #没有炸弹时，不要放炸弹
     if(cur_player_me.bomb_now_num ==0 and (action1 == ActionType.PLACED or action2 ==ActionType.PLACED)):
-        return rewardValue["reward-10"]
+        return rewardValue["reward-5"]
     #有炸弹的位置不能重复放炸弹
     if cur_map[x][y] == Mapcode.BombMyHuman.value and action1 == ActionType.PLACED:
-        return rewardValue["reward-10"]
+        return rewardValue["reward-5"]
     if action1 == ActionType.PLACED  and action2 == ActionType.PLACED:
-        return rewardValue["reward-10"]
+        return rewardValue["reward-5"]
     if tem_map[px1][py1] == Mapcode.BombMyHuman.value and action2 == ActionType.PLACED:
-        return rewardValue["reward-10"]
+        return rewardValue["reward-5"]
     
     elif action1 == ActionType.PLACED and (px2 != px1 or py2 != py1):#放了炸弹并且走开了
         reward1+=rewardValue["reward5"]
@@ -184,13 +184,13 @@ def nearItem(cur_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerInfo,c
     #px1,py1 = nextPositionActual(cur_player_me.position_x,cur_player_me.position_y,action1,cur_map)  #action1后我的位置
     reward1=0
     if cur_map[px1][py1] in (Mapcode.ItemBombRange.value,Mapcode.ItemHp.value,Mapcode.ItemInvencible.value,Mapcode.ItemNum.value,Mapcode.ItemShield.value):
-        reward1+=rewardValue["reward5"]  #action1就捡到了道具，非常好
+        reward1+=rewardValue["reward4"]  #action1就捡到了道具，非常好
     else:
         reward1+=0
     #now_map = actionStepMap(action1,cur_map,x,y,cur_player_me.bomb_range) #action1后地图
     #px2,py2 = nextPositionActual(px1,py1,action2,now_map)  #action2后我的位置
     if tem_map[px2][py2] in (Mapcode.ItemBombRange.value,Mapcode.ItemHp.value,Mapcode.ItemInvencible.value,Mapcode.ItemNum.value,Mapcode.ItemShield.value):
-        reward1+=rewardValue["reward5"]  #action2捡到道具，非常好
+        reward1+=rewardValue["reward4"]  #action2捡到道具，非常好
     else: 
         reward1+=0
     return reward1

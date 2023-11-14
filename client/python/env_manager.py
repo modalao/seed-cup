@@ -388,14 +388,14 @@ class EnvManager():  # add your var and method under the class.
                 actionPacket = PacketReq(PacketType.ActionReq, [action1, action2])  # need time
                 client.send(actionPacket)
                 print(f'send action: {action1.actionType}, {action2.actionType}')
-                f.write(str(action1.actionType)+"   "+str(action2.actionType)+'\n')
+                # f.write(str(action1.actionType)+"   "+str(action2.actionType)+'\n')
                 # action前map输出
-                f.write("map before action\n")
-                map=self.encode_state(self.resp)
-                for i in range(config.get("map_size")):
-                    for j in range(config.get("map_size")):
-                        f.write(str(map[i][j])+"  ")
-                    f.write('\n')
+                # f.write("map before action\n")
+                # map=self.encode_state(self.resp)
+                # for i in range(config.get("map_size")):
+                #     for j in range(config.get("map_size")):
+                #         f.write(str(map[i][j])+"  ")
+                #     f.write('\n')
                 # print("map before action\n")
                 # actionresp.outputMap(self.encode_state(self.resp))
                 
@@ -434,14 +434,14 @@ class EnvManager():  # add your var and method under the class.
                 print(f'now step reward: {reward1}')
                 
                 # action后map输出
-                f.write("map after action\n")
+                # f.write("map after action\n")
                 # print("map after action\n")
                 # actionresp.outputMap(next_obs_state)
-                map=next_obs_state
-                for i in range(config.get("map_size")):
-                    for j in range(config.get("map_size")):
-                        f.write(str(map[i][j])+"  ")
-                    f.write('\n')
+                # map=next_obs_state
+                # for i in range(config.get("map_size")):
+                #     for j in range(config.get("map_size")):
+                #         f.write(str(map[i][j])+"  ")
+                #     f.write('\n')
                 # train
                 self.train_manager.train_one_step(action_idx, 
                                                   reward1, 
