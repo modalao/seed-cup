@@ -351,9 +351,7 @@ class EnvManager():  # add your var and method under the class.
             self.t_ui.start()
 
             print('waiting for connection...')
-            inter_lock.acquire()
             self.resp = client.recv()
-            inter_lock.release()
 
             if self.resp.type == PacketType.ActionResp:
                 print('connection success! game start!')
@@ -387,22 +385,19 @@ class EnvManager():  # add your var and method under the class.
                 reward1 = self.calculateReward(self.resp, new_action)
                 # print(f'reward now :{reward1}')
                 # send action
-                actionPacket = PacketReq(PacketType.ActionReq, action1)  # need time
+                actionPacket = PacketReq(PacketType.ActionReq, [action1, action2])  # need time
                 client.send(actionPacket)
-                print(f'send action 1: {action1.actionType}')
-                actionPacket = PacketReq(PacketType.ActionReq, action2)  # need time
-                client.send(actionPacket)
-                print(f'send action 2: {action2.actionType}')
+                print(f'send action: {action1.actionType}, {action2.actionType}')
                 
                 # action后前map输出
                 # print(f"map before action")
                 # actionresp.outputMap(self.encode_state(self.resp))
                 
                 self.action_step_list.update((action1.actionType,action2.actionType))#更新动作
-                inter_lock.acquire()
+
                 self.resp = client.recv()
                 print(f'receive resp, type={self.resp.type}')
-                inter_lock.release()
+
                 # print(f'cur_round :{self.cur_round}')
                 #死亡扣分
                 if self.resp.type == PacketType.GameOver:

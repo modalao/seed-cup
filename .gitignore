@@ -1,6 +1,7 @@
 bin/seedcup_*
 bin/server_tmp.log
 bin/result.json
+bin/*.pt
 
 client/python/__pycache__/*
 client/python/*.log
