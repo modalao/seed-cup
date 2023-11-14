@@ -1,4 +1,4 @@
-from model import MLP, SimpleCNN
+from model import MLP, SimpleCNN, DRQN
 import replay_buffers
 import agents
 
@@ -31,7 +31,7 @@ class TrainManager():
         self.eval = False
 
         # q_func = SimpleCNN(self.conv_output_dim, self.fc_output_dim, self.n_action)
-        q_func = MLP(self.input_shape, self.n_action)
+        q_func = DRQN(self.input_shape, self.n_action)
         # q_func.load_state_dict(torch.load('./checkpoint_mlp_2000.pt'), strict=True)
         # print(f'load state dict true!')
         optimizer = torch.optim.AdamW(q_func.parameters(), lr=lr)

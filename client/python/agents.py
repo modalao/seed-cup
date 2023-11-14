@@ -43,7 +43,7 @@ class DQNAgent(object):
     def predict(self, obs):
         # obs = torch.FloatTensor(obs)
         with torch.no_grad():
-            Q_list = self.pred_func(obs[0].unsqueeze(0), obs[1].unsqueeze(0))
+            Q_list = self.pred_func(obs[0].unsqueeze(0).unsqueeze(0), obs[1].unsqueeze(0).unsqueeze(0))
             action = int(torch.argmax(Q_list).detach().numpy())
         return action
 

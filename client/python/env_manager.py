@@ -92,9 +92,9 @@ class EnvManager():  # add your var and method under the class.
 
         self.train_manager = TrainManager(
             n_action=self.n_act,
-            batch_size=32,
+            batch_size=4,
             num_steps=4,
-            memory_size=4000,
+            memory_size=8000,
             replay_start_size=200,
             update_target_steps=200
         )

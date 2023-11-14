@@ -34,6 +34,44 @@ class MLP(torch.nn.Module):
         # print(x.shape)
 
         return self.mlp(x)
+    
+
+class DRQN(nn.Module):
+    def __init__(self, obs_size, n_act):
+        super().__init__()
+        self.n_act = n_act
+        self.mlp = self.__mlp(obs_size, n_act)
+        self.gru = nn.GRU(64, n_act, batch_first=True)
+        self.hidden = None
+
+    def __mlp(self, obs_size, n_act):
+        return torch.nn.Sequential(
+            torch.nn.Linear(obs_size, 128),
+            torch.nn.ReLU(),
+            torch.nn.Linear(128, 64),
+            torch.nn.ReLU()
+        )
+        
+    
+    def init_hidden(self, batch_size=4):
+        return torch.zeros(1, batch_size, self.n_act, dtype=torch.float)
+
+    def forward(self, x_map, x_player):
+        """
+        x_map: (B, seqnum, 15, 15)
+        x_player: (B, seqnum, 15)
+        """
+        B, seq_num = x_map.shape[0], x_map.shape[1]
+        x_map = x_map.reshape((B, seq_num, 1, -1)).squeeze(dim=2)  # (B, seqnum, 225)
+        # print(x_map.shape)
+        # x_player = torch.stack(x_player, dim=0)  # (B, 15)
+        # print(x_player.shape)
+        x = torch.concat((x_map, x_player), dim=2)
+        x = self.mlp(x)
+        self.hidden = self.init_hidden() if self.hidden is None else self.hidden
+        # print(x.shape)
+
+        return self.gru(x, self.hidden)
 
 
 class SimpleCNN(nn.Module):
