@@ -480,6 +480,7 @@ class EnvManager():  # add your var and method under the class.
             with open("server_tmp.log", "w") as server_log:
                 self.process_server = subprocess.Popen("./server", stdout=server_log, stderr=server_log)
             self.process_bot = subprocess.Popen("./silly-bot")
+            sleep(2)  # waiting
             os.chdir(cur_dir)
 
             print(f'========== episode {i} begin ==========')
@@ -513,6 +514,7 @@ class EnvManager():  # add your var and method under the class.
                 with open("server_tmp.log", "w") as server_log:
                     self.process_server = subprocess.Popen("./server", stdout=server_log, stderr=server_log)
                 self.process_bot = subprocess.Popen("./silly-bot")
+                sleep(2)  # waiting
                 os.chdir(cur_dir)
 
                 print(f'========== test begin ==========')
