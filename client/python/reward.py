@@ -36,10 +36,11 @@ rewardValue ={
 
 
 def optimize(x:int,y:int,cur_map,action1,action2,cur_player_me:PlayerInfo):
+    global px1,py1,tem_map,px2,py2,now_map
     px1,py1 = nextPositionActual(x,y,action1,cur_map) #action1后我的位置
     tem_map = actionStepMap(action1,cur_map,x,y,cur_player_me.bomb_range) #action1后的地图
     # print('action1 map:')
-    # outputMap(tem_map)``
+    # outputMap(tem_map)
     px2,py2 = nextPositionActual(px1,py1,action2,tem_map) #action2后我的位置
     now_map = actionStepMap(action2,tem_map,px1,py1,cur_player_me.bomb_range) #action2后的地图
     # print('action2 map:')
@@ -122,6 +123,11 @@ def awayFromBomb(cur_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerIn
     '''
     远离炸弹reward,不考虑放炸弹的情况，只考虑有炸弹躲炸弹
     '''    
+    # print(f'action1 map:{action[0]}')
+    # outputMap(tem_map)
+    # print(f'action2 map:{action[1]}')
+    # outputMap(now_map)
+    
     action1 = action[0]
     action2 = action[1]
     x=cur_player_me.position_x
