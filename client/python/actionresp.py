@@ -18,6 +18,7 @@ def outputMap(map):
             print(f'{map[i][j]:>5d} ',end='')
         print()
 
+
 def nextPositionIdeal(x:int, y:int, action:ActionType):
     '''
     经过动作后坐标x,y,可能不是实际坐标，因为有边界和障碍物

@@ -389,12 +389,19 @@ class EnvManager():  # add your var and method under the class.
                 actionPacket = PacketReq(PacketType.ActionReq, action1)  # need time
                 client.send(actionPacket)
                 print(f'send action 1: {action1.actionType}')
+                f.write("action1 :"+str(action1.actionType)+'\n')
                 actionPacket = PacketReq(PacketType.ActionReq, action2)  # need time
                 client.send(actionPacket)
                 print(f'send action 2: {action2.actionType}')
+                f.write("action2 :"+str(action2.actionType)+'\n')
                 
-                # action后前map输出
-                # print(f"map before action")
+                # action前map输出
+                f.write("map before action\n")
+                map=self.encode_state(self.resp)
+                for i in range(config.get("map_size")):
+                    for j in range(config.get("map_size")):
+                        f.write(str(map[i][j])+"  ")
+                    f.write('\n')
                 # actionresp.outputMap(self.encode_state(self.resp))
                 
                 self.action_step_list.update((action1.actionType,action2.actionType))#更新动作
@@ -432,9 +439,13 @@ class EnvManager():  # add your var and method under the class.
                 print(f'now step reward: {reward1}')
                 
                 # action后map输出
-                # print(f"map after action")
+                f.write("map after action\n")
                 # actionresp.outputMap(next_obs_state)
-                
+                map=next_obs_state
+                for i in range(config.get("map_size")):
+                    for j in range(config.get("map_size")):
+                        f.write(str(map[i][j])+"  ")
+                    f.write('\n')
                 # train
                 self.train_manager.train_one_step(action_idx, 
                                                   reward1, 
