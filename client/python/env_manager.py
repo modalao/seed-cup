@@ -94,8 +94,8 @@ class EnvManager():  # add your var and method under the class.
             n_action=self.n_act,
             batch_size=32,
             num_steps=4,
-            memory_size=4000,
-            replay_start_size=200,
+            memory_size=20000,
+            replay_start_size=400,
             update_target_steps=200
         )
         self.action_step_list = ActionStepList(MinBombPlaced) #记录动作的个数
@@ -558,10 +558,14 @@ with open("env.log", "w") as f:
     try:
         env.train(2000)
         torch.save(env.train_manager.agent.pred_func.state_dict(), './checkpoint_mlp_2000.pt')
+        bin_file = open('./replay_buffer.bin', 'wb')
+        pickle.dump(env.train_manager.agent.rb, bin_file)
     except:
         traceback.print_exc()  # 打印详细的错误信息堆栈
         print(f'error occured!')
         torch.save(env.train_manager.agent.pred_func.state_dict(), './checkpoint_mlp_2000.pt')
+        bin_file = open('./replay_buffer.bin', 'wb')
+        pickle.dump(env.train_manager.agent.rb, bin_file)
         if env.process_server is not None:
             print(f'kill ./server')
             env.process_server.kill()
