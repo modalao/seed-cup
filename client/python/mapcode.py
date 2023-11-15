@@ -17,10 +17,15 @@ class Mapcode(Enum):#player  炸弹爆炸的时间没有编码？
     NullBlock = 0 
     BombedBlock = 1 #爆炸格
     ItemHp = 11
-    ItemNum = 12
-    ItemShield = 13
-    ItemBombRange = 14
-    ItemInvencible = 15
+    ItemNum = 11
+    ItemShield = 11
+    ItemBombRange = 11
+    ItemInvencible = 11
+    # ItemHp = 11
+    # ItemNum = 12
+    # ItemShield = 13
+    # ItemBombRange = 14
+    # ItemInvencible = 15
     #ItemSpeed = 8 初赛不设置
     
     # players 人物
