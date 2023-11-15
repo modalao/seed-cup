@@ -62,7 +62,7 @@ def rewardBomb(cur_resp:PacketResp,action:tuple,cur_map,cur_player_me:PlayerInfo
     #tem_map = actionStepMap(action1,cur_map,x,y,cur_player_me.bomb_range) #action1后的地图
     #px2,py2 = nextPositionActual(px1,py1,action2,tem_map)
     #只能放一个炸弹，暂时限制
-    if cur_player_me.bomb_max_num - cur_player_me.bomb_now_num == 1 and (action1 == ActionType.PLACED or action2 == ActionType.PLACED):
+    if cur_player_me.bomb_max_num - cur_player_me.bomb_now_num >= 1 and (action1 == ActionType.PLACED or action2 == ActionType.PLACED):
         return rewardValue["reward-5"]
     #没有炸弹时，不要放炸弹
     if(cur_player_me.bomb_now_num ==0 and (action1 == ActionType.PLACED or action2 ==ActionType.PLACED)):
