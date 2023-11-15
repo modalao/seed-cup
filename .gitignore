@@ -7,3 +7,4 @@ client/python/__pycache__/*
 client/python/*.log
 client/python/*.pt
 client/python/utils/__pycache__/*
+client/python/*.bin

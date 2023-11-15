@@ -1,6 +1,7 @@
 from model import MLP, SimpleCNN
 import replay_buffers
 import agents
+import pickle
 
 import torch
 import copy
@@ -35,7 +36,9 @@ class TrainManager():
         # q_func.load_state_dict(torch.load('./checkpoint_mlp_2000.pt'), strict=True)
         # print(f'load state dict true!')
         optimizer = torch.optim.AdamW(q_func.parameters(), lr=lr)
-        rb = replay_buffers.ReplayBuffer(memory_size, num_steps)
+        # rb = replay_buffers.ReplayBuffer(memory_size, num_steps)
+        load_file = open('./replay_buffer.bin', 'rb')
+        rb = pickle.load(load_file)
 
         self.agent = agents.DQNAgent(
             q_func = q_func,
