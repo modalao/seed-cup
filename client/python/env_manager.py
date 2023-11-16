@@ -84,7 +84,7 @@ class EnvManager():  # add your var and method under the class.
         self.n_act = len(self.new_action_list)
 
         # encode shape
-        self.encode_shape = 15 * 15 + 15
+        # self.encode_shape = 15 * 15 + 15
 
         # process to be controled
         self.process_server = None

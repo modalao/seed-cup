@@ -10,11 +10,11 @@ class MLP(torch.nn.Module):
 
     def __mlp(self, obs_size, n_act):
         return torch.nn.Sequential(
-            torch.nn.Linear(obs_size, 256),
+            torch.nn.Linear(obs_size, 128),
             torch.nn.ReLU(),
-            torch.nn.Linear(256, 128),
+            torch.nn.Linear(128, 64),
             torch.nn.ReLU(),
-            torch.nn.Linear(128, n_act)
+            torch.nn.Linear(64, n_act)
         )
 
     def forward(self, x_map, x_player):
@@ -23,6 +23,7 @@ class MLP(torch.nn.Module):
         x_player: (B, 15)
         """
         # x_map = torch.stack(x_map, dim=0)  # (B, 15, 15)
+        print(x_map.shape)
         B = x_map.shape[0]
         x_map = x_map.reshape((B, 1, -1)).squeeze(dim=1)  # (B, 225)
         # print(x_map.shape)
