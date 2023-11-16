@@ -14,6 +14,7 @@ class Mapcode(Enum):#player  炸弹爆炸的时间没有编码？
     BombMyHuman = 40 #my 人和炸弹在同一个位置
     BombEnemyHuman = -40 #enemy 人和炸弹在一个位置
     
+    Border = 19 #越界，地图外围
     NullBlock = 0 
     BombedBlock = 1 #爆炸格
     # ItemHp = 11

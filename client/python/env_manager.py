@@ -65,7 +65,7 @@ maxtotreward = 20 #奖励分母，用来归一化 最大约为15+4+10+6+5
 
 action_list = [ActionType.MOVE_DOWN, ActionType.MOVE_LEFT, ActionType.MOVE_RIGHT, ActionType.MOVE_UP, 
                     ActionType.PLACED, ActionType.SILENT]
-
+transform_map_size = 7 #15*15->7*7
 MinBombPlaced = 10 #必须在MinBombPlaced回合内放置炸弹
 class EnvManager():  # add your var and method under the class.
     def __init__(self) -> None:
@@ -265,12 +265,14 @@ class EnvManager():  # add your var and method under the class.
     def calculateReward(self, resp:PacketResp, action):
         cur_state = self.encode_state(self.resp)
         cur_player_my_state, cur_player_enemy_state = self.playerState(self.resp)
-        reward = self.calculateReward_(self.resp, 
+        reward1 = self.calculateReward_(self.resp, 
                                        action, 
                                        cur_state, 
                                        cur_player_my_state, 
                                        cur_player_enemy_state)
-        return reward
+        if reward1 == 0:
+            reward1 = reward.rewardValue["reward1"] #给适当奖励
+        return reward1
 
 
     def cliGetInitReq(self):
@@ -337,6 +339,21 @@ class EnvManager():  # add your var and method under the class.
     def state2Tuple(self, obs_state, player_state:PlayerInfo):
         return (torch.Tensor(obs_state), player_state.to_tensor())
 
+    
+    def transform(self,next_obs_state,next_player_my_state:PlayerInfo):
+        #缩小地图范围
+        next_obs_state1=[[Mapcode.NullBlock.value for _ in range(transform_map_size)] for __ in range(transform_map_size)]
+        x=next_player_my_state.position_x
+        y=next_player_my_state.position_y
+        size = int(transform_map_size/2)
+        for i in range(x-size,x+size+1):
+            for j in range(y-size,y+size+1):
+                if(i>=0 and i<config.get("map_size") and j>=0 and j<config.get("map_size")):
+                    next_obs_state1[i-x+size][j-y+size]=next_obs_state[i][j]
+                else:
+                    next_obs_state1[i-x+size][j-y+size]=Mapcode.Border.value
+        return next_obs_state1
+    
 
     def start_train(self):
         global gContext
@@ -419,8 +436,16 @@ class EnvManager():  # add your var and method under the class.
                 # calculate state
                 next_obs_state = self.encode_state(self.resp)
                 next_player_my_state, next_player_enemy_state = self.playerState(self.resp)
+                next_obs_state1 = self.transform(next_obs_state,next_player_my_state)
+                #测试transform map是否正确
+                # print("transform map:")
+                # for i in range(7):
+                #     for j in range(7):
+                #         print(next_obs_state1[i][j],end=' ')
+                #     print('')
+                    
                 # next_state = self.to_tensor(next_obs_state, next_player_my_state)
-                next_state = self.state2Tuple(next_obs_state, next_player_my_state)
+                next_state = self.state2Tuple(next_obs_state1, next_player_my_state)
                 is_over = self.resp.type == PacketType.GameOver
                 if self.resp.type != PacketType.GameOver:
                     self.cur_round = self.resp.data.round  #更新cur_round
