@@ -4,7 +4,7 @@ from torch import FloatTensor
 import torch
 
 class ReplayBuffer(object):
-    def __init__(self, max_size, num_steps=1, seqnum=8):
+    def __init__(self, max_size, num_steps=1, seqnum=5):
         self.buffer = collections.deque(maxlen=max_size)
         self.num_steps  = num_steps
         self.seqnum = seqnum
