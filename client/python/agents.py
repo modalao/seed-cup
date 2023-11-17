@@ -34,7 +34,18 @@ class DQNAgent(object):
         self.gamma = gamma  # 收益衰减率
         self.epsilon = e_greed  # 探索与利用中的探索概率
         self.e_greed_decay = e_greed_decay
+        self.action_remember=[0 for _ in range(36)] 
+        self.epsilon1=0.4 #获取出现最少的动作的概率
         
+    def least_action(self):
+        #获取出现最少的动作
+        x=10000000000
+        for i in range(0,36):
+            if(self.action_remember[i]<=x):
+                x=self.action_remember[i]
+                tem=i
+        return tem   
+    
     def decay(self):
         self.epsilon = self.epsilon * self.e_greed_decay
         self.epsilon = max(self.epsilon, 0.1)
@@ -49,10 +60,14 @@ class DQNAgent(object):
 
     # 根据探索与利用得到action
     def act(self, obs):
+        
         if np.random.uniform(0, 1) < self.epsilon:  #探索
-            action = np.random.choice(self.n_act)
+            action = np.random.choice(self.n_act)    
+        elif np.random.uniform(0,1) < self.epsilon1:#获取最少的动作
+            action=self.least_action()      
         else: # 利用
             action = self.predict(obs)
+        self.action_remember[action]+=1  #实现对动作的记忆功能
         return action
 
     def learn_batch(self, batch_map_state, batch_player_state, batch_action, batch_reward, 
