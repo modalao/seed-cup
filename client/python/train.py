@@ -33,12 +33,21 @@ class TrainManager():
 
         # q_func = SimpleCNN(self.conv_output_dim, self.fc_output_dim, self.n_action)
         q_func = MLP(self.input_shape, self.n_action)
-        # q_func.load_state_dict(torch.load('./checkpoint_mlp_2000.pt'), strict=True)
+        try:
+            q_func.load_state_dict(torch.load('./checkpoint_mlp_2000_7_7.pt'), strict=True)
+            print(f'load model success')
+        except:
+            print(f'no model to be load')
         # print(f'load state dict true!')
         optimizer = torch.optim.AdamW(q_func.parameters(), lr=lr)
-        rb = replay_buffers.ReplayBuffer(memory_size, num_steps)
-        # load_file = open('./replay_buffer.bin', 'rb')
-        # rb = pickle.load(load_file)
+        try:
+            load_file = open('./replay_buffer.bin', 'rb')
+            rb = pickle.load(load_file)
+            print(f'load replay buffer success!')
+        except:
+            print(f'no file to be load')
+            rb = replay_buffers.ReplayBuffer(memory_size, num_steps)
+            
 
         self.agent = agents.DQNAgent(
             q_func = q_func,

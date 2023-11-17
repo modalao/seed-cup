@@ -379,7 +379,8 @@ class EnvManager():  # add your var and method under the class.
                 # init obs in train_manager
                 cur_obs_state = self.encode_state(self.resp)
                 cur_player_my_state, cur_player_enemy_state = self.playerState(self.resp)
-                cur_state = self.state2Tuple(cur_obs_state, cur_player_my_state)
+                cur_obs_state1 = self.transform(cur_obs_state,cur_player_my_state)
+                cur_state = self.state2Tuple(cur_obs_state1, cur_player_my_state)
                 self.train_manager.init_obs(cur_state)
 
             while self.resp.type != PacketType.GameOver:
@@ -582,13 +583,13 @@ with open("env.log", "w") as f:
     
     try:
         env.train(2000)
-        torch.save(env.train_manager.agent.pred_func.state_dict(), './checkpoint_mlp_2000.pt')
+        torch.save(env.train_manager.agent.pred_func.state_dict(), './checkpoint_mlp_2000_7_7.pt')
         bin_file = open('./replay_buffer.bin', 'wb')
         pickle.dump(env.train_manager.agent.rb, bin_file)
     except:
         traceback.print_exc()  # 打印详细的错误信息堆栈
         print(f'error occured!')
-        torch.save(env.train_manager.agent.pred_func.state_dict(), './checkpoint_mlp_2000.pt')
+        torch.save(env.train_manager.agent.pred_func.state_dict(), './checkpoint_mlp_2000_7_7.pt')
         bin_file = open('./replay_buffer.bin', 'wb')
         pickle.dump(env.train_manager.agent.rb, bin_file)
         if env.process_server is not None:
@@ -599,6 +600,7 @@ with open("env.log", "w") as f:
             print(f'kill ./silly-bot')
             env.process_bot.kill()
             env.process_bot.wait()
+        sleep(5)
         exit(-1)
 
         # cur_state2, reward2, is_over2 = env.step((ActionType.MOVE_RIGHT, ActionType.SILENT))

@@ -23,7 +23,7 @@ class MLP(torch.nn.Module):
         x_player: (B, 15)
         """
         # x_map = torch.stack(x_map, dim=0)  # (B, 15, 15)
-        print(x_map.shape)
+        # print(x_map.shape)
         B = x_map.shape[0]
         x_map = x_map.reshape((B, 1, -1)).squeeze(dim=1)  # (B, 225)
         # print(x_map.shape)
