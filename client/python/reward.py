@@ -6,9 +6,6 @@ from req import *
 from config import *
 from actionresp import *
 
-
-#上下左右移动
-next_position = [[0,-1],[0,1],[1,0],[-1,0]]
 SAFEDISTANCE = 7  #和敌人保持的安全距离
 BombMinNum = Mapcode.BombBase.value #炸弹的最小编号
 px1=0

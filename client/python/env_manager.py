@@ -27,6 +27,7 @@ import traceback
 from actionsteplist import ActionStepList
 import pickle
 import actionresp
+from actionright import *
 
 inter_lock = threading.Lock()
 
@@ -100,6 +101,7 @@ class EnvManager():  # add your var and method under the class.
         )
         self.action_step_list = ActionStepList(MinBombPlaced) #记录动作的个数
         self.max_score = -2000 #所有轮中最大分数
+        self.rightaction = ActionRight(config.get("map_size")) #和人为计算正确动作相关的类
         # log
         f.write("init\n")
 
@@ -390,7 +392,16 @@ class EnvManager():  # add your var and method under the class.
                 # NOTE: the train code is added here.
                 print(f'round {self.resp.data.round}: ')
 
-                action_idx = self.train_manager.get_action()
+                #人为判断当前应该走的步骤
+                self.rightaction.update(cur_obs_state,cur_player_my_state)#更新当前状态
+                action_human_idx = self.rightaction.cal_correct_action()
+                if action_human_idx in range(len(self.new_action_list)):
+                    #如果人为判断的动作有效，取人为判断的动作，否则神经网络计算
+                    new_human_action = self.new_action_list[action_human_idx]
+                    print(f"!!!!human action1 : {new_human_action[0]},action2 :{new_human_action[1]}")
+                    action_idx = action_human_idx
+                else :
+                    action_idx = self.train_manager.get_action()
                 new_action = self.new_action_list[action_idx]
                 action1 = ActionReq(gContext["playerID"], new_action[0])
                 action2 = ActionReq(gContext["playerID"], new_action[1])
@@ -438,6 +449,9 @@ class EnvManager():  # add your var and method under the class.
                 next_obs_state = self.encode_state(self.resp)
                 next_player_my_state, next_player_enemy_state = self.playerState(self.resp)
                 next_obs_state1 = self.transform(next_obs_state,next_player_my_state)
+                #update cur_state
+                cur_obs_state = next_obs_state
+                cur_player_my_state = next_player_my_state
                 #测试transform map是否正确
                 # print("transform map:")
                 # for i in range(7):

@@ -9,6 +9,9 @@ unmovable_block = [Mapcode.BlockRemovable.value,Mapcode.BlockUnRemovable.value,M
 unmovable_block.extend([c for c in range(Mapcode.BombBase.value,Mapcode.BombBase.value+20)])
 
 
+#上下左右移动 next position和next action对应移动
+next_position = [[0,-1],[0,1],[1,0],[-1,0]]
+next_action = [ActionType.MOVE_LEFT,ActionType.MOVE_RIGHT,ActionType.MOVE_DOWN,ActionType.MOVE_UP]
 def outputMap(map):
     '''
     输出map
@@ -132,3 +135,99 @@ def distance(me_x:int,me_y:int,enemy_x:int,enemy_y:int)->int:
     else:
         dis_y=enemy_y-me_y
     return dis_x+dis_y
+
+
+def checkBombValid(map,player_x:int,player_y:int,bomb_x:int,bomb_y:int,bomb_range:int)->bool:
+    '''
+    判断当前player位置是否可以通过移动躲掉炸弹
+    '''
+    #先判断当前是否可以炸到
+    flag = 0
+    length = config.get("map_size")
+    #炸弹炸的到的地方为1，否则为0
+    bomb_map = [[0 for _ in range(length)] for __ in range(length)]
+    bomb_map[bomb_x][bomb_y]= 1 
+    for i in range(len(next_position)):
+        next = next_position[i]
+        deltax = next[0]
+        deltay = next[1]
+        for dis in range(1,bomb_range+1):
+            tx = bomb_x+deltax*dis
+            ty = bomb_y+deltay*dis
+            if checkoutofrange(tx,ty) or map[tx][ty] in unmovable_block:
+                #中间是否有障碍物隔着
+                break
+            bomb_map[tx][ty] = 1
+            if tx == player_x and ty == player_y:
+                #能炸到
+                flag = 1 
+                break
+    if player_x == bomb_x and player_y == bomb_y:
+        flag=1
+    #初始位置就炸不到
+    if flag == 0:
+        return True        
+    
+    #炸的到，判断是否可以躲掉炸弹
+    for i in range(len(next_position)):
+        next = next_position[i]
+        deltax = next[0]
+        deltay = next[1]
+        for dis in range(1,bomb_range+1):
+            tx = player_x+deltax*dis
+            ty = player_y+deltay*dis
+            if checkoutofrange(tx,ty) or map[tx][ty] in unmovable_block:
+                #中间是否有障碍物隔着
+                break
+            if bomb_map[tx][ty] == 0:
+                #可以往一个方向走躲掉炸弹
+                return True
+            #该点向四周扩展一步，是否可以躲掉
+            for next_temp in next_position:
+                temx = tx+next_temp[0]
+                temy = ty+next_temp[1]
+                if checkoutofrange(temx,temy) or map[temx][temy] in unmovable_block:
+                #中间是否有障碍物隔着
+                    continue
+                if bomb_map[temx][temy] == 0:
+                    return True
+    return False
+
+
+def checkMovableBlock(map,bomb_x:int,bomb_y:int,bomb_range:int)->bool:
+    '''
+    检查放置了炸弹后是否可以得分
+    '''
+    for i in range(len(next_position)):
+        next = next_position[i]
+        deltax = next[0]
+        deltay = next[1]
+        for dis in range(1,bomb_range+1):
+            tx = bomb_x+deltax*dis
+            ty = bomb_y+deltay*dis
+            #如果超出范围或者不可炸
+            if checkoutofrange(tx,ty) or map[tx][ty] == Mapcode.BlockUnRemovable.value:
+                break
+            if map[tx][ty] == Mapcode.BlockRemovable.value:
+                #遇到了可以炸的障碍物
+                return True    
+            
+    return False
+             
+
+def checkItemAround(map,player_x,player_y)->ActionType:
+    '''
+    如果周围有道具，则直接捡
+    '''
+    distance = 3 #定义检测道具的范围
+   
+    for i in range(len(next_position)):
+        for dis in range(1,distance+1):
+            next = next_position[i]
+            tx = player_x+next[0]*dis
+            ty = player_y+next[1]*dis
+            if checkoutofrange(tx,ty) or map[tx][ty] == Mapcode.BlockUnRemovable.value:
+                break    
+            if map[tx][ty] in (Mapcode.ItemBombRange.value,Mapcode.ItemHp.value,Mapcode.ItemInvencible.value,Mapcode.ItemNum.value,Mapcode.ItemShield.value):
+                return  next_action[i]
+    return ActionType.SILENT
