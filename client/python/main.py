@@ -36,6 +36,7 @@ gContext = {
 class Client(object):
     """Client obj that send/recv packet.
     """
+
     def __init__(self) -> None:
         self.config = config
         self.host = self.config.get("host")
@@ -71,7 +72,7 @@ class Client(object):
                 break
 
         # uncomment this will show resp packet
-        # logger.info(f"recv PacketResp, content: {result}")
+        logger.info(f"recv PacketResp, content: {result}")
         packet = PacketResp().from_json(result)
         return packet
 
@@ -98,7 +99,6 @@ class Client(object):
 
 def cliGetInitReq():
     """Get init request from user input."""
-    input("enter to start!")
     return InitReq("python-client")
 
 
@@ -168,55 +168,10 @@ def termPlayAPI():
             sleep(0.1)
 
         while not gContext["gameOverFlag"]:
-            # key = scr.getch()
             old_settings = termios.tcgetattr(sys.stdin)
             tty.setcbreak(sys.stdin.fileno())
             key = sys.stdin.read(1)
             termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_settings)
-            
-            if key in key2ActionReq.keys():
-                action = ActionReq(gContext["playerID"], key2ActionReq[key])
-            else:
-                action = ActionReq(gContext["playerID"], ActionType.SILENT)
-            
-            if gContext["gameOverFlag"]:
-                break
-            
-            actionPacket = PacketReq(PacketType.ActionReq, action)
-            client.send(actionPacket)
-
-
-def inferencePlayAPI():
-    """
-    we can put our strategy(after training) in this api.
-    """
-    ui = UI()
-    model = OurStrategy()  # NOTE: implement our model
-    
-    with Client() as client:
-        client.connect()
-        
-        initPacket = PacketReq(PacketType.InitReq, cliGetInitReq())
-        client.send(initPacket)
-        
-        # IO thread to display UI
-        t = Thread(target=recvAndRefresh, args=(ui, client))
-        t.start()
-        
-        print(gContext["prompt"])
-        for c in cycle(gContext["steps"]):
-            if gContext["gameBeginFlag"]:
-                break
-            print(
-                f"\r\033[0;32m{c}\033[0m \33[1mWaiting for the other player to connect...\033[0m",
-                flush=True,
-                end="",
-            )
-            sleep(0.1)
-
-        while not gContext["gameOverFlag"]:
-
-            key = model.get_action(gResponse)
             
             if key in key2ActionReq.keys():
                 action = ActionReq(gContext["playerID"], key2ActionReq[key])

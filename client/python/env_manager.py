@@ -357,7 +357,7 @@ class EnvManager():  # add your var and method under the class.
         return next_obs_state1
     
 
-    def start_train(self):
+    def start_train(self,human:bool):
         global gContext
         global inter_lock
 
@@ -395,7 +395,7 @@ class EnvManager():  # add your var and method under the class.
                 #人为判断当前应该走的步骤
                 self.rightaction.update(cur_obs_state,cur_player_my_state)#更新当前状态
                 action_human_idx = self.rightaction.cal_correct_action()
-                if action_human_idx in range(len(self.new_action_list)):
+                if action_human_idx in range(len(self.new_action_list)) and human == True:
                     #如果人为判断的动作有效，取人为判断的动作，否则神经网络计算
                     new_human_action = self.new_action_list[action_human_idx]
                     print(f"!!!!human action1 : {new_human_action[0]},action2 :{new_human_action[1]}")
@@ -406,9 +406,6 @@ class EnvManager():  # add your var and method under the class.
                 action1 = ActionReq(gContext["playerID"], new_action[0])
                 action2 = ActionReq(gContext["playerID"], new_action[1])
 
-                # for test
-                # action1 = ActionReq(gContext["playerID"], ActionType.PLACED)
-                # action2 = ActionReq(gContext["playerID"], ActionType.SILENT)
 
                 # calculate reward
                 reward1 = self.calculateReward(self.resp, new_action)
@@ -532,7 +529,10 @@ class EnvManager():  # add your var and method under the class.
 
             print(f'========== episode {i} begin ==========')
             print(f'epsilon: {self.train_manager.agent.epsilon}')
-            self.start_train()
+            if i<200:
+                self.start_train(True)
+            else :
+                self.start_train(False)
             if self.process_server is not None:
                 print(f'kill ./server')
                 self.process_server.kill()
@@ -565,7 +565,7 @@ class EnvManager():  # add your var and method under the class.
                 os.chdir(cur_dir)
 
                 print(f'========== test begin ==========')
-                self.start_train()
+                self.start_train(False)
                 if self.process_server is not None:
                     print(f'kill ./server')
                     self.process_server.kill()
@@ -596,7 +596,7 @@ with open("env.log", "w") as f:
                    (ActionType.MOVE_RIGHT, ActionType.SILENT)]
     
     try:
-        env.train(2000)
+        env.train(20000)
         torch.save(env.train_manager.agent.pred_func.state_dict(), './checkpoint_mlp_2000_7_7.pt')
         bin_file = open('./replay_buffer.bin', 'wb')
         pickle.dump(env.train_manager.agent.rb, bin_file)
